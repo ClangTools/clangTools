@@ -342,9 +342,4 @@ private:
                     ConsoleBackGroundColor backColor = enmCBC_Default);
 };
 
-#if WIN32
-char DLL_logger_Export logger::path_split = '\\';
-#else
-char logger::path_split = '/';
-#endif
 #endif //KPROXY_LOGGER_H

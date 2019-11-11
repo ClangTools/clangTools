@@ -14,6 +14,13 @@ const char *logger::L_TAG = __FILENAME__;
 #else
 const char *logger::L_TAG = "logger";
 #endif
+
+#if WIN32
+char DLL_logger_Export logger::path_split = '\\';
+#else
+char logger::path_split = '/';
+#endif
+
 logger logger::_logger{};
 
 logger *logger::instance() {

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 project(Tools)
 set(CMAKE_CXX_STANDARD 14)
 
+set(libTools_LIBRARIES ${PROJECT_NAME})
+set_property(GLOBAL PROPERTY libTools_LIBRARIES  ${libTools_LIBRARIES} )
+
 string(TIMESTAMP time_now_y %y UTC)
 string(TIMESTAMP time_now %m%d UTC)
 set(FILEVERSION_1 1)
@@ -18,6 +21,32 @@ add_definitions(
         -DLIB_PROJECT_NAME="${CMAKE_PROJECT_NAME}.dll"
 )
 
+
+option(ENABLE_FILENAME "option for FILENAME" ON)
+if (ENABLE_FILENAME)
+    #重新定义当前目标的源文件的 __FILENAME__ 宏
+    function(redefine_file_macro targetname)
+        #获取当前目标的所有源文件
+        get_target_property(source_files "${targetname}" SOURCES)
+        #遍历源文件
+        foreach (sourcefile ${source_files})
+            #获取当前源文件的编译参数
+            get_property(defs SOURCE "${sourcefile}"
+                    PROPERTY COMPILE_DEFINITIONS)
+            #获取当前文件的绝对路径
+            get_filename_component(filepath "${sourcefile}" ABSOLUTE)
+            #将绝对路径中的项目路径替换成空,得到源文件相对于项目路径的相对路径
+            string(REPLACE ${PROJECT_SOURCE_DIR}/ "" relpath ${filepath})
+            #将我们要加的编译参数( __FILENAME__ 定义)添加到原来的编译参数里面
+            list(APPEND defs "__FILENAME__=\"${relpath}\"")
+            #重新设置源文件的编译参数
+            set_property(
+                    SOURCE "${sourcefile}"
+                    PROPERTY COMPILE_DEFINITIONS ${defs}
+            )
+        endforeach ()
+    endfunction()
+endif ()
 
 
 # It should be set to 1 for the static MFC library, and 2 for the shared MFC library.
