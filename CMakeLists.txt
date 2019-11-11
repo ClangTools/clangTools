@@ -3,7 +3,7 @@ project(Tools)
 set(CMAKE_CXX_STANDARD 14)
 
 set(libTools_LIBRARIES ${PROJECT_NAME})
-set_property(GLOBAL PROPERTY libTools_LIBRARIES  ${libTools_LIBRARIES} )
+set_property(GLOBAL PROPERTY libTools_LIBRARIES  ${libTools_LIBRARIES})
 
 string(TIMESTAMP time_now_y %y UTC)
 string(TIMESTAMP time_now %m%d UTC)
@@ -86,9 +86,9 @@ target_compile_definitions(
 )
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
-add_executable(TestDemo Example/main.cpp)
+add_executable(${PROJECT_NAME}_TestDemo Example/main.cpp)
 
-target_link_libraries(TestDemo ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}_TestDemo ${PROJECT_NAME})
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD        # Adds a post-build event to MyTest
         COMMAND ${CMAKE_COMMAND} -E copy_directory   # which executes "cmake - E copy_if_different..."
@@ -102,11 +102,11 @@ message("-- instal to " ${CMAKE_INSTALL_PREFIX})
 # 将生成的target安装到指定目录下，这里 HLST_Read_Device 是动态库,Example 是可执行程序,
 # cmake会自动根据target的类型将可执行程序(如.exe)和动态库(如.dll)作为RUNTIME类型复制到bin下,
 # 将动态库的导入库(.lib .a)作为ARCHIVE类型复制lib/static目录下
-install(TARGETS ${PROJECT_NAME} TestDemo
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_TestDemo
         RUNTIME DESTINATION lib
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
-install(TARGETS ${PROJECT_NAME} TestDemo
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_TestDemo
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION bin)
 
