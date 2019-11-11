@@ -50,3 +50,34 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+# Prerequisites
+
+# Compiled Object files
+*.slo
+
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+cTypeAB
+*cTypeAB
+*TypeAB
+
+out/
+.vscode/
+log/
+DG02File.*
+*.bmp
+*.jpg
+*.pdf
+tags
+DG02File1.*
+MiniCheckKey
+.idea
+cmake-build-*
+
+bin
+build
