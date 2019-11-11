@@ -46,7 +46,7 @@ endif()
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME} STATIC
         ${RC_FILES}
         ${srcSource}
         )
