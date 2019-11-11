@@ -1,7 +1,8 @@
-//
-// Created by HLST on 2019/11/11.
-//
+# logger tool
 
+## Example
+
+```c++
 #include <string>
 #include <logger.h>
 
@@ -26,3 +27,18 @@ int main(int argc, char **argv) {
     }
     return 0;
 }
+```
+## Interface
+
+### control console show
+
+bool console_show = true;
+
+### control log file max data
+
+size_t logger_file_max_size = 1024 * 1024;
+
+### control log files max count
+
+size_t logger_files_max_size = 50;
+

@@ -47,7 +47,7 @@
 #endif // LOGGER_ATTR
 
 #ifdef WIN32
-#ifdef _tools_HEADER_
+#ifdef _Tools_HEADER_
 #define DLL_logger_Export  __declspec(dllexport)
 #else
 #define DLL_logger_Export  __declspec(dllimport)
@@ -81,8 +81,6 @@ public:
      */
     size_t logger_files_max_size = 50;
 public:
-    static logger _logger;
-
     static logger *instance();
 
 public:
@@ -156,10 +154,10 @@ public:
      * puts info logger
      * @param TAG
      * @param line please use __LINE__
-     * @param fmt a format string
+     * @param format a format string
      * @param ...
      */
-    void i(const char *TAG, size_t line, const char *fmt, ...) LOGGER_ATTR(4, 5);
+    void i(const char *TAG, size_t line, const char *format, ...) LOGGER_ATTR(4, 5);
 
     /**
      * puts debug logger
@@ -245,6 +243,8 @@ private:
     void Free();
 
 private:
+    static logger _logger;
+
     bool need_free = false;
     std::string filepath = "";
     std::fstream *logger_file = nullptr;
