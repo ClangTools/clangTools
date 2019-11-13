@@ -533,3 +533,24 @@ std::string logger::get_path_by_filepath(const std::string &filename) {
 bool logger::_sort_logfile(const std::string &v1, const std::string &v2) {
     return v1 > v2;
 }
+long long logger::get_time_tick()
+{
+#ifdef _WIN32
+    // 从1601年1月1日0:0:0:000到1970年1月1日0:0:0:000的时间(单位100ns)
+#define EPOCHFILETIME (116444736000000000UL)
+		FILETIME ft;
+		LARGE_INTEGER li;
+		long long tt = 0;
+		GetSystemTimeAsFileTime(&ft);
+		li.LowPart = ft.dwLowDateTime;
+		li.HighPart = ft.dwHighDateTime;
+		// 从1970年1月1日0:0:0:000到现在的微秒数(UTC时间)
+		tt = (li.QuadPart - EPOCHFILETIME) / 10 / 1000;
+		return tt;
+#else
+    timeval tv;
+    gettimeofday(&tv, 0);
+    return (long long)tv.tv_sec * 1000 + (long long)tv.tv_usec / 1000;
+#endif // _WIN32
+    return 0;
+}

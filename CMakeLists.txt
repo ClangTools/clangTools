@@ -99,7 +99,7 @@ add_custom_command(TARGET ${libTools_LIBRARIES} POST_BUILD        # Adds a post-
 message("-- instal to " ${CMAKE_INSTALL_PREFIX})
 
 ########安装脚本##########
-install(TARGETS ${libTools_LIBRARIES} logger_Demo
+install(TARGETS ${libTools_LIBRARIES}
         RUNTIME DESTINATION lib
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
@@ -111,11 +111,6 @@ install(TARGETS ${libTools_LIBRARIES} logger_Demo
 
 # 复制 bin 代码到 bin 下
 install(DIRECTORY Depend/ DESTINATION bin
-        PATTERN "Depend/*"
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ)
-# 复制 bin 代码到 bin 下
-install(DIRECTORY Depend/ DESTINATION lib
         PATTERN "Depend/*"
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ)
