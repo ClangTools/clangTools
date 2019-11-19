@@ -5,23 +5,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(libTools_LIBRARIES Tools)
 set_property(GLOBAL PROPERTY libTools_LIBRARIES  ${libTools_LIBRARIES})
 
-string(TIMESTAMP time_now_y %y UTC)
-string(TIMESTAMP time_now %m%d UTC)
-set(FILEVERSION_1 1)
-set(FILEVERSION_2 1)
-set(FILEVERSION_3 ${time_now_y})
-set(FILEVERSION_4 ${time_now})
-
-add_definitions(
-        -DLIB_FILEVERSION_1=${FILEVERSION_1}
-        -DLIB_FILEVERSION_2=${FILEVERSION_2}
-        -DLIB_FILEVERSION_3=${FILEVERSION_3}
-        -DLIB_FILEVERSION_4=${FILEVERSION_4}
-        -DLIB_FILEVERSION_ALL="${FILEVERSION_1}.${FILEVERSION_2}.${FILEVERSION_3}.${FILEVERSION_4}"
-        -DLIB_PROJECT_NAME="${libTools_LIBRARIES}.dll"
-)
-
-
 option(ENABLE_FILENAME "option for FILENAME" ON)
 if (ENABLE_FILENAME)
     #重新定义当前目标的源文件的 __FILENAME__ 宏
@@ -68,10 +51,6 @@ include_directories(
 )
 
 aux_source_directory(src srcSource)
-
-if(WIN32)
-    FILE(GLOB RC_FILES "./src/*.rc")
-endif()
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
