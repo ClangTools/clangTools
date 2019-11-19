@@ -3,7 +3,13 @@ project(Tools)
 set(CMAKE_CXX_STANDARD 14)
 
 set(libTools_LIBRARIES Tools)
-set_property(GLOBAL PROPERTY libTools_LIBRARIES  ${libTools_LIBRARIES})
+set_property(GLOBAL PROPERTY libTools_LIBRARIES ${libTools_LIBRARIES})
+
+if (WIN32)
+else ()
+    find_library(dl dl)
+    set(dl_LIBRARIES dl)
+endif ()
 
 option(ENABLE_FILENAME "option for FILENAME" ON)
 if (ENABLE_FILENAME)
@@ -63,11 +69,11 @@ target_compile_definitions(
         ${libTools_LIBRARIES}
         PUBLIC -D_${libTools_LIBRARIES}_HEADER_
 )
-target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES})
 
 add_executable(logger_Demo Example/logger_demo.cpp)
 
-target_link_libraries(logger_Demo ${libTools_LIBRARIES})
+target_link_libraries(logger_Demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
 
 add_custom_command(TARGET ${libTools_LIBRARIES} POST_BUILD        # Adds a post-build event to MyTest
         COMMAND ${CMAKE_COMMAND} -E copy_directory   # which executes "cmake - E copy_if_different..."
