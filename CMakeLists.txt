@@ -82,7 +82,7 @@ install(TARGETS ${libTools_LIBRARIES}
         RUNTIME DESTINATION lib
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
-install(TARGETS ${libTools_LIBRARIES} logger_Demo
+install(TARGETS logger_Demo
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION bin)
 
