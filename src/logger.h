@@ -6,6 +6,7 @@
 #define KPROXY_LOGGER_H
 
 
+#include <string.h>
 #include <string>
 #include <mutex>
 #include <iostream>
