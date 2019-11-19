@@ -24,7 +24,7 @@
 
 #include <io.h>
 #include <direct.h>
-#include <Windows.h>
+#include <windows.h>
 
 #else
 #include <dlfcn.h>
