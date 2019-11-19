@@ -38,10 +38,27 @@ if (ENABLE_FILENAME)
 endif ()
 
 
-# It should be set to 1 for the static MFC library, and 2 for the shared MFC library.
-set(CMAKE_MFC_FLAG 1)
-#add_definitions(-DUNICODE -D_UNICODE)
-add_definitions(-D_AFXDLL)
+# 设置为 v140_xp 编译工具编译
+# set(CMAKE_GENERATOR_TOOLSET "v140_xp")
+# set(CMAKE_GENERATOR_PLATFORM "Win32")
+
+if (MSVC)
+    set(CompilerFlags
+            CMAKE_CXX_FLAGS
+            CMAKE_CXX_FLAGS_DEBUG
+            CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_C_FLAGS
+            CMAKE_C_FLAGS_DEBUG
+            CMAKE_C_FLAGS_RELEASE
+            )
+    foreach (CompilerFlag ${CompilerFlags})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach ()
+    # It should be set to 1 for the static MFC library, and 2 for the shared MFC library.
+    set(CMAKE_MFC_FLAG 1)
+    #add_definitions(-DUNICODE -D_UNICODE)
+    add_definitions(-D_AFXDLL)
+endif (MSVC)
 
 option(ENABLE_OPENCV "option for OpenCV" OFF)
 option(OpenCV_DIR "option for OpenCV DIR" E:\\OpenCvLib\\build_WIN32\\x86\\vc16\\lib)
