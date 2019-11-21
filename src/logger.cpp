@@ -150,7 +150,16 @@ void logger::WriteToFile(const std::string &data) {
 void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t log_rank_type) {
     if (min_level < log_rank_type)return;
     std::lock_guard<std::mutex> guard(logger_console_mutex);
-
+#ifdef WIN32
+    HANDLE handle = nullptr;
+    WORD wOldColorAttrs = 0;
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo{};
+    if (console_show) {
+        handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        GetConsoleScreenBufferInfo(handle, &csbiInfo);
+        wOldColorAttrs = csbiInfo.wAttributes;
+    }
+#endif
 #ifdef ANDROID_SO
     __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, data.c_ste());
 #endif
@@ -223,6 +232,9 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
         SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
     }
     WriteToFile(data);
+#ifdef WIN32
+    SetConsoleTextAttribute(handle, wOldColorAttrs);
+#endif
     printf("\n");
     WriteToFile("\n");
 }
