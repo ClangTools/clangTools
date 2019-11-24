@@ -17,7 +17,7 @@ int main() {
     std::string logfile = logpath + logger::path_split + "thread_pool_demo.log";
     logger::instance()->open((logfile).c_str());
     logger::instance()->logger_files_max_size = 5;
-    logger::instance()->logger_file_max_size = 1024
+    logger::instance()->logger_file_max_size = 1024;
 
 
     try {
