@@ -88,15 +88,37 @@ target_compile_definitions(
 )
 target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES})
 
-add_executable(logger_Demo Example/logger_demo.cpp)
+if ("${PROJECT_NAME}" STREQUAL "${libTools_LIBRARIES}")
+    add_executable(logger_Demo Example/logger_demo.cpp)
+    add_executable(thread_pool_demo Example/thread_pool_demo.cpp)
+    target_link_libraries(logger_Demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
+    target_link_libraries(thread_pool_demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
 
-target_link_libraries(logger_Demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
+    option(ENABLE_FILENAME "option for FILENAME" ON)
+    if (ENABLE_FILENAME)
+        redefine_file_macro(logger_Demo)
+        redefine_file_macro(thread_pool_demo)
+    endif ()
+
+    install(TARGETS logger_Demo thread_pool_demo
+            RUNTIME DESTINATION bin
+            LIBRARY DESTINATION bin)
+endif ()
+
 
 add_custom_command(TARGET ${libTools_LIBRARIES} POST_BUILD        # Adds a post-build event to MyTest
         COMMAND ${CMAKE_COMMAND} -E copy_directory   # which executes "cmake - E copy_if_different..."
         "${PROJECT_SOURCE_DIR}/Depend"      # <--this is in-file
         "${CMAKE_CURRENT_BINARY_DIR}"
         )                 # <--this is out-file path
+
+
+option(ENABLE_FILENAME "option for FILENAME" ON)
+if (ENABLE_FILENAME)
+    #重新定义当前目标的源文件的 __FILENAME__ 宏
+    redefine_file_macro(${libTools_LIBRARIES})
+endif ()
+
 
 message("-- instal to " ${CMAKE_INSTALL_PREFIX})
 
@@ -105,19 +127,16 @@ install(TARGETS ${libTools_LIBRARIES}
         RUNTIME DESTINATION lib
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
-install(TARGETS logger_Demo
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION bin)
 
 #install(FILES ${libTools_LIBRARIES}/${libTools_LIBRARIES}.h DESTINATION include)
-
-# 复制 bin 代码到 bin 下
-install(DIRECTORY Depend/ DESTINATION bin
-        PATTERN "Depend/*"
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ)
-# 复制 lib 代码到 lib 下
-install(DIRECTORY Example/ DESTINATION Example
-        PATTERN "Example/*"
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-        GROUP_EXECUTE GROUP_READ)
+#
+## 复制 bin 代码到 bin 下
+#install(DIRECTORY Depend/ DESTINATION bin
+#        PATTERN "Depend/*"
+#        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+#        GROUP_EXECUTE GROUP_READ)
+## 复制 lib 代码到 lib 下
+#install(DIRECTORY Example/ DESTINATION Example
+#        PATTERN "Example/*"
+#        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+#        GROUP_EXECUTE GROUP_READ)

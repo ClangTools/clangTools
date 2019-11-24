@@ -43,6 +43,7 @@ logger::logger(std::fstream *path) {
 void logger::open(const char *path) {
     Free();
     if (path != nullptr) {
+        mk_dir(get_path_by_filepath(path));
         logger_file = new fstream();
         need_free = true;
         logger_file->open(path, ios::app);
