@@ -13,9 +13,16 @@ int main() {
     auto start_tick = logger::get_time_tick();
     logger::instance()->console_show = true;
     logger::instance()->min_level = logger::log_rank_DEBUG;
+    std::string logpath = logger::get_local_path() + logger::path_split + "log";
+    std::string logfile = logpath + logger::path_split + "thread_pool_demo.log";
+    logger::instance()->open((logfile).c_str());
+    logger::instance()->logger_files_max_size = 5;
+    logger::instance()->logger_file_max_size = 1024
+
+
     try {
         logger::instance()->i(_TAG, "time:  %lld", logger::get_time_tick() - start_tick);
-        thread_pool executor{50};
+        thread_pool executor{10};
         std::future<std::string> fh = executor.commit([](long long start_tick) -> std::string {
             logger::instance()->d(_TAG, "hello, fh !  %d", std::this_thread::get_id());
             return "hello,fh ret !";
@@ -34,6 +41,7 @@ int main() {
 
 
         logger::instance()->i(_TAG, "time:  %lld", logger::get_time_tick() - start_tick);
+//        usleep(1000);
         return 0;
     }
     catch (std::exception &e) {

@@ -12,7 +12,6 @@
 #include <map>
 #include <vector>
 #include <mutex>
-#include <logger.h>
 #include <queue>
 #include <thread>
 #include <atomic>
@@ -20,6 +19,7 @@
 #include <future>
 #include <functional>
 #include <stdexcept>
+
 
 #ifdef WIN32
 #ifdef _Tools_HEADER_
@@ -34,7 +34,6 @@
 class DLL_thread_pool_Export thread_pool {
 
     static const char *TAG;
-    logger _logger;
 
     static const int MAX_THREAD_NUM = 512;
     using Task = std::function<void()>;

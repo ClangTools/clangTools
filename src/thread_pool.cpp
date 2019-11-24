@@ -15,13 +15,6 @@ const char *thread_pool::TAG = "thread_pool";
 #endif
 
 thread_pool::thread_pool(int size) : stoped{false} {
-    _logger.min_level = logger::log_rank_t::log_rank_DEBUG;
-    std::string logpath = logger::get_local_path() + logger::path_split + "log";
-    logger::mk_dir(logpath);
-    std::string logfile = logpath + logger::path_split + "thread_pool.log";
-    _logger.open((logfile).c_str());
-    _logger.logger_files_max_size = 5;
-    _logger.logger_file_max_size = 100;
     idlThrNum = size < 1 ? 1 : (size > MAX_THREAD_NUM ? MAX_THREAD_NUM : size);
     for (size = 0; size < idlThrNum; ++size) {   //初始化线程数量
         pool.emplace_back(
@@ -53,6 +46,7 @@ thread_pool::thread_pool(int size) : stoped{false} {
 thread_pool::~thread_pool() {
     stoped.store(true);
     cv_task.notify_all(); // 唤醒所有线程执行
+    usleep(10);
     for (std::thread &thread : pool) {
         //thread.detach(); // 让线程“自生自灭”
         if (thread.joinable())

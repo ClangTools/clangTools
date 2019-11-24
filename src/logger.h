@@ -2,11 +2,11 @@
 // Created by caesar on 2019/11/9.
 //
 
-#ifndef KPROXY_LOGGER_H
-#define KPROXY_LOGGER_H
+#ifndef KTOOL_LOGGER_H
+#define KTOOL_LOGGER_H
 
 
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <mutex>
 #include <iostream>
@@ -19,6 +19,21 @@
 #include <algorithm>
 #include <vector>
 #include <fstream>
+#ifdef _LOGGER_USE_THREAD_POOL_
+#include "thread_pool.h"
+
+#ifdef WIN32
+#ifdef _Tools_HEADER_
+#define DLL_thread_pool_Export  __declspec(dllexport)
+#else
+#define DLL_thread_pool_Export  __declspec(dllimport)
+#endif
+#else
+#define DLL_thread_pool_Export
+#endif
+
+class DLL_thread_pool_Export thread_pool;
+#endif
 
 #ifdef WIN32
 
@@ -246,6 +261,9 @@ private:
 private:
     static logger _logger;
 
+#ifdef _LOGGER_USE_THREAD_POOL_
+    thread_pool executor{1};
+#endif
     bool need_free = false;
     std::string filepath = "";
     std::fstream *logger_file = nullptr;
@@ -345,4 +363,4 @@ private:
                     ConsoleBackGroundColor backColor = enmCBC_Default);
 };
 
-#endif //KPROXY_LOGGER_H
+#endif //KTOOL_LOGGER_H

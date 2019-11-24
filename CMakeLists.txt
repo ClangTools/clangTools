@@ -75,7 +75,10 @@ include_directories(
 
 aux_source_directory(src srcSource)
 
-add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+add_definitions(
+        -D_CRT_SECURE_NO_WARNINGS
+
+)
 
 add_library(${libTools_LIBRARIES} STATIC
         ${RC_FILES}
@@ -84,7 +87,7 @@ add_library(${libTools_LIBRARIES} STATIC
 
 target_compile_definitions(
         ${libTools_LIBRARIES}
-        PUBLIC -D_${libTools_LIBRARIES}_HEADER_
+        PUBLIC -D_${libTools_LIBRARIES}_HEADER_ -D_LOGGER_USE_THREAD_POOL_
 )
 target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES})
 
