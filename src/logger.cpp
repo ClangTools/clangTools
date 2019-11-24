@@ -62,9 +62,9 @@ logger::~logger() {
 }
 
 void logger::Free() {
-    auto fn = executor.commit([this]() -> void {
-    });
-    fn.get();
+#ifdef _LOGGER_USE_THREAD_POOL_
+    last_fn.wait();
+#endif
     std::lock_guard<std::mutex> guard1(logger_file_mutex);
     if (need_free) {
         need_free = true;
@@ -156,7 +156,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
 
 #ifdef _LOGGER_USE_THREAD_POOL_
     string _tag(TAG);
-    std::future<void> fh = executor.commit(
+    last_fn = executor.commit(
             [this](const string &_tag, const std::string &data, log_rank_t log_rank_type) -> void {
 #endif
                 std::lock_guard<std::mutex> guard(logger_console_mutex);

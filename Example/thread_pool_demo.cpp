@@ -41,7 +41,6 @@ int main() {
 
 
         logger::instance()->i(_TAG, "time:  %lld", logger::get_time_tick() - start_tick);
-//        usleep(1000);
         return 0;
     }
     catch (std::exception &e) {

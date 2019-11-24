@@ -263,6 +263,7 @@ private:
 
 #ifdef _LOGGER_USE_THREAD_POOL_
     thread_pool executor{1};
+    std::future<void> last_fn = executor.commit([]()->void{});
 #endif
     bool need_free = false;
     std::string filepath = "";
