@@ -63,7 +63,6 @@ logger::~logger() {
 
 void logger::Free() {
     auto fn = executor.commit([this]() -> void {
-        std::lock_guard<std::mutex> guard1(logger_console_mutex);
     });
     fn.get();
     std::lock_guard<std::mutex> guard1(logger_file_mutex);

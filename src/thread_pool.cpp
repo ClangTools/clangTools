@@ -46,7 +46,7 @@ thread_pool::thread_pool(int size) : stoped{false} {
 thread_pool::~thread_pool() {
     stoped.store(true);
     cv_task.notify_all(); // 唤醒所有线程执行
-    usleep(10);
+    // usleep(10);
     for (std::thread &thread : pool) {
         //thread.detach(); // 让线程“自生自灭”
         if (thread.joinable())
