@@ -97,7 +97,13 @@ public:
      */
     size_t logger_files_max_size = 50;
 public:
+    /**
+     * before exit use free_instance()
+     * when use instance()
+     * @return
+     */
     static logger *instance();
+    static void free_instance();
 
 public:
     /**
@@ -111,6 +117,10 @@ public:
      * @param path puts logger to path,if path isn't null
      */
     explicit logger(std::fstream *path);
+
+#ifdef _LOGGER_USE_THREAD_POOL_
+    void wait_finish();
+#endif
 
     /**
      *
@@ -259,11 +269,9 @@ private:
     void Free();
 
 private:
-    static logger _logger;
 
 #ifdef _LOGGER_USE_THREAD_POOL_
     thread_pool executor{1};
-    std::future<void> last_fn = executor.commit([]()->void{});
 #endif
     bool need_free = false;
     std::string filepath = "";

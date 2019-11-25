@@ -24,10 +24,18 @@ char DLL_logger_Export logger::path_split = '\\';
 char logger::path_split = '/';
 #endif
 
-logger logger::_logger{};
+logger *_logger = nullptr;
 
 logger *logger::instance() {
-    return &_logger;
+    if (_logger == nullptr) {
+        _logger = new logger{};
+    }
+    return _logger;
+}
+
+void logger::free_instance() {
+    delete _logger;
+    _logger = nullptr;
 }
 
 std::mutex logger::logger_console_mutex;
@@ -58,13 +66,22 @@ void logger::open(std::fstream *path) {
 }
 
 logger::~logger() {
+#ifdef _LOGGER_USE_THREAD_POOL_
+    wait_finish();
+#endif
     Free();
+    std::lock_guard<std::mutex> guard1(logger_console_mutex);
 }
 
-void logger::Free() {
 #ifdef _LOGGER_USE_THREAD_POOL_
-    last_fn.wait();
+
+void logger::wait_finish() {
+    executor.wait_finish();
+}
+
 #endif
+
+void logger::Free() {
     std::lock_guard<std::mutex> guard1(logger_file_mutex);
     if (need_free) {
         need_free = true;
@@ -110,7 +127,7 @@ void logger::WriteToFile(const std::string &data) {
     GetSystemTimeAsFileTime(&ft);
     li.LowPart = ft.dwLowDateTime;
     li.HighPart = ft.dwHighDateTime;
-    timep = (li.QuadPart - EPOCHFILETIME) /10;
+    timep = (li.QuadPart - EPOCHFILETIME) / 10;
 #else
     timeval tv{};
     gettimeofday(&tv, 0);
@@ -156,7 +173,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
 
 #ifdef _LOGGER_USE_THREAD_POOL_
     string _tag(TAG);
-    last_fn = executor.commit(
+    executor.commit(
             [this](const string &_tag, const std::string &data, log_rank_t log_rank_type) -> void {
 #endif
                 std::lock_guard<std::mutex> guard(logger_console_mutex);
@@ -277,81 +294,81 @@ void logger::puts_info(const char *TAG, const std::string &data, log_rank_t log_
 void logger::i(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::w(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::i(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::w(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::puts_info(const char *TAG, const char *tag_by_data, unsigned char *data, size_t data_len,
@@ -561,7 +578,7 @@ int logger::vscprintf(const char *format, va_list pargs) {
     va_list argcopy;
     va_copy(argcopy, pargs);
     ret_val = ::vsnprintf(nullptr, 0, format, argcopy);
-    va_end(argcopy);
+            va_end(argcopy);
     return ret_val;
 }
 
@@ -587,15 +604,15 @@ long long logger::get_time_tick() {
 #ifdef _WIN32
     // 从1601年1月1日0:0:0:000到1970年1月1日0:0:0:000的时间(单位100ns)
 #define EPOCHFILETIME (116444736000000000UL)
-        FILETIME ft;
-        LARGE_INTEGER li;
-        long long tt = 0;
-        GetSystemTimeAsFileTime(&ft);
-        li.LowPart = ft.dwLowDateTime;
-        li.HighPart = ft.dwHighDateTime;
-        // 从1970年1月1日0:0:0:000到现在的微秒数(UTC时间)
-        tt = (li.QuadPart - EPOCHFILETIME) / 10 / 1000;
-        return tt;
+    FILETIME ft;
+    LARGE_INTEGER li;
+    long long tt = 0;
+    GetSystemTimeAsFileTime(&ft);
+    li.LowPart = ft.dwLowDateTime;
+    li.HighPart = ft.dwHighDateTime;
+    // 从1970年1月1日0:0:0:000到现在的微秒数(UTC时间)
+    tt = (li.QuadPart - EPOCHFILETIME) / 10 / 1000;
+    return tt;
 #else
     timeval tv;
     gettimeofday(&tv, 0);

@@ -29,8 +29,9 @@ thread_pool::thread_pool(int size) : stoped{false} {
                                                    return this->stoped.load() || !this->tasks.empty();
                                                }
                             ); // wait 直到有 task
-                            if (this->stoped && this->tasks.empty())
+                            if (this->stoped && this->tasks.empty()) {
                                 return;
+                            }
                             task = std::move(this->tasks.front()); // 取一个 task
                             this->tasks.pop();
                         }
@@ -44,12 +45,21 @@ thread_pool::thread_pool(int size) : stoped{false} {
 }
 
 thread_pool::~thread_pool() {
+    wait_finish();
+}
+
+void thread_pool::wait_finish() {
+    // unique_lock 相比 lock_guard 的好处是：可以随时 unlock() 和 lock()
     stoped.store(true);
     cv_task.notify_all(); // 唤醒所有线程执行
-    // usleep(10);
     for (std::thread &thread : pool) {
         //thread.detach(); // 让线程“自生自灭”
         if (thread.joinable())
             thread.join(); // 等待任务结束， 前提：线程一定会执行完
+    }
+    while (!tasks.empty()){
+        std::unique_lock<std::mutex> lock{this->m_lock};
+        std::move(this->tasks.front())(); // 取一个 task
+        this->tasks.pop();
     }
 }

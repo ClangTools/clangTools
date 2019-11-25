@@ -56,6 +56,8 @@ public:
 
     ~thread_pool();
 
+    void wait_finish();
+
 public:
     template<class F, class... Args>
     auto commit(F &&f, Args &&... args) -> std::future<decltype(f(args...))> {
