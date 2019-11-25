@@ -87,7 +87,7 @@ public:
     } log_rank_t;
 public:
     log_rank_t min_level = log_rank_NONE;
-    bool console_show = true;
+    bool console_show = false;
     /**
      * file size
      */

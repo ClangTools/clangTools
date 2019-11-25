@@ -269,7 +269,9 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
 #ifdef WIN32
                 SetConsoleTextAttribute(handle, wOldColorAttrs);
 #endif
-                printf("\n");
+                if (console_show) {
+                    printf("\n");
+                }
                 WriteToFile("\n");
 
 #ifdef _LOGGER_USE_THREAD_POOL_
@@ -481,17 +483,13 @@ bool logger::mk_dir(const std::string &directory) {
 
 void logger::get_files(const std::string &folder_path, std::vector<std::string> &files, int depth) {
 #ifdef WIN32
-    //�ļ����
     //intptr_t hFile = 0;//Win10
     long hFile = 0;
-    //�ļ���Ϣ
     struct _finddata_t fileinfo{};
     std::string p;
     try {
         if ((hFile = _findfirst(p.assign(folder_path).append("\\*").c_str(), &fileinfo)) != -1) {
             do {
-                //�����Ŀ¼,����֮
-                //�������,�����б�
                 if ((fileinfo.attrib & _A_SUBDIR)) {
                     if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
                         if (depth == -1 || depth > 0)
@@ -620,3 +618,14 @@ long long logger::get_time_tick() {
 #endif // _WIN32
     return 0;
 }
+
+class __logger_free {
+public:
+    inline __logger_free() {
+    };
+
+    inline ~__logger_free() {
+        logger::free_instance();
+    };
+};
+__logger_free ___logger_free{};

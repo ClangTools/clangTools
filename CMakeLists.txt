@@ -106,6 +106,7 @@ if ("${PROJECT_NAME}" STREQUAL "${libTools_LIBRARIES}")
     install(TARGETS logger_Demo thread_pool_demo
             RUNTIME DESTINATION bin
             LIBRARY DESTINATION bin)
+    message("-- install to " ${CMAKE_INSTALL_PREFIX})
 endif ()
 
 
@@ -123,7 +124,6 @@ if (ENABLE_FILENAME)
 endif ()
 
 
-message("-- instal to " ${CMAKE_INSTALL_PREFIX})
 
 ########安装脚本##########
 install(TARGETS ${libTools_LIBRARIES}

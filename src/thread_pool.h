@@ -22,6 +22,7 @@
 
 
 #ifdef WIN32
+#pragma warning(disable:4251)
 #ifdef _Tools_HEADER_
 #define DLL_thread_pool_Export  __declspec(dllexport)
 #else
