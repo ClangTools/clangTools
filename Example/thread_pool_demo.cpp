@@ -41,8 +41,8 @@ int main() {
 
 
         logger::instance()->i(_TAG, "time:  %lld", logger::get_time_tick() - start_tick);
-        logger::free_instance();
-        std::cout << "some end " << logger::get_time_tick() - start_tick << std::endl;
+//        logger::free_instance();
+//        std::cout << "some end " << logger::get_time_tick() - start_tick << std::endl;
         return 0;
     }
     catch (std::exception &e) {

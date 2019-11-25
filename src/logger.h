@@ -98,8 +98,6 @@ public:
     size_t logger_files_max_size = 50;
 public:
     /**
-     * before exit use free_instance()
-     * when use instance()
      * @return
      */
     static logger *instance();
