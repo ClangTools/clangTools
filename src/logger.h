@@ -240,6 +240,9 @@ public:
 
     ~logger();
 
+#ifdef _LOGGER_USE_THREAD_POOL_
+    bool wait_show = false;
+#endif
 private:
     /**
      * puts log_rank_type logger
