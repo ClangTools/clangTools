@@ -27,7 +27,7 @@ thread_pool::thread_pool(int size) : stoped{false} {
     HANDLE handle = (HANDLE) _beginthreadex(nullptr, 0, [](void *arg) -> unsigned {
         auto self = (thread_pool*)arg;
 #endif
-		thread_pool::init(arg);
+		thread_pool::init(self);
 #ifdef WIN32
         _endthreadex(0);
         return 0;
