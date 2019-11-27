@@ -50,6 +50,8 @@ class DLL_thread_pool_Export thread_pool {
     std::atomic<bool> stoped{false};
     //空闲线程数量
     std::atomic<int> idlThrNum{1};
+private:
+    static unsigned init(void* arg);
 
 public:
 
@@ -91,3 +93,4 @@ public:
 
 
 #endif //TOOLS_THREAD_POOL_H
+

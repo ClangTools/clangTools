@@ -1,5 +1,14 @@
 # logger tool
 
+## 注意
+使用 `-D_LOGGER_USE_THREAD_POOL_` 开启线程池
+
+如果使用线程池，则:
+1. 使用 `instance()` 情况下必须调用 `free_instance()`
+1. 自己创建对象情况下，请调用 `wait_finish()`
+
+
+
 ## Example
 
 ```c++

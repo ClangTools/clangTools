@@ -619,10 +619,10 @@ long long logger::get_time_tick() {
     return 0;
 }
 
+
 class __logger_free {
 public:
-    inline __logger_free() {
-    };
+    inline __logger_free() = default;;
 
     inline ~__logger_free() {
         logger::free_instance();
