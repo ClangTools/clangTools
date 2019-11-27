@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
+
+if ("${PROJECT_NAME}" STREQUAL "Project")
+    set(Tools_Other_Project ON)
+endif()
 project(Tools)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -91,7 +95,7 @@ target_compile_definitions(
 )
 target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES})
 
-if ("${PROJECT_NAME}" STREQUAL "${libTools_LIBRARIES}")
+if ("${Tools_Other_Project}" STREQUAL "ON")
     add_executable(logger_Demo Example/logger_demo.cpp)
     add_executable(thread_pool_demo Example/thread_pool_demo.cpp)
     target_link_libraries(logger_Demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
