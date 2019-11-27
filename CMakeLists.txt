@@ -6,6 +6,7 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
     set(Tools_Other_Project ON)
 endif()
 project(Tools)
+
 set(CMAKE_CXX_STANDARD 14)
 
 set(libTools_LIBRARIES Tools)
@@ -49,6 +50,7 @@ endif ()
 # set(CMAKE_GENERATOR_PLATFORM "Win32")
 
 if (MSVC)
+    set(CMAKE_SYSTEM_VERSION 5.1)
     set(CompilerFlags
             CMAKE_CXX_FLAGS
             CMAKE_CXX_FLAGS_DEBUG
