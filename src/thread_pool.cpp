@@ -29,8 +29,8 @@ thread_pool::thread_pool(int size) : stoped{false} {
 #endif
         thread_pool::init(self);
 #ifdef WIN32
-        _endthread(0);
-        return 0;
+        _endthread();
+        return;
     },1024, (void*)this);
     // WaitForSingleObject( handle, INFINITE );
     CloseHandle(handle);
