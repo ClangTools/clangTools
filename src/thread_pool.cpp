@@ -21,19 +21,19 @@ const char *thread_pool::TAG = "thread_pool";
 #endif
 
 thread_pool::thread_pool(int size) : stoped{false} {
-    thread_pool* self = this;
+    thread_pool *self = this;
     idlThrNum = size < 1 ? 1 : (size > MAX_THREAD_NUM ? MAX_THREAD_NUM : size);
 #ifdef WIN32
-    HANDLE handle = (HANDLE) _beginthreadex(nullptr, 0, [](void *arg) -> unsigned {
+    HANDLE handle = (HANDLE)_beginthread([](void *arg) -> void {
         auto self = (thread_pool*)arg;
 #endif
-		thread_pool::init(self);
+        thread_pool::init(self);
 #ifdef WIN32
-        _endthreadex(0);
+        _endthread(0);
         return 0;
-    }, (void*)this, 0, nullptr);
+    },1024, (void*)this);
     // WaitForSingleObject( handle, INFINITE );
-    CloseHandle( handle );
+    CloseHandle(handle);
 #endif
 }
 
@@ -58,7 +58,7 @@ void thread_pool::wait_finish() {
 }
 
 unsigned thread_pool::init(void *arg) {
-    auto self = (thread_pool*)arg;
+    auto self = (thread_pool *) arg;
     for (int size = 0; size < self->idlThrNum; ++size) {   //初始化线程数量
         self->pool.emplace_back(
                 [self] { // 工作线程函数
