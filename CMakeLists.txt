@@ -103,18 +103,21 @@ if ("${Tools_Other_Project}" STREQUAL "ON")
     add_executable(logger_Demo Example/logger_demo.cpp)
     add_executable(thread_pool_demo Example/thread_pool_demo.cpp)
     add_executable(tinyxml2_demo Example/tinyxml2_demo.cpp)
+    add_executable(json_demo Example/json_demo.cpp)
     target_link_libraries(logger_Demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
     target_link_libraries(thread_pool_demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
     target_link_libraries(tinyxml2_demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
+    target_link_libraries(json_demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
 
     option(ENABLE_FILENAME "option for FILENAME" ON)
     if (ENABLE_FILENAME)
         redefine_file_macro(logger_Demo)
         redefine_file_macro(tinyxml2_demo)
         redefine_file_macro(thread_pool_demo)
+        redefine_file_macro(json_demo)
     endif ()
 
-    install(TARGETS logger_Demo thread_pool_demo tinyxml2_demo
+    install(TARGETS logger_Demo thread_pool_demo tinyxml2_demo json_demo
             RUNTIME DESTINATION bin
             LIBRARY DESTINATION bin)
     message("-- install to " ${CMAKE_INSTALL_PREFIX})
