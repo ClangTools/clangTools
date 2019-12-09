@@ -31,8 +31,11 @@ if (ENABLE_FILENAME)
                     PROPERTY COMPILE_DEFINITIONS)
             #获取当前文件的绝对路径
             get_filename_component(filepath "${sourcefile}" ABSOLUTE)
+            # message("CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}")
+            # message("PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}")
+            # message("_SOURCE_DIR ${_SOURCE_DIR}")
             #将绝对路径中的项目路径替换成空,得到源文件相对于项目路径的相对路径
-            string(REPLACE ${PROJECT_SOURCE_DIR}/ "" relpath ${filepath})
+            string(REPLACE ${CMAKE_SOURCE_DIR}/ "" relpath ${filepath})
             #将我们要加的编译参数( __FILENAME__ 定义)添加到原来的编译参数里面
             list(APPEND defs "__FILENAME__=\"${relpath}\"")
             #重新设置源文件的编译参数
