@@ -19,7 +19,13 @@
 #include <algorithm>
 #include <vector>
 #include <fstream>
+
+#include <functional>
+#include <cctype>
+#include <locale>
+
 #ifdef _LOGGER_USE_THREAD_POOL_
+
 #include "thread_pool.h"
 
 #ifdef WIN32
@@ -33,6 +39,7 @@
 #endif
 
 class DLL_thread_pool_Export thread_pool;
+
 #endif
 
 #ifdef WIN32
@@ -42,9 +49,11 @@ class DLL_thread_pool_Export thread_pool;
 #include <windows.h>
 
 #else
+
 #include <dlfcn.h>
 #include <unistd.h>
 #include <dirent.h>
+
 #endif
 
 #ifdef ANDROID_SO
@@ -101,6 +110,7 @@ public:
      * @return
      */
     static logger *instance();
+
     static void free_instance();
 
 public:
@@ -117,7 +127,9 @@ public:
     explicit logger(std::fstream *path);
 
 #ifdef _LOGGER_USE_THREAD_POOL_
+
     void wait_finish();
+
 #endif
 
     /**
@@ -222,6 +234,9 @@ public:
     void puts_info(const char *TAG, const char *tag_by_data, unsigned char *data, size_t data_len,
                    log_rank_t log_rand_type = log_rank_t::log_rank_DEBUG);
 
+    void puts_info(const char *TAG, int line,const char *tag_by_data, unsigned char *data, size_t data_len,
+                   log_rank_t log_rand_type = log_rank_t::log_rank_DEBUG);
+
     /**
      * puts log_rank_type logger
      * @param TAG
@@ -293,6 +308,7 @@ public:
     static std::string GetTime(const char *format_string = "%Y-%m-%d %H:%M:%S");
 
     static long long get_time_tick();
+
     static int64_t get_mtime(std::string filename);
 
     static std::string vsnprintf(const char *format, va_list args);
@@ -303,13 +319,27 @@ public:
 
     static bool mk_dir(const std::string &directory);
 
-    static void get_files(const std::string &folder_path, std::vector<std::string> &files, int depth = -1) ;
+    static void get_files(const std::string &folder_path, std::vector<std::string> &files, int depth = -1);
 
     static void bytes_to_hex_string(const unsigned char *bytes, size_t bytes_len, std::string &hex_string);
 
     static void bytes_to_hex_string(const std::vector<unsigned char> &bytes, std::string &hex_string);
 
     static void hex_string_to_bytes(const std::string &hex_string, std::vector<unsigned char> &bytes);
+
+    static inline std::string trim(std::string& str,char c=' ')
+    {
+        std::string::size_type pos = str.find_last_not_of(c);
+        if(pos != std::string::npos)
+        {
+            str.erase(pos + 1);
+            pos = str.find_first_not_of(c);
+            if(pos != std::string::npos) str.erase(0, pos);
+        }
+        else
+            str.erase(str.begin(), str.end());
+        return str;
+    }
 
 private:
     static int vscprintf(const char *format, va_list pargs);
@@ -369,6 +399,7 @@ private:
     };
 
 #endif
+
     static void
     SetConsoleColor(ConsoleForegroundColor foreColor = enmCFC_Default,
                     ConsoleBackGroundColor backColor = enmCBC_Default);

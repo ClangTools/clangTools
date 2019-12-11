@@ -373,6 +373,11 @@ void logger::f(const char *TAG, size_t line, const char *format, ...) {
     va_end(args);
 }
 
+void logger::puts_info(const char *TAG, int line, const char *tag_by_data, unsigned char *data, size_t data_len,
+                       log_rank_t log_rand_type) {
+    puts_info((string(TAG) + ":" + to_string(line)).c_str(), tag_by_data, data, data_len, log_rand_type);
+}
+
 void logger::puts_info(const char *TAG, const char *tag_by_data, unsigned char *data, size_t data_len,
                        logger::log_rank_t log_rand_type) {
     string _tag_by_data = tag_by_data == nullptr ? "" : tag_by_data;

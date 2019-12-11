@@ -78,6 +78,9 @@ kekxv::socket::socket(int fd) {
 }
 
 ssize_t kekxv::socket::send(std::vector<unsigned char> data, ssize_t offset, ssize_t len, int flags) {
+    if (len < 0) {
+        len = data.size() - offset;
+    }
     return send(data.data(), offset, len, flags);
 }
 
