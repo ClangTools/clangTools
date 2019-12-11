@@ -619,6 +619,14 @@ long long logger::get_time_tick() {
     return 0;
 }
 
+int64_t logger::get_mtime(string filename) {
+    struct stat result{};
+    if (stat(filename.c_str(), &result) == 0) {
+        auto mod_time = result.st_mtime;
+        return mod_time;
+    }
+    return -1;
+}
 
 class __logger_free {
 public:

@@ -65,7 +65,7 @@ namespace kekxv {
          * @param len 发送数据长度
          * @return 同 write
          */
-        ssize_t send(std::vector<unsigned char> data, size_t offset = 0, ssize_t len = -1, int flags = 0);
+        ssize_t send(std::vector<unsigned char> data, ssize_t offset = 0, ssize_t len = -1, int flags = 0);
 
         /**
          * 发送数据
@@ -74,7 +74,7 @@ namespace kekxv {
          * @param len 发送数据长度
          * @return 同 write
          */
-        ssize_t send(unsigned char *data, size_t offset = 0, ssize_t len = -1, int flags = 0);
+        ssize_t send(unsigned char *data, ssize_t offset = 0, ssize_t len = -1, int flags = 0);
 
         /**
          * 发送字符串

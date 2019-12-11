@@ -77,11 +77,11 @@ kekxv::socket::socket(int fd) {
     client.revents = 0;
 }
 
-ssize_t kekxv::socket::send(std::vector<unsigned char> data, size_t offset, ssize_t len, int flags) {
+ssize_t kekxv::socket::send(std::vector<unsigned char> data, ssize_t offset, ssize_t len, int flags) {
     return send(data.data(), offset, len, flags);
 }
 
-ssize_t kekxv::socket::send(unsigned char *data, size_t offset, ssize_t len, int flags) {
+ssize_t kekxv::socket::send(unsigned char *data, ssize_t offset, ssize_t len, int flags) {
     if (check_can_send() < 0)return 0;
     return ::send(fd, &data[offset], len, flags);
 }
@@ -119,10 +119,10 @@ ssize_t kekxv::socket::check_read_count(int timeout) {
         _logger->w(TAG, __LINE__, "poll is EINTR");
         return poll_ret;
     } else if (poll_ret == 0) {
-        _logger->d(TAG, __LINE__, "poll is time out");
+        // _logger->d(TAG, __LINE__, "poll is time out");
         return poll_ret;
     } else if (poll_ret > 0) {
-        _logger->d(TAG, __LINE__, "%s POLLIN is %d", __FUNCTION__, client.fd);
+        // _logger->d(TAG, __LINE__, "%s POLLIN is %d", __FUNCTION__, client.fd);
         return poll_ret;
     }
     return 1;

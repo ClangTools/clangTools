@@ -293,6 +293,7 @@ public:
     static std::string GetTime(const char *format_string = "%Y-%m-%d %H:%M:%S");
 
     static long long get_time_tick();
+    static int64_t get_mtime(std::string filename);
 
     static std::string vsnprintf(const char *format, va_list args);
 
