@@ -148,15 +148,13 @@ install(TARGETS ${libTools_LIBRARIES}
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 
-#install(FILES ${libTools_LIBRARIES}/${libTools_LIBRARIES}.h DESTINATION include)
-#
-## 复制 bin 代码到 bin 下
-#install(DIRECTORY Depend/ DESTINATION bin
-#        PATTERN "Depend/*"
-#        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-#        GROUP_EXECUTE GROUP_READ)
-## 复制 lib 代码到 lib 下
-#install(DIRECTORY Example/ DESTINATION Example
-#        PATTERN "Example/*"
-#        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-#        GROUP_EXECUTE GROUP_READ)
+FILE(GLOB_RECURSE include_header src/*.h)
+install(FILES
+        ${include_header}
+        DESTINATION include)
+
+# 复制 lib 代码到 lib 下
+install(DIRECTORY Example/ DESTINATION Example
+        PATTERN "Example/*"
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        GROUP_EXECUTE GROUP_READ)
