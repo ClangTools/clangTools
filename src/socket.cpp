@@ -1,13 +1,22 @@
 //
 // Created by caesar on 2019/12/7.
 //
+#ifdef WIN32
 
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <mstcpip.h>
+#include <stdio.h>
+
+#else
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include<unistd.h>
+#endif
+
 #include "socket.h"
 #include<stdio.h>
 #include<signal.h>
-#include<unistd.h>
 
 using namespace std;
 using namespace kekxv;
@@ -26,26 +35,53 @@ void socket::segv_error_handle(int v) {
 
 int socket::listen(short port, const char *ip, int listen_count) {
     if (!was_sigaction) {
+#ifdef WIN32
+        WSADATA wsa;
+        WSAStartup(MAKEWORD(2, 2), &wsa);
+#else
         struct sigaction siga{}, old{};
         siga.sa_handler = segv_error_handle;
         siga.sa_flags = 0;
         memset(&siga.sa_mask, 0, sizeof(sigset_t));
         sigaction(SIGPIPE, &siga, &old);
+#endif
         was_sigaction = true;
     }
 
     int fd = ::socket(AF_INET, SOCK_STREAM, 0);
     int reuse = 1;
+#ifdef WIN32
+    if (fd == INVALID_SOCKET)
+        return Error_Cannot_Get_Socket;
+    ULONG uNonBlockingMode = 1;
+    if (SOCKET_ERROR == ioctlsocket(fd, FIONBIO, &uNonBlockingMode)) {
+        _logger->e(TAG, __LINE__, "cannot set sockopt SO_REUSEADDR");
+    }
+#else
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) {
         _logger->e(TAG, __LINE__, "cannot set sockopt SO_REUSEADDR");
     }
-
+#endif
 
     if (fd < 0) {
         _logger->e(TAG, __LINE__, "cannot get socket");
         return Error_Cannot_Get_Socket;
     }
 
+#ifdef WIN32
+    SOCKADDR_STORAGE addr = {0};
+    addr.ss_family = AF_INET;
+    INETADDR_SETANY((SOCKADDR *) &addr);
+    SS_PORT((SOCKADDR *) &addr) = htons(port);
+    if (SOCKET_ERROR == ::bind(fd, (SOCKADDR *) &addr, sizeof(addr))) {
+        _logger->e(TAG, __LINE__, "bind error %d", SOCKET_ERROR);
+        return Error_Cannot_Bind;
+    }
+    if (SOCKET_ERROR == ::listen(fd, listen_count)) {
+        _logger->e(TAG, __LINE__, "listen error %d", SOCKET_ERROR);
+        return Error_Cannot_Bind;
+    }
+#else
     struct sockaddr_in serv{};
 
     memset(&serv, 0, sizeof(serv));
@@ -60,6 +96,7 @@ int socket::listen(short port, const char *ip, int listen_count) {
         return Error_Cannot_Bind;
     }
     ::listen(fd, listen_count);
+#endif
 
     _logger->d(__FILENAME__, __LINE__, " tcp://%s:%d", ip, port);
 

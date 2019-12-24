@@ -13,6 +13,7 @@ set(libTools_LIBRARIES Tools)
 set_property(GLOBAL PROPERTY libTools_LIBRARIES ${libTools_LIBRARIES})
 
 if (WIN32)
+    set(dl_LIBRARIES ws2_32.lib)
 else ()
     find_library(dl dl)
     set(dl_LIBRARIES dl)
