@@ -35,7 +35,7 @@ public:
 
     std::string toString() const;
 
-    cJSON_uint64 toNumber() const;
+    cJSON_int64 toNumber() const;
 
     double toDouble() const;
 

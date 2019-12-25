@@ -30,7 +30,7 @@ std::string CJsonObject::toString() const {
     return "";
 }
 
-cJSON_uint64 CJsonObject::toNumber() const {
+cJSON_int64 CJsonObject::toNumber() const {
     if (m_pJsonData != NULL && m_pJsonData->type == cJSON_Int) {
         return m_pJsonData->valueint;
     } else if (m_pExternJsonDataRef != NULL && m_pExternJsonDataRef->type == cJSON_Int) {
