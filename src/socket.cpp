@@ -2,12 +2,10 @@
 // Created by caesar on 2019/12/7.
 //
 #ifdef WIN32
-
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <mstcpip.h>
-#include <stdio.h>
-
+#include <cstdio>
 #else
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -114,19 +112,23 @@ kekxv::socket::socket(int fd) {
     client.revents = 0;
 }
 
-ssize_t kekxv::socket::send(std::vector<unsigned char> data, ssize_t offset, ssize_t len, int flags) {
+long int kekxv::socket::send(std::vector<unsigned char> data, long int offset, long int len, int flags) {
     if (len < 0) {
         len = data.size() - offset;
     }
     return send(data.data(), offset, len, flags);
 }
 
-ssize_t kekxv::socket::send(unsigned char *data, ssize_t offset, ssize_t len, int flags) {
+long int kekxv::socket::send(unsigned char *data, long int offset, long int len, int flags) {
     if (check_can_send() < 0)return 0;
+#ifdef WIN32
+    return ::send(fd, (const char *) &data[offset], len, flags);
+#else
     return ::send(fd, &data[offset], len, flags);
+#endif
 }
 
-ssize_t kekxv::socket::send(const std::string &data) {
+long int kekxv::socket::send(const std::string &data) {
     return send((unsigned char *) data.data(), 0, data.size());
 }
 
@@ -134,11 +136,15 @@ void kekxv::socket::wait_send_finish() {
     // TODO 未完成
 }
 
-ssize_t kekxv::socket::read(std::vector<unsigned char> &data, int flags) {
+long int kekxv::socket::read(std::vector<unsigned char> &data, int flags) {
     unsigned char buf[512];
     do {
-        int ret = recv(fd, buf, 512, flags);
-        if (ret == 0)return 0;
+#ifdef WIN32
+        int ret = ::recv(fd, (char *) buf, 512, flags);
+#else
+        int ret = ::recv(fd, buf, 512, flags);
+#endif
+        if (ret <= 0)return 0;
         data.insert(data.end(), &buf[0], &buf[ret]);
         if (ret != 512) {
             break;
@@ -147,10 +153,15 @@ ssize_t kekxv::socket::read(std::vector<unsigned char> &data, int flags) {
     return data.size();
 }
 
-ssize_t kekxv::socket::check_read_count(int timeout) {
-//    client.events = POLLIN | POLLPRI | POLLRDNORM;
+long int kekxv::socket::check_read_count(int timeout) {
+#ifdef WIN32
+    client.events = POLLIN;
+    int poll_ret = WSAPoll(&client, 1, timeout);
+#else
+    //    client.events = POLLIN | POLLPRI | POLLRDNORM;
     client.events = POLLIN;
     int poll_ret = poll(&client, 1, timeout);
+#endif
     if (poll_ret < 0) {
         if (errno != EINTR) {
             _logger->e(TAG, __LINE__, "poll is not EINTR ;errno is %d ", errno);
@@ -168,9 +179,15 @@ ssize_t kekxv::socket::check_read_count(int timeout) {
     return 1;
 }
 
-ssize_t kekxv::socket::check_can_send(int timeout_ms) {
+long int kekxv::socket::check_can_send(int timeout_ms) {
+    int poll_ret = 0;
+#ifdef WIN32
+    client.events = POLLOUT;
+    poll_ret = WSAPoll(&client, 1, timeout_ms);
+#else
     client.events = POLLOUT | POLLWRBAND;
-    int poll_ret = poll(&client, 1, timeout_ms);
+    poll_ret = poll(&client, 1, timeout_ms);
+#endif
     if (poll_ret < 0) {
         if (errno != EINTR) {
             _logger->e(TAG, __LINE__, "poll is not EINTR ;errno is %d ", errno);

@@ -17,8 +17,11 @@
 
 #include <vector>
 #include <logger.h>
+#ifdef WIN32
+typedef int socklen_t;
+#else
 #include <poll.h>
-
+#endif
 namespace kekxv {
 
     class DLL_socket_Export socket {
@@ -54,7 +57,7 @@ namespace kekxv {
 
     private:
         int fd = 0;
-        struct pollfd client;
+        struct pollfd client{};
     public:
         explicit socket(int fd);
 
@@ -65,7 +68,7 @@ namespace kekxv {
          * @param len 发送数据长度
          * @return 同 write
          */
-        ssize_t send(std::vector<unsigned char> data, ssize_t offset = 0, ssize_t len = -1, int flags = 0);
+        long int send(std::vector<unsigned char> data, long int offset = 0, long int len = -1, int flags = 0);
 
         /**
          * 发送数据
@@ -74,14 +77,14 @@ namespace kekxv {
          * @param len 发送数据长度
          * @return 同 write
          */
-        ssize_t send(unsigned char *data, ssize_t offset = 0, ssize_t len = -1, int flags = 0);
+        long int send(unsigned char *data, long int offset = 0, long int len = -1, int flags = 0);
 
         /**
          * 发送字符串
          * @param data 需要发送的字符串
          * @return
          */
-        ssize_t send(const std::string& data);
+        long int send(const std::string& data);
 
         /**
          * 等待发送完毕
@@ -93,14 +96,14 @@ namespace kekxv {
          * @param data 接收数据存放位置
          * @return
          */
-        ssize_t read(std::vector<unsigned char> &data,int flags = 0);
+        long int read(std::vector<unsigned char> &data,int flags = 0);
 
         /**
          * 检查是否有数据
          * @return
          */
-        ssize_t check_read_count(int timeout_ms = 1);
-        ssize_t check_can_send(int timeout_ms = 1);
+        long int check_read_count(int timeout_ms = 1);
+        long int check_can_send(int timeout_ms = 1);
 
     };
 }
