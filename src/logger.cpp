@@ -296,81 +296,81 @@ void logger::puts_info(const char *TAG, const std::string &data, log_rank_t log_
 void logger::i(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::w(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::i(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::w(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::puts_info(const char *TAG, int line, const char *tag_by_data, unsigned char *data, size_t data_len,
@@ -581,7 +581,7 @@ int logger::vscprintf(const char *format, va_list pargs) {
     va_list argcopy;
     va_copy(argcopy, pargs);
     ret_val = ::vsnprintf(nullptr, 0, format, argcopy);
-    va_end(argcopy);
+            va_end(argcopy);
     return ret_val;
 }
 
@@ -631,6 +631,19 @@ int64_t logger::get_mtime(string filename) {
         return mod_time;
     }
     return -1;
+}
+
+bool logger::StartsWith(const string &text, const string &prefix) {
+    return prefix.empty() ||
+           (text.size() >= prefix.size() &&
+            memcmp(text.data(), prefix.data(), prefix.size()) == 0);
+}
+
+bool logger::EndsWith(const string &text, const string &suffix) {
+    return suffix.empty() ||
+           (text.size() >= suffix.size() &&
+            memcmp(text.data() + (text.size() - suffix.size()), suffix.data(),
+                   suffix.size()) == 0);
 }
 
 class __logger_free {

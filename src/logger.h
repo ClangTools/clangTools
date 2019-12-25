@@ -234,7 +234,7 @@ public:
     void puts_info(const char *TAG, const char *tag_by_data, unsigned char *data, size_t data_len,
                    log_rank_t log_rand_type = log_rank_t::log_rank_DEBUG);
 
-    void puts_info(const char *TAG, int line,const char *tag_by_data, unsigned char *data, size_t data_len,
+    void puts_info(const char *TAG, int line, const char *tag_by_data, unsigned char *data, size_t data_len,
                    log_rank_t log_rand_type = log_rank_t::log_rank_DEBUG);
 
     /**
@@ -321,22 +321,25 @@ public:
 
     static void get_files(const std::string &folder_path, std::vector<std::string> &files, int depth = -1);
 
+    static bool StartsWith(const std::string &text, const std::string &prefix);
+    // EndsWith()
+    //
+    // Returns whether a given string `text` ends with `suffix`.
+    static bool EndsWith(const std::string &text, const std::string &suffix);
+
     static void bytes_to_hex_string(const unsigned char *bytes, size_t bytes_len, std::string &hex_string);
 
     static void bytes_to_hex_string(const std::vector<unsigned char> &bytes, std::string &hex_string);
 
     static void hex_string_to_bytes(const std::string &hex_string, std::vector<unsigned char> &bytes);
 
-    static inline std::string trim(std::string& str,char c=' ')
-    {
+    static inline std::string trim(std::string &str, char c = ' ') {
         std::string::size_type pos = str.find_last_not_of(c);
-        if(pos != std::string::npos)
-        {
+        if (pos != std::string::npos) {
             str.erase(pos + 1);
             pos = str.find_first_not_of(c);
-            if(pos != std::string::npos) str.erase(0, pos);
-        }
-        else
+            if (pos != std::string::npos) str.erase(0, pos);
+        } else
             str.erase(str.begin(), str.end());
         return str;
     }

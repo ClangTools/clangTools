@@ -8,7 +8,8 @@
 #ifdef WIN32
 
 #include <process.h>
-
+#else
+#include <unistd.h>
 #endif
 
 using namespace std;
@@ -33,7 +34,7 @@ thread_pool::thread_pool(int size) : stoped{false} {
         return;
     },1024, (void*)this);
     // WaitForSingleObject( handle, INFINITE );
-    CloseHandle(handle);
+    // CloseHandle(handle);
 #endif
 }
 
@@ -45,6 +46,11 @@ void thread_pool::wait_finish() {
     // unique_lock 相比 lock_guard 的好处是：可以随时 unlock() 和 lock()
     stoped.store(true);
     cv_task.notify_all(); // 唤醒所有线程执行
+#ifdef WIN32
+	Sleep(100);
+#else
+	usleep(1000);
+#endif // WIN32
     for (std::thread &thread : pool) {
         //thread.detach(); // 让线程“自生自灭”
         if (thread.joinable())
@@ -59,7 +65,7 @@ void thread_pool::wait_finish() {
 
 unsigned thread_pool::init(void *arg) {
     auto self = (thread_pool *) arg;
-    for (int size = 0; size < self->idlThrNum; ++size) {   //初始化线程数量
+    for (int size = 0;!self->stoped && size < self->idlThrNum; ++size) {   //初始化线程数量
         self->pool.emplace_back(
                 [self] { // 工作线程函数
                     while (!self->stoped) {
