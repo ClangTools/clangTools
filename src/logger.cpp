@@ -70,7 +70,7 @@ logger::~logger() {
     wait_finish();
 #endif
     Free();
-    std::lock_guard<std::mutex> guard1(logger_console_mutex);
+    std::lock_guard <std::mutex> guard1(logger_console_mutex);
 }
 
 #ifdef _LOGGER_USE_THREAD_POOL_
@@ -82,7 +82,7 @@ void logger::wait_finish() {
 #endif
 
 void logger::Free() {
-    std::lock_guard<std::mutex> guard1(logger_file_mutex);
+    std::lock_guard <std::mutex> guard1(logger_file_mutex);
     if (need_free) {
         need_free = true;
         logger_file->flush();
@@ -92,7 +92,7 @@ void logger::Free() {
 }
 
 void logger::WriteToFile(const std::string &data) {
-    std::lock_guard<std::mutex> guard(logger_file_mutex);
+    std::lock_guard <std::mutex> guard(logger_file_mutex);
     if (logger_file == nullptr || !logger_file->is_open())return;
     logger_file->write(data.c_str(), data.size());
     if (data.find('\n') == string::npos) return;
@@ -149,7 +149,7 @@ void logger::WriteToFile(const std::string &data) {
     logger_file->open(filepath, ios::app);
     if (logger_files_max_size <= 0)return;
     if (logger_file_max_size > 0) {
-        std::vector<std::string> files, log_files;
+        std::vector <std::string> files, log_files;
         get_files(path, files, 0);
         for (const auto &item:files) {
             if (item.substr(path.size() + 1).find(l_filename + "_") != string::npos) {
@@ -176,7 +176,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
     auto fh = executor.commit(
             [this](const string &_tag, const std::string &data, log_rank_t log_rank_type) -> void {
 #endif
-                std::lock_guard<std::mutex> guard(logger_console_mutex);
+                std::lock_guard <std::mutex> guard(logger_console_mutex);
 #ifdef _LOGGER_USE_THREAD_POOL_
                 const char *TAG = _tag.c_str();
 #endif
@@ -296,81 +296,81 @@ void logger::puts_info(const char *TAG, const std::string &data, log_rank_t log_
 void logger::i(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_INFO, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::d(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_DEBUG, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::w(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_WARNING, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::e(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_ERROR, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::f(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_FATAL, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::i(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_INFO, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_DEBUG, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::w(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_WARNING, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::e(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_ERROR, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::f(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_FATAL, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::puts_info(const char *TAG, int line, const char *tag_by_data, unsigned char *data, size_t data_len,
@@ -486,7 +486,7 @@ bool logger::mk_dir(const std::string &directory) {
 #endif
 }
 
-void logger::get_files(const std::string &folder_path, std::vector<std::string> &files, int depth) {
+void logger::get_files(const std::string &folder_path, std::vector <std::string> &files, int depth) {
 #ifdef WIN32
     //intptr_t hFile = 0;//Win10
     long hFile = 0;
@@ -519,8 +519,15 @@ void logger::get_files(const std::string &folder_path, std::vector<std::string> 
 
     while ((ptr = readdir(dir)) != nullptr) {
         if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0)    // current dir OR parent dir
+        {
             continue;
-        else if (ptr->d_type == 8)    // file
+        } else if (ptr->d_type == 2)    // file
+        {
+            files.push_back(folder_path + path_split + ptr->d_name);
+        } else if (ptr->d_type == 6)    // file
+        {
+            files.push_back(folder_path + path_split + ptr->d_name);
+        } else if (ptr->d_type == 8)    // file
         {
             files.push_back(folder_path + path_split + ptr->d_name);
         } else if (ptr->d_type == 10)    // link file
@@ -581,7 +588,7 @@ int logger::vscprintf(const char *format, va_list pargs) {
     va_list argcopy;
     va_copy(argcopy, pargs);
     ret_val = ::vsnprintf(nullptr, 0, format, argcopy);
-            va_end(argcopy);
+    va_end(argcopy);
     return ret_val;
 }
 
