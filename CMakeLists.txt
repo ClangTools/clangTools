@@ -4,7 +4,7 @@ if ("${PROJECT_NAME}" STREQUAL "Project")
     set(Tools_Other_Project ON)
 elseif ("${PROJECT_NAME}" STREQUAL "")
     set(Tools_Other_Project ON)
-endif()
+endif ()
 project(Tools)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -17,6 +17,26 @@ if (WIN32)
 else ()
     find_library(dl dl)
     set(dl_LIBRARIES dl)
+endif ()
+
+
+find_package(PkgConfig)
+pkg_search_module(OPENSSL openssl)
+if (OPENSSL_FOUND)
+    add_definitions(-DENABLE_OPENSSL)
+
+    include_directories(${OPENSSL_INCLUDE_DIRS})
+
+    if ("${Tools_Other_Project}" STREQUAL "ON")
+        message(STATUS "OPENSSL library status:")
+        message(STATUS "    ${OPENSSL_VERSION}")
+        message(STATUS "    libraries: ${OPENSSL_LIBRARIES}")
+        message(STATUS "    lib_dir: ${OPENSSL_LIBRARY_DIRS}")
+        message(STATUS "    include path: ${OPENSSL_INCLUDE_DIRS}")
+    endif ()
+    include_directories(${OPENSSL_INCLUDE_DIRS})
+    link_directories(${OPENSSL_LIBRARY_DIRS})
+
 endif ()
 
 option(ENABLE_FILENAME "option for FILENAME" ON)
@@ -72,14 +92,29 @@ if (MSVC)
     add_definitions(-D_AFXDLL)
 endif (MSVC)
 
-option(ENABLE_OPENCV "option for OpenCV" OFF)
-option(OpenCV_DIR "option for OpenCV DIR" E:\\OpenCvLib\\build_WIN32\\x86\\vc16\\lib)
-if (ENABLE_OPENCV)
+find_package(OpenCV)
+if (OpenCV_FOUND)
+    set(ENABLE_OPENCV ON)
     add_definitions(-DENABLE_OPENCV)
-    find_package(OpenCV REQUIRED)
-    include_directories(${OpenCV_INCLUDE_DIRS})
+    if ("${Tools_Other_Project}" STREQUAL "ON")
+        # If the package has been found, several variables will
+        # be set, you can find the full list with descriptions
+        # in the OpenCVConfig.cmake file.
+        # Print some message showing some of them
+        message(STATUS "OpenCV library status:")
+        message(STATUS "    version: ${OpenCV_VERSION}")
+        message(STATUS "    libraries: ${OpenCV_LIBS}")
+        message(STATUS "    libraries: ${OpenCV_LIBRARIES}")
+        message(STATUS "    lib_dir: ${OpenCV_LIB_DIR}")
+        message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
+    endif ()
+    link_directories(${OpenCV_DIR})
+    include_directories(
+            ${OpenCV_INCLUDE_DIRS}
+    )
 
 endif ()
+
 include_directories(
         .
         src/
@@ -91,6 +126,12 @@ add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
 
 )
+if (OPENSSL_FOUND)
+    set(RC_FILES
+            ${RC_FILES}
+            src/ssl_common.cpp
+            )
+endif()
 
 add_library(${libTools_LIBRARIES} STATIC
         ${RC_FILES}
@@ -140,7 +181,6 @@ if (ENABLE_FILENAME)
     #重新定义当前目标的源文件的 __FILENAME__ 宏
     redefine_file_macro(${libTools_LIBRARIES})
 endif ()
-
 
 
 ########安装脚本##########

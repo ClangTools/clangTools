@@ -7,9 +7,11 @@
 #include <mstcpip.h>
 #include <cstdio>
 #else
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include<unistd.h>
+
 #endif
 
 #include "socket.h"
@@ -136,13 +138,16 @@ void kekxv::socket::wait_send_finish() {
     // TODO 未完成
 }
 
+
 long int kekxv::socket::read(std::vector<unsigned char> &data, int flags) {
-    unsigned char buf[512];
+    unsigned char buf[512] = {};
     do {
+        int ret = 0;
+
 #ifdef WIN32
-        int ret = ::recv(fd, (char *) buf, 512, flags);
+        ret = ::recv(fd, (char *) buf, 512, flags);
 #else
-        int ret = ::recv(fd, buf, 512, flags);
+        ret = ::recv(fd, buf, 512, flags);
 #endif
         if (ret <= 0)return 0;
         data.insert(data.end(), &buf[0], &buf[ret]);

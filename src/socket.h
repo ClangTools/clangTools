@@ -36,6 +36,7 @@ namespace kekxv {
         static bool was_sigaction;
     public:
         static void segv_error_handle(int v);
+
         /**
          * 打开并监听指定端口
          * @param port 端口号
@@ -84,7 +85,7 @@ namespace kekxv {
          * @param data 需要发送的字符串
          * @return
          */
-        long int send(const std::string& data);
+        long int send(const std::string &data);
 
         /**
          * 等待发送完毕
@@ -96,13 +97,14 @@ namespace kekxv {
          * @param data 接收数据存放位置
          * @return
          */
-        long int read(std::vector<unsigned char> &data,int flags = 0);
+        long int read(std::vector<unsigned char> &data, int flags = 0);
 
         /**
          * 检查是否有数据
          * @return
          */
         long int check_read_count(int timeout_ms = 1);
+
         long int check_can_send(int timeout_ms = 1);
 
     };
