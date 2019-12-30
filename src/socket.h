@@ -17,10 +17,19 @@
 
 #include <vector>
 #include <logger.h>
+
 #ifdef WIN32
 typedef int socklen_t;
 #else
+
 #include <poll.h>
+
+#endif
+
+#ifdef ENABLE_OPENSSL
+
+#include <ssl_common.h>
+
 #endif
 namespace kekxv {
 
@@ -57,19 +66,25 @@ namespace kekxv {
 
 
     private:
+#ifdef ENABLE_OPENSSL
+        ssl_common *sslCommon = nullptr;
+        ssl_common::ssl_common_sub *sslCommonSub = nullptr;
+        std::vector<unsigned char> ssl_data;
+#endif
         int fd = 0;
         struct pollfd client{};
     public:
         explicit socket(int fd);
 
-        /**
-         * 发送数据
-         * @param data 待发送的数据
-         * @param offset 发送数据起始
-         * @param len 发送数据长度
-         * @return 同 write
-         */
-        long int send(std::vector<unsigned char> data, long int offset = 0, long int len = -1, int flags = 0);
+#ifdef ENABLE_OPENSSL
+
+        explicit socket(int fd, ssl_common *sslCommon);
+
+        bool do_ssl_handshake();
+
+#endif
+
+        ~socket();
 
         /**
          * 发送数据
@@ -78,14 +93,23 @@ namespace kekxv {
          * @param len 发送数据长度
          * @return 同 write
          */
-        long int send(unsigned char *data, long int offset = 0, long int len = -1, int flags = 0);
+        long int send(std::vector<unsigned char> data, long int offset = 0, long int len = -1, int flags = 0, bool is_ssl = true);
+
+        /**
+         * 发送数据
+         * @param data 待发送的数据
+         * @param offset 发送数据起始
+         * @param len 发送数据长度
+         * @return 同 write
+         */
+        long int send(unsigned char *data, long int offset = 0, long int len = -1, int flags = 0, bool is_ssl = true);
 
         /**
          * 发送字符串
          * @param data 需要发送的字符串
          * @return
          */
-        long int send(const std::string &data);
+        long int send(const std::string &data, bool is_ssl = true);
 
         /**
          * 等待发送完毕
@@ -97,13 +121,13 @@ namespace kekxv {
          * @param data 接收数据存放位置
          * @return
          */
-        long int read(std::vector<unsigned char> &data, int flags = 0);
+        long int read(std::vector<unsigned char> &data, int flags = 0, bool is_ssl = true);
 
         /**
          * 检查是否有数据
          * @return
          */
-        long int check_read_count(int timeout_ms = 1);
+        long int check_read_count(int timeout_ms = 1, bool is_ssl = true);
 
         long int check_can_send(int timeout_ms = 1);
 

@@ -1,9 +1,11 @@
-/*
-Copyright (c) 2017 Darren Smith
-
-ssl_examples is free software; you can redistribute it and/or modify
-it under the terms of the MIT license. See LICENSE for details.
-*/
+/*********************************
+ * Created by caesar on 2019/12/7.
+ * openssl 封装
+ *
+ * 本文件来自 https://github.com/kekxv/
+ *
+ * 参考自 https://github.com/darrenjs/openssl_examples
+ *********************************/
 #ifndef __SSL_COMMON_HEADER_
 #define __SSL_COMMON_HEADER_
 
@@ -17,6 +19,10 @@ it under the terms of the MIT license. See LICENSE for details.
 #include <cstring>
 #include <logger.h>
 
+namespace kekxv {
+    class socket;
+};
+
 class ssl_common {
 public:
     enum SSL_status {
@@ -28,10 +34,10 @@ public:
 private:
     static std::mutex is_init_ssl_lock;
     static bool is_init_ssl;
-    const int DEFAULT_BUF_SIZE = 64;
     SSL_CTX *ctx = nullptr;
     std::mutex ssl_lock;
 public:
+    const int DEFAULT_BUF_SIZE = 64;
     SSL_mode ssl_mode = SSL_MODE_SERVER;
 
     class ssl_common_sub;
@@ -55,6 +61,7 @@ public:
         SSL *ssl = nullptr;
         BIO *rBIO = nullptr; /* SSL reads from, we write to. */
         BIO *wBIO = nullptr; /* SSL writes to, we read from. */
+    public:
         std::vector<unsigned char> write_buf;
         std::vector<unsigned char> encrypt_buf;
     public:
@@ -70,16 +77,19 @@ public:
 
         enum SSL_status do_ssl_handshake();
 
-        int on_read_cb(std::vector<unsigned char>&data,unsigned char *src, size_t len);
+        bool SSL_init_finished();
 
-        int do_encrypt();
+        int on_read_cb(std::vector<unsigned char> &data, unsigned char *src, size_t len);
+
+        int do_encrypt(std::vector<unsigned char> &encrypt_data, std::vector<unsigned char> data);
 
     public:
+        friend class kekxv::socket;
+
     };
 
     friend class ssl_common_sub;
 };
-
 
 
 #endif // __SSL_COMMON_HEADER_

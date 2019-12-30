@@ -114,15 +114,95 @@ kekxv::socket::socket(int fd) {
     client.revents = 0;
 }
 
-long int kekxv::socket::send(std::vector<unsigned char> data, long int offset, long int len, int flags) {
+#ifdef ENABLE_OPENSSL
+
+kekxv::socket::socket(int fd, ssl_common *sslCommon) {
+    this->fd = fd;
+    client.fd = fd;
+    client.events = POLLIN;
+    client.revents = 0;
+    this->sslCommon = sslCommon;
+    if (sslCommon != nullptr && sslCommon->isReady()) {
+        if (sslCommonSub != nullptr)
+            sslCommon->free_sub(sslCommonSub);
+        sslCommon->init_sub(sslCommonSub);
+        if (!do_ssl_handshake()) {
+            sslCommon->free_sub(sslCommonSub);
+        }
+    }
+}
+
+bool socket::do_ssl_handshake() {
+    vector<unsigned char> data;
+    while (!sslCommonSub->SSL_init_finished()) {
+        vector<unsigned char> buf;
+        if (this->check_read_count(1000, false) <= 0) {
+            return false;
+        }
+        this->read(buf, 0, false);
+        if (buf.empty())
+            return false;
+        data.insert(data.end(), buf.begin(), buf.end());
+
+        int len = sslCommon->DEFAULT_BUF_SIZE;
+        while (!sslCommonSub->SSL_init_finished() && !buf.empty()) {
+            int n = BIO_write(sslCommonSub->rBIO, &buf.data()[0],
+                              (buf.size() < len) ? (buf.size()) : len);
+            if (n <= 0)
+                return false; /* assume bio write failure is unrecoverable */
+            buf.erase(buf.begin(), buf.begin() + n);
+
+            auto ret = sslCommonSub->do_ssl_handshake();
+            if (ret == ssl_common::SSL_status::SSL_STATUS_FAIL) {
+                ssl_data.insert(ssl_data.end(), data.begin(), data.end());
+                return false;
+            }
+            if (sslCommonSub->SSL_init_finished()) {
+                if (!buf.empty())
+                    ssl_data.insert(ssl_data.end(), buf.begin(), buf.end());
+                unsigned char _buf[1024];
+                n = BIO_read(sslCommonSub->wBIO, _buf, sizeof(_buf));
+                if (n > 0) {
+                    this->send(_buf, 0, n, 0, false);
+                    // ssl_data.insert(ssl_data.end(), &_buf[0], &_buf[n]);
+                }
+                break;
+            }
+            if (!sslCommonSub->write_buf.empty()) {
+                this->send(sslCommonSub->write_buf, 0, -1, 0, false);
+                sslCommonSub->write_buf.clear();
+            }
+        }
+    }
+
+    return sslCommonSub->SSL_init_finished();
+}
+
+#endif
+
+long int kekxv::socket::send(std::vector<unsigned char> data, long int offset, long int len, int flags, bool is_ssl) {
     if (len < 0) {
         len = data.size() - offset;
     }
-    return send(data.data(), offset, len, flags);
+    return send(data.data(), offset, len, flags, is_ssl);
 }
 
-long int kekxv::socket::send(unsigned char *data, long int offset, long int len, int flags) {
+long int kekxv::socket::send(unsigned char *data, long int offset, long int len, int flags, bool is_ssl) {
     if (check_can_send() < 0)return 0;
+#ifdef ENABLE_OPENSSL
+    if (is_ssl && sslCommonSub != nullptr) {
+        vector<unsigned char> buffer;
+        sslCommonSub->do_encrypt(buffer, vector<unsigned char>(&data[offset], &data[offset + len]));
+        if (!buffer.empty()) {
+
+#ifdef WIN32
+            return ::send(fd, (const char *) buffer.data(), buffer.size(), flags);
+#else
+            return ::send(fd, buffer.data(), buffer.size(), flags);
+#endif
+        }
+    }
+#endif
 #ifdef WIN32
     return ::send(fd, (const char *) &data[offset], len, flags);
 #else
@@ -130,8 +210,8 @@ long int kekxv::socket::send(unsigned char *data, long int offset, long int len,
 #endif
 }
 
-long int kekxv::socket::send(const std::string &data) {
-    return send((unsigned char *) data.data(), 0, data.size());
+long int kekxv::socket::send(const std::string &data, bool is_ssl) {
+    return send((unsigned char *) data.data(), 0, data.size(), 0, is_ssl);
 }
 
 void kekxv::socket::wait_send_finish() {
@@ -139,7 +219,14 @@ void kekxv::socket::wait_send_finish() {
 }
 
 
-long int kekxv::socket::read(std::vector<unsigned char> &data, int flags) {
+long int kekxv::socket::read(std::vector<unsigned char> &data, int flags, bool is_ssl) {
+#ifdef ENABLE_OPENSSL
+    if (is_ssl && !ssl_data.empty()) {
+        data.insert(data.end(), ssl_data.begin(), ssl_data.end());
+        ssl_data.clear();
+        return data.size();
+    }
+#endif
     unsigned char buf[512] = {};
     do {
         int ret = 0;
@@ -155,10 +242,36 @@ long int kekxv::socket::read(std::vector<unsigned char> &data, int flags) {
             break;
         }
     } while (true);
+#ifdef ENABLE_OPENSSL
+    if (is_ssl && sslCommonSub != nullptr) {
+        vector<unsigned char> buffer;
+        int n = BIO_write(sslCommonSub->rBIO, data.data(), data.size());
+        if (n > 0) {
+            do {
+                n = SSL_read(sslCommonSub->ssl, buf, sizeof(buf));
+                if (n > 0)
+                    buffer.insert(buffer.end(), &buf[0], &buf[n]);
+            } while (n > 0);
+            if (!buffer.empty()) {
+                data.clear();
+                data.insert(data.end(), buffer.begin(), buffer.end());
+            }
+
+//            data.push_back(0);
+//            _logger->d(TAG, __LINE__, "%s", data.data());
+//            data.erase(data.end() - 1);
+        }
+    }
+#endif
     return data.size();
 }
 
-long int kekxv::socket::check_read_count(int timeout) {
+long int kekxv::socket::check_read_count(int timeout, bool is_ssl) {
+#ifdef ENABLE_OPENSSL
+    if (is_ssl && !ssl_data.empty()) {
+        return ssl_data.size();
+    }
+#endif
 #ifdef WIN32
     client.events = POLLIN;
     int poll_ret = WSAPoll(&client, 1, timeout);
@@ -208,4 +321,13 @@ long int kekxv::socket::check_can_send(int timeout_ms) {
         return poll_ret;
     }
     return 1;
+}
+
+kekxv::socket::~socket() {
+#ifdef ENABLE_OPENSSL
+    if (sslCommonSub != nullptr) {
+        sslCommon->free_sub(sslCommonSub);
+        sslCommon = nullptr;
+    }
+#endif
 }

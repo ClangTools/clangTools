@@ -1,9 +1,3 @@
-/*
-Copyright (c) 2017 Darren Smith
-
-ssl_examples is free software; you can redistribute it and/or modify
-it under the terms of the MIT license. See LICENSE for details.
-*/
 #include <ssl_common.h>
 
 std::mutex ssl_common::is_init_ssl_lock;
@@ -55,6 +49,7 @@ ssl_common::ssl_common(const char *cert_file, const char *key_file) {
 bool ssl_common::isReady() {
     return ctx != nullptr;
 }
+
 ssl_common::~ssl_common() {
     if (ctx) {
         SSL_CTX_free(ctx);
@@ -82,6 +77,11 @@ void ssl_common::free_sub(ssl_common::ssl_common_sub *&sub) {
 
 
 ssl_common::ssl_common_sub::~ssl_common_sub() {
+    if (ssl != nullptr) {
+        SSL_shutdown(ssl);
+//        SSL_free(ssl);
+        ssl = nullptr;
+    }
     if (rBIO != nullptr) {
         BIO_free(rBIO);
         rBIO = nullptr;
@@ -90,11 +90,6 @@ ssl_common::ssl_common_sub::~ssl_common_sub() {
         BIO_free(wBIO);
         wBIO = nullptr;
     } /* SSL writes to, we read from. */
-    if (ssl != nullptr) {
-        SSL_shutdown(ssl);
-//        SSL_free(ssl);
-        ssl = nullptr;
-    }
 }
 
 ssl_common::ssl_common_sub::ssl_common_sub(ssl_common *parent) {
@@ -136,9 +131,10 @@ void ssl_common::ssl_common_sub::queue_encrypted_bytes(unsigned char *buf, size_
 
 ssl_common::SSL_status ssl_common::ssl_common_sub::do_ssl_handshake() {
     unsigned char buf[parent->DEFAULT_BUF_SIZE];
-    enum SSL_status status;
+    enum SSL_status status = SSL_STATUS_OK;
 
     int n = SSL_do_handshake(ssl);
+    if (n >= 0)return status;
     status = get_ssl_status(n);
 
     /* Did SSL request to write bytes? */
@@ -155,7 +151,7 @@ ssl_common::SSL_status ssl_common::ssl_common_sub::do_ssl_handshake() {
     return status;
 }
 
-int ssl_common::ssl_common_sub::on_read_cb(std::vector<unsigned char>&data,unsigned char *src, size_t len) {
+int ssl_common::ssl_common_sub::on_read_cb(std::vector<unsigned char> &data, unsigned char *src, size_t len) {
     write_buf.clear();
     unsigned char buf[parent->DEFAULT_BUF_SIZE];
     enum SSL_status status = SSL_status::SSL_STATUS_OK;
@@ -171,7 +167,7 @@ int ssl_common::ssl_common_sub::on_read_cb(std::vector<unsigned char>&data,unsig
             if (do_ssl_handshake() == SSL_STATUS_FAIL)
                 return -1;
             if (!SSL_is_init_finished(ssl)) {
-                 return -2;
+                return 0;
             }
         }
         do {
@@ -196,44 +192,47 @@ int ssl_common::ssl_common_sub::on_read_cb(std::vector<unsigned char>&data,unsig
         if (status == SSL_STATUS_FAIL)
             return -1;
     }
-    data.insert(data.end(),write_buf.begin(),write_buf.end());
+    data.insert(data.end(), write_buf.begin(), write_buf.end());
     write_buf.clear();
     return 0;
 }
 
-int ssl_common::ssl_common_sub::do_encrypt()
-{
+int ssl_common::ssl_common_sub::do_encrypt(std::vector<unsigned char> &encrypt_data, std::vector<unsigned char> data) {
     unsigned char buf[parent->DEFAULT_BUF_SIZE];
     enum SSL_status status = SSL_status::SSL_STATUS_OK;
 
     if (!SSL_is_init_finished(ssl))
         return 0;
 
-    while (encrypt_buf.empty()) {
-        size_t n = SSL_write(ssl, encrypt_buf.data(), encrypt_buf.size());
+    while (!data.empty()) {
+        int n = SSL_write(ssl, data.data(), data.size());
         status = get_ssl_status(n);
 
-        if (n>0) {
+        if (n > 0) {
             /* consume the waiting bytes that have been used by SSL */
-            encrypt_buf.erase(encrypt_buf.begin(),encrypt_buf.begin()+n);
+            data.erase(data.begin(), data.begin() + n);
 
             /* take the output of the SSL object and queue it for socket write */
             do {
                 n = BIO_read(wBIO, buf, sizeof(buf));
                 if (n > 0)
-                    queue_encrypted_bytes(buf, n);
+                    encrypt_data.insert(encrypt_data.end(), &buf[0], &buf[n]);
                 else if (!BIO_should_retry(wBIO))
                     return -1;
-            } while (n>0);
+            } while (n > 0);
         }
 
         if (status == SSL_STATUS_FAIL)
             return -1;
 
-        if (n==0)
+        if (n == 0)
             break;
     }
     return 0;
+}
+
+bool ssl_common::ssl_common_sub::SSL_init_finished() {
+    return SSL_is_init_finished(ssl);
 }
 
 
