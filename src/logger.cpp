@@ -70,7 +70,7 @@ logger::~logger() {
     wait_finish();
 #endif
     Free();
-    std::lock_guard <std::mutex> guard1(logger_console_mutex);
+    std::lock_guard<std::mutex> guard1(logger_console_mutex);
 }
 
 #ifdef _LOGGER_USE_THREAD_POOL_
@@ -82,7 +82,7 @@ void logger::wait_finish() {
 #endif
 
 void logger::Free() {
-    std::lock_guard <std::mutex> guard1(logger_file_mutex);
+    std::lock_guard<std::mutex> guard1(logger_file_mutex);
     if (need_free) {
         need_free = true;
         logger_file->flush();
@@ -92,7 +92,7 @@ void logger::Free() {
 }
 
 void logger::WriteToFile(const std::string &data) {
-    std::lock_guard <std::mutex> guard(logger_file_mutex);
+    std::lock_guard<std::mutex> guard(logger_file_mutex);
     if (logger_file == nullptr || !logger_file->is_open())return;
     logger_file->write(data.c_str(), data.size());
     if (data.find('\n') == string::npos) return;
@@ -149,7 +149,7 @@ void logger::WriteToFile(const std::string &data) {
     logger_file->open(filepath, ios::app);
     if (logger_files_max_size <= 0)return;
     if (logger_file_max_size > 0) {
-        std::vector <std::string> files, log_files;
+        std::vector<std::string> files, log_files;
         get_files(path, files, 0);
         for (const auto &item:files) {
             if (item.substr(path.size() + 1).find(l_filename + "_") != string::npos) {
@@ -176,7 +176,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
     auto fh = executor.commit(
             [this](const string &_tag, const std::string &data, log_rank_t log_rank_type) -> void {
 #endif
-                std::lock_guard <std::mutex> guard(logger_console_mutex);
+                std::lock_guard<std::mutex> guard(logger_console_mutex);
 #ifdef _LOGGER_USE_THREAD_POOL_
                 const char *TAG = _tag.c_str();
 #endif
@@ -486,7 +486,7 @@ bool logger::mk_dir(const std::string &directory) {
 #endif
 }
 
-void logger::get_files(const std::string &folder_path, std::vector <std::string> &files, int depth) {
+void logger::get_files(const std::string &folder_path, std::vector<std::string> &files, int depth) {
 #ifdef WIN32
     //intptr_t hFile = 0;//Win10
     long hFile = 0;
@@ -651,6 +651,19 @@ bool logger::EndsWith(const string &text, const string &suffix) {
            (text.size() >= suffix.size() &&
             memcmp(text.data() + (text.size() - suffix.size()), suffix.data(),
                    suffix.size()) == 0);
+}
+
+void logger::init_default(std::string path) {
+    this->min_level = logger::log_rank_t::log_rank_DEBUG;
+    this->console_show = true;
+    this->wait_show = true;
+    if (!path.empty()) {
+        logger::mk_dir(path);
+        std::string logfile = path + logger::path_split + "logger.log";
+        this->open((logfile).c_str());
+        this->logger_files_max_size = 5;
+        this->logger_file_max_size = 100;
+    }
 }
 
 class __logger_free {

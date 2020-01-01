@@ -1,22 +1,19 @@
 //
 // Created by caesar on 2019/12/7.
 //
-#ifdef WIN32
-#include <WinSock2.h>
-#include <WS2tcpip.h>
-#include <mstcpip.h>
-#include <cstdio>
-#else
 
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include<unistd.h>
-
-#endif
+#include <netdb.h>
 
 #include "socket.h"
-#include<stdio.h>
-#include<signal.h>
+#include<cstdio>
+#include<csignal>
+
+#ifdef WIN32
+#else
+
+#include <fcntl.h>
+
+#endif
 
 using namespace std;
 using namespace kekxv;
@@ -236,7 +233,8 @@ long int kekxv::socket::read(std::vector<unsigned char> &data, int flags, bool i
 #else
         ret = ::recv(fd, buf, 512, flags);
 #endif
-        if (ret <= 0)return 0;
+        if (ret <= 0)
+            return 0;
         data.insert(data.end(), &buf[0], &buf[ret]);
         if (ret != 512) {
             break;
@@ -272,6 +270,7 @@ long int kekxv::socket::check_read_count(int timeout, bool is_ssl) {
         return ssl_data.size();
     }
 #endif
+    client.revents = 0;
 #ifdef WIN32
     client.events = POLLIN;
     int poll_ret = WSAPoll(&client, 1, timeout);
@@ -330,4 +329,87 @@ kekxv::socket::~socket() {
         sslCommon = nullptr;
     }
 #endif
+    if (need_close) {
+        close(fd);
+    }
+}
+
+
+int socket::OpenConnection(const char *hostname, const char *port) {
+    struct hostent *_host = nullptr;
+    if ((_host = gethostbyname(hostname)) == nullptr) {
+        logger::instance()->e(TAG, __LINE__, "%s: %s", hostname, strerror(errno));
+        return -1;
+    }
+
+    struct addrinfo hints = {0}, *addrs = nullptr;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    const int status = getaddrinfo(hostname, port, &hints, &addrs);
+    if (status != 0) {
+        logger::instance()->e(TAG, __LINE__, "%s: %s", hostname, strerror(errno));
+        return -1;
+    }
+
+    int sfd = 0, err = 0;
+    for (struct addrinfo *addr = addrs; addr != nullptr; addr = addr->ai_next) {
+        sfd = ::socket(addrs->ai_family, addrs->ai_socktype, addrs->ai_protocol);
+        if (sfd == -1) {
+            err = errno;
+            continue;
+        }
+
+        if (connect(sfd, addr->ai_addr, addr->ai_addrlen) == 0) {
+            break;
+        }
+
+        err = errno;
+        sfd = -1;
+        close(sfd);
+    }
+
+    freeaddrinfo(addrs);
+
+    if (sfd == -1) {
+        logger::instance()->e(TAG, __LINE__, "%s: %s", hostname, strerror(err));
+        return -1;
+    }
+
+    int reuse = 1;
+#ifdef WIN32
+    ULONG uNonBlockingMode = 1;
+    if (SOCKET_ERROR == ioctlsocket(sfd, FIONBIO, &uNonBlockingMode)) {
+        _logger->e(TAG, __LINE__, "cannot set sockopt SO_REUSEADDR");
+    }
+#else
+    if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) {
+        _logger->e(TAG, __LINE__, "cannot set sockopt SO_REUSEADDR");
+    }
+#endif
+    return sfd;
+}
+
+bool kekxv::socket::isReady() {
+    return fd > 0;
+}
+
+kekxv::socket::socket(const char *hostname, const char *port) {
+    if (!was_sigaction) {
+#ifdef WIN32
+        WSADATA wsa;
+        WSAStartup(MAKEWORD(2, 2), &wsa);
+#else
+        struct sigaction siga{}, old{};
+        siga.sa_handler = segv_error_handle;
+        siga.sa_flags = 0;
+        memset(&siga.sa_mask, 0, sizeof(sigset_t));
+        sigaction(SIGPIPE, &siga, &old);
+#endif
+        was_sigaction = true;
+    }
+    need_close = true;
+    fd = OpenConnection(hostname, port);
+    client.fd = fd;
 }

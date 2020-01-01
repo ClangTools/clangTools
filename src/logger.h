@@ -146,6 +146,8 @@ public:
 
     bool is_open();
 
+    void init_default(std::string path = "");
+
     /**
      * puts info logger
      * @param TAG

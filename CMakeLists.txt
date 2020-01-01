@@ -97,10 +97,6 @@ if (OpenCV_FOUND)
     set(ENABLE_OPENCV ON)
     add_definitions(-DENABLE_OPENCV)
     if ("${Tools_Other_Project}" STREQUAL "ON")
-        # If the package has been found, several variables will
-        # be set, you can find the full list with descriptions
-        # in the OpenCVConfig.cmake file.
-        # Print some message showing some of them
         message(STATUS "OpenCV library status:")
         message(STATUS "    version: ${OpenCV_VERSION}")
         message(STATUS "    libraries: ${OpenCV_LIBS}")
@@ -112,8 +108,15 @@ if (OpenCV_FOUND)
     include_directories(
             ${OpenCV_INCLUDE_DIRS}
     )
-
 endif ()
+
+FIND_PACKAGE(CURL)
+IF(CURL_FOUND)
+    INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIR})
+ELSE(CURL_FOUND)
+    MESSAGE(FATAL_ERROR "Could not find the CURL library and development files.")
+ENDIF(CURL_FOUND)
+
 
 include_directories(
         .
@@ -142,13 +145,16 @@ target_compile_definitions(
         ${libTools_LIBRARIES}
         PUBLIC -D_${libTools_LIBRARIES}_HEADER_ #-D_LOGGER_USE_THREAD_POOL_
 )
-target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES})
+target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
 
-if ("${Tools_Other_Project}" STREQUAL "ON")
+option(clangToolsExample "option for FILENAME" OFF)
+if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
     add_executable(logger_Demo Example/logger_demo.cpp)
+    add_executable(http_Demo Example/http_demo.cpp)
     add_executable(thread_pool_demo Example/thread_pool_demo.cpp)
     add_executable(tinyxml2_demo Example/tinyxml2_demo.cpp)
     add_executable(json_demo Example/json_demo.cpp)
+    target_link_libraries(http_Demo ${libTools_LIBRARIES} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
     target_link_libraries(logger_Demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
     target_link_libraries(thread_pool_demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
     target_link_libraries(tinyxml2_demo ${libTools_LIBRARIES} ${dl_LIBRARIES})
@@ -156,13 +162,14 @@ if ("${Tools_Other_Project}" STREQUAL "ON")
 
     option(ENABLE_FILENAME "option for FILENAME" ON)
     if (ENABLE_FILENAME)
+        redefine_file_macro(http_Demo)
         redefine_file_macro(logger_Demo)
         redefine_file_macro(tinyxml2_demo)
         redefine_file_macro(thread_pool_demo)
         redefine_file_macro(json_demo)
     endif ()
 
-    install(TARGETS logger_Demo thread_pool_demo tinyxml2_demo json_demo
+    install(TARGETS http_Demo logger_Demo thread_pool_demo tinyxml2_demo json_demo
             RUNTIME DESTINATION bin
             LIBRARY DESTINATION bin)
     message("-- install to " ${CMAKE_INSTALL_PREFIX})

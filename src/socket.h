@@ -4,7 +4,18 @@
 
 #ifndef KPROXYCPP_SOCKET_H
 #define KPROXYCPP_SOCKET_H
+#ifdef WIN32
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#include <mstcpip.h>
+#include <cstdio>
+#else
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include<unistd.h>
+
+#endif
 #ifdef WIN32
 #ifdef _Tools_HEADER_
 #define DLL_socket_Export  __declspec(dllexport)
@@ -21,15 +32,11 @@
 #ifdef WIN32
 typedef int socklen_t;
 #else
-
 #include <poll.h>
-
 #endif
 
 #ifdef ENABLE_OPENSSL
-
 #include <ssl_common.h>
-
 #endif
 namespace kekxv {
 
@@ -72,9 +79,14 @@ namespace kekxv {
         std::vector<unsigned char> ssl_data;
 #endif
         int fd = 0;
+        bool need_close = false;
         struct pollfd client{};
     public:
+
+        explicit socket(const char *hostname, const char *port);
         explicit socket(int fd);
+
+        bool isReady();
 
 #ifdef ENABLE_OPENSSL
 
@@ -130,6 +142,9 @@ namespace kekxv {
         long int check_read_count(int timeout_ms = 1, bool is_ssl = true);
 
         long int check_can_send(int timeout_ms = 1);
+
+    private:
+        static int OpenConnection(const char *hostname, const char *port);
 
     };
 }
