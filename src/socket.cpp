@@ -2,7 +2,6 @@
 // Created by caesar on 2019/12/7.
 //
 
-#include <netdb.h>
 
 #include "socket.h"
 #include<cstdio>
@@ -10,9 +9,8 @@
 
 #ifdef WIN32
 #else
-
 #include <fcntl.h>
-
+#include <netdb.h>
 #endif
 
 using namespace std;

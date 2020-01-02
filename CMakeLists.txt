@@ -110,33 +110,6 @@ if (OpenCV_FOUND)
     )
 endif ()
 
-FIND_PACKAGE(CURL)
-IF(CURL_FOUND)
-    INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIR})
-ELSE(CURL_FOUND)
-    include(ExternalProject)
-    ExternalProject_Add(curl
-            URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
-            URL_MD5 "90b6c61cf3a96a11494deae2f1b3fa92"
-            CONFIGURE_COMMAND cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
-            PREFIX ${CMAKE_BINARY_DIR}/dependencies
-            INSTALL_DIR ${INSTALL_DIR}
-            BUILD_COMMAND ${MAKE}
-            )
-    set(curl_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
-    if (WIN32)
-        set(prefix "")
-        set(suffix ".lib")
-    else ()
-        set(prefix "lib")
-        set(suffix ".a")
-    endif ()
-    set(CURL_LIBRARIES
-            "${curl_LIB_DIR}/${prefix}curl${suffix}")
-
-    include_directories(${CMAKE_BINARY_DIR}/dependencies/include/)
-    add_dependencies(${libTools_LIBRARIES} curl)
-ENDIF(CURL_FOUND)
 
 
 include_directories(
@@ -150,17 +123,56 @@ add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
 
 )
-if (OPENSSL_FOUND)
-    set(RC_FILES
-            ${RC_FILES}
-            src/ssl_common.cpp
-            )
+if (NOT OPENSSL_FOUND)
+#    set(RC_FILES
+#            ${RC_FILES}
+#            src/ssl_common.cpp
+#            )
+    list(REMOVE_ITEM srcSource src/ssl_common.cpp)
 endif()
 
 add_library(${libTools_LIBRARIES} STATIC
         ${RC_FILES}
         ${srcSource}
         )
+FIND_PACKAGE(CURL)
+IF(CURL_FOUND)
+    INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIR})
+ELSE(CURL_FOUND)
+    include(ExternalProject)
+    if (WIN32)
+        ExternalProject_Add(curl
+                URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
+                URL_MD5 "90b6c61cf3a96a11494deae2f1b3fa92"
+                CONFIGURE_COMMAND cmake -G "Visual Studio 14 2015" -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                INSTALL_DIR ${INSTALL_DIR}
+                BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build"
+                INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build" --target install
+                )
+        else()
+        ExternalProject_Add(curl
+                URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
+                URL_MD5 "90b6c61cf3a96a11494deae2f1b3fa92"
+                CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                INSTALL_DIR ${INSTALL_DIR}
+                BUILD_COMMAND ${MAKE}
+                )
+    endif ()
+    set(curl_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
+    set(prefix "lib")
+    if (WIN32)
+        set(suffix "-d.lib")
+    else ()
+        set(suffix ".a")
+    endif ()
+    set(CURL_LIBRARIES
+            "${curl_LIB_DIR}/${prefix}curl${suffix}")
+
+    include_directories(${CMAKE_BINARY_DIR}/dependencies/include/)
+    add_dependencies(${libTools_LIBRARIES} curl)
+ENDIF(CURL_FOUND)
 
 target_compile_definitions(
         ${libTools_LIBRARIES}
