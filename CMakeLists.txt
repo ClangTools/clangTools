@@ -114,6 +114,7 @@ FIND_PACKAGE(CURL)
 IF(CURL_FOUND)
     INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIR})
 ELSE(CURL_FOUND)
+    include(ExternalProject)
     ExternalProject_Add(curl
             URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
             URL_MD5 "90b6c61cf3a96a11494deae2f1b3fa92"
