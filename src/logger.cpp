@@ -176,107 +176,107 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
     auto fh = executor.commit(
             [this](const string &_tag, const std::string &data, log_rank_t log_rank_type) -> void {
 #endif
-                std::lock_guard<std::mutex> guard(logger_console_mutex);
+    std::lock_guard<std::mutex> guard(logger_console_mutex);
 #ifdef _LOGGER_USE_THREAD_POOL_
-                const char *TAG = _tag.c_str();
+    const char *TAG = _tag.c_str();
 #endif
 #ifdef WIN32
-                HANDLE handle = nullptr;
-                WORD wOldColorAttrs = 0;
-                CONSOLE_SCREEN_BUFFER_INFO csbiInfo{};
-                if (console_show) {
-                    handle = GetStdHandle(STD_OUTPUT_HANDLE);
-                    GetConsoleScreenBufferInfo(handle, &csbiInfo);
-                    wOldColorAttrs = csbiInfo.wAttributes;
-                }
+    HANDLE handle = nullptr;
+    WORD wOldColorAttrs = 0;
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo{};
+    if (console_show) {
+        handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        GetConsoleScreenBufferInfo(handle, &csbiInfo);
+        wOldColorAttrs = csbiInfo.wAttributes;
+    }
 #endif
 #ifdef ANDROID_SO
-                __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, data.c_ste());
+    __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, data.c_ste());
 #endif
 
-                string _time = GetTime("%Y%m%d %H:%M:%S");
-                if (console_show) {
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Default);
-                    printf("%s", _time.c_str());
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                }
+    string _time = GetTime("%Y%m%d %H:%M:%S");
+    if (console_show) {
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Default);
+        printf("%s", _time.c_str());
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+    }
 
-                WriteToFile(_time);
+    WriteToFile(_time);
 
-                string _type = "I";
-                switch (log_rank_type) {
-                    case log_rank_t::log_rank_DEBUG:
-                        _type = "D";
-                        break;
-                    case log_rank_t::log_rank_WARNING:
-                        _type = "W";
-                        break;
-                    case log_rank_t::log_rank_ERROR:
-                        _type = "E";
-                        break;
-                    case log_rank_t::log_rank_FATAL:
-                        _type = "F";
-                        break;
-                    case log_rank_t::log_rank_INFO:
-                    default:
-                        _type = "I";
-                        break;
-                }
-                if (console_show) {
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Yellow);
-                    printf("[%s]", _type.c_str());
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                }
-                WriteToFile("[" + _type + "]");
+    string _type = "I";
+    switch (log_rank_type) {
+        case log_rank_t::log_rank_DEBUG:
+            _type = "D";
+            break;
+        case log_rank_t::log_rank_WARNING:
+            _type = "W";
+            break;
+        case log_rank_t::log_rank_ERROR:
+            _type = "E";
+            break;
+        case log_rank_t::log_rank_FATAL:
+            _type = "F";
+            break;
+        case log_rank_t::log_rank_INFO:
+        default:
+            _type = "I";
+            break;
+    }
+    if (console_show) {
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Yellow);
+        printf("[%s]", _type.c_str());
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+    }
+    WriteToFile("[" + _type + "]");
 
-                if (TAG != nullptr) {
-                    if (console_show) {
-                        SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Purple);
-                        printf("[ %s ]", TAG);
-                        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                    }
-                    WriteToFile("[" + string(TAG) + "]");
-                }
+    if (TAG != nullptr) {
+        if (console_show) {
+            SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Purple);
+            printf("[ %s ]", TAG);
+            SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+        }
+        WriteToFile("[" + string(TAG) + "]");
+    }
 
-                if (console_show) {
-                    switch (log_rank_type) {
-                        case log_rank_t::log_rank_DEBUG:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Cyan,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_WARNING:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Yellow,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_ERROR:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_FATAL:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Purple,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_INFO:
-                        default:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Green,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                    }
+    if (console_show) {
+        switch (log_rank_type) {
+            case log_rank_t::log_rank_DEBUG:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Cyan,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_WARNING:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Yellow,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_ERROR:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_FATAL:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Purple,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_INFO:
+            default:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Green,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+        }
 
-                    printf("%s", data.c_str());
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                }
-                WriteToFile(data);
+        printf("%s", data.c_str());
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+    }
+    WriteToFile(data);
 #ifdef WIN32
-                SetConsoleTextAttribute(handle, wOldColorAttrs);
+    SetConsoleTextAttribute(handle, wOldColorAttrs);
 #endif
-                if (console_show) {
-                    printf("\n");
-                }
-                WriteToFile("\n");
+    if (console_show) {
+        printf("\n");
+    }
+    WriteToFile("\n");
 
 #ifdef _LOGGER_USE_THREAD_POOL_
-            }, _tag, data, log_rank_type);
-    if (wait_show)fh.get();
+    }, _tag, data, log_rank_type);
+if (wait_show)fh.get();
 #endif
 }
 
@@ -296,81 +296,81 @@ void logger::puts_info(const char *TAG, const std::string &data, log_rank_t log_
 void logger::i(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::w(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::i(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::w(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::puts_info(const char *TAG, int line, const char *tag_by_data, unsigned char *data, size_t data_len,
@@ -588,7 +588,7 @@ int logger::vscprintf(const char *format, va_list pargs) {
     va_list argcopy;
     va_copy(argcopy, pargs);
     ret_val = ::vsnprintf(nullptr, 0, format, argcopy);
-    va_end(argcopy);
+            va_end(argcopy);
     return ret_val;
 }
 
@@ -656,7 +656,9 @@ bool logger::EndsWith(const string &text, const string &suffix) {
 void logger::init_default(std::string path) {
     this->min_level = logger::log_rank_t::log_rank_DEBUG;
     this->console_show = true;
+#ifdef _LOGGER_USE_THREAD_POOL_
     this->wait_show = true;
+#endif
     if (!path.empty()) {
         logger::mk_dir(path);
         std::string logfile = path + logger::path_split + "logger.log";
