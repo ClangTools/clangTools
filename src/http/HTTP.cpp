@@ -9,6 +9,7 @@
 #include <UTF8Url.h>
 #include <socket.h>
 #include <curl/curl.h>
+#include <thread>
 
 using namespace std;
 

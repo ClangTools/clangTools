@@ -24,15 +24,15 @@ int main() {
         logger::instance()->i(_TAG, "time:  %lld", logger::get_time_tick() - start_tick);
         thread_pool executor{10};
         std::future<std::string> fh = executor.commit([](long long start_tick) -> std::string {
-            logger::instance()->d(_TAG, "hello, fh !  %d", std::this_thread::get_id());
+            logger::instance()->d(_TAG, "hello, fh !  %ld", std::this_thread::get_id());
             return "hello,fh ret !";
         }, start_tick);
         std::future<std::string> fh1 = executor.commit([](long long start_tick) -> std::string {
-            logger::instance()->d(_TAG, "hello, fh !  %d", std::this_thread::get_id());
+            logger::instance()->d(_TAG, "hello, fh !  %ld", std::this_thread::get_id());
             return "hello,fh ret !";
         }, start_tick);
         std::future<std::string> fh2 = executor.commit([](long long start_tick) -> std::string {
-            logger::instance()->d(_TAG, "hello, fh !  %d", std::this_thread::get_id());
+            logger::instance()->d(_TAG, "hello, fh !  %ld", std::this_thread::get_id());
             return "hello,fh ret !";
         }, start_tick);
         logger::instance()->d(_TAG, "%s", fh.get().c_str());
