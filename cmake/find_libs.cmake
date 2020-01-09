@@ -51,21 +51,24 @@ ELSE (CURL_FOUND)
                 endif ()
                 set(G_CMAKE_GENERATOR_PLATFORM
                         -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
-            else ()
+            elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+                set(G_CMAKE_GENERATOR_PLATFORM
+                        -G "${CMAKE_GENERATOR}")
+            else()
                 set(G_CMAKE_GENERATOR_PLATFORM
                         -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
             endif ()
-            ExternalProject_Add(curl
+            ExternalProject_Add(CURL
                     URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
                     URL_MD5 "90b6c61cf3a96a11494deae2f1b3fa92"
-                    CONFIGURE_COMMAND cmake ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                    CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM}  -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
                     PREFIX ${CMAKE_BINARY_DIR}/dependencies
                     INSTALL_DIR ${INSTALL_DIR}
                     BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build"
                     INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build" --target install
                     )
         else ()
-            ExternalProject_Add(curl
+            ExternalProject_Add(CURL
                     URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
                     URL_MD5 "90b6c61cf3a96a11494deae2f1b3fa92"
                     CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
@@ -74,18 +77,20 @@ ELSE (CURL_FOUND)
                     BUILD_COMMAND ${MAKE}
                     )
         endif ()
-        set(curl_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
+        set(CURL_FOUND ON)
+        set(CURL_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
         set(prefix "lib")
         if (WIN32)
-            set(suffix "-d.lib")
+#            set(suffix "-d.lib")
+            set(suffix ".lib")
         else ()
             set(suffix ".a")
         endif ()
         set(CURL_LIBRARIES
-                "${curl_LIB_DIR}/${prefix}curl${suffix}")
-
+                "${CURL_LIB_DIR}/${prefix}curl${suffix}" ws2_32.lib winmm.lib wldap32.lib)
+        link_directories(${CURL_LIB_DIR})
         include_directories(${CMAKE_BINARY_DIR}/dependencies/include/)
-        set(CURL_FOUND ON)
+        add_definitions(-DBUILDING_LIBCURL -DHTTP_ONLY)
     ENDIF (CURL_ENABLE)
 ENDIF (CURL_FOUND)
 if (CURL_FOUND)

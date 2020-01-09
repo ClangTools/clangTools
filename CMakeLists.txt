@@ -7,6 +7,8 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
 endif ()
 project(Tools)
 
+FILE(GLOB ToolsCmakePath "cmake")
+
 set(CMAKE_CXX_STANDARD 14)
 
 set(libTools_LIBRARIES Tools)

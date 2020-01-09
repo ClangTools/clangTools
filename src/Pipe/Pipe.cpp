@@ -24,7 +24,11 @@ const char* Pipe::TAG = "Pipe";
 #endif
 
 Pipe::Pipe(const std::string &name) {
+#ifdef _WIN32
+    this->pipe_name = R"(\\.\Pipe\)" + name;
+#else
     this->pipe_name = "/tmp/" + name;
+#endif
 }
 
 Pipe::~Pipe() {
