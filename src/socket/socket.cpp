@@ -3,14 +3,16 @@
 //
 
 
-#include "socket.h"
+#include<socket.h>
 #include<cstdio>
 #include<csignal>
 
 #ifdef WIN32
 #else
+
 #include <fcntl.h>
 #include <netdb.h>
+
 #endif
 
 using namespace std;
@@ -210,7 +212,8 @@ long int kekxv::socket::send(const std::string &data, bool is_ssl) {
 }
 
 void kekxv::socket::wait_send_finish() {
-    // TODO 未完成
+    this->isReady();
+    return;
 }
 
 
@@ -327,6 +330,7 @@ kekxv::socket::~socket() {
         sslCommon = nullptr;
     }
 #endif
+
     if (need_close) {
         close(fd);
     }

@@ -9,10 +9,12 @@
 #ifndef __SSL_COMMON_HEADER_
 #define __SSL_COMMON_HEADER_
 
+#ifdef ENABLE_OPENSSL
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
+#endif
 
 #include <cstdio>
 #include <cstdlib>
@@ -34,7 +36,9 @@ public:
 private:
     static std::mutex is_init_ssl_lock;
     static bool is_init_ssl;
+#ifdef ENABLE_OPENSSL
     SSL_CTX *ctx = nullptr;
+#endif
     std::mutex ssl_lock;
 public:
     const int DEFAULT_BUF_SIZE = 64;
@@ -58,9 +62,11 @@ public:
         int fd = -1;
     private:
         ssl_common *parent = nullptr;
+#ifdef ENABLE_OPENSSL
         SSL *ssl = nullptr;
         BIO *rBIO = nullptr; /* SSL reads from, we write to. */
         BIO *wBIO = nullptr; /* SSL writes to, we read from. */
+#endif
     public:
         std::vector<unsigned char> write_buf;
         std::vector<unsigned char> encrypt_buf;

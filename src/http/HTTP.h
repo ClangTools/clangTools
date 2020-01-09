@@ -19,8 +19,9 @@
 
 #endif
 
+#ifdef CURL_ENABLE
 #include <curl/curl.h>
-
+#endif
 
 class HTTP {
 private:
@@ -43,7 +44,9 @@ public:
 #endif
 
 public:
+#ifdef CURL_ENABLE
     CURL *curl = nullptr;
+#endif
     std::string protocol;
     std::string host;
     std::string port;

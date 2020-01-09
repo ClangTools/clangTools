@@ -2,13 +2,15 @@
 // Created by caesar on 2019/12/30.
 //
 
+#include <socket.h>
 #include "HTTP.h"
 #include <regex>
 #include <utility>
 #include <logger.h>
 #include <UTF8Url.h>
-#include <socket.h>
+#ifdef CURL_ENABLE
 #include <curl/curl.h>
+#endif
 #include <thread>
 
 using namespace std;
@@ -49,6 +51,7 @@ bool HTTP::is_curl_global_inited = false;
 std::mutex HTTP::init_curl_global_init_mutex;
 
 HTTP::HTTP(const std::string &full_url) {
+#ifdef CURL_ENABLE
     // global init
     std::unique_lock<std::mutex> lock(init_curl_global_init_mutex);
     if (!is_curl_global_inited) {
@@ -56,6 +59,7 @@ HTTP::HTTP(const std::string &full_url) {
         curl_global_init(CURL_GLOBAL_ALL);
     }
     lock.unlock();
+#endif
 
 #ifdef ENABLE_OPENSSL
     init_ssl();
@@ -135,6 +139,7 @@ void HTTP::send(HTTP::callback cb, void *argv) {
 }
 
 int HTTP::send(std::vector<unsigned char> &data) {
+#ifdef CURL_ENABLE
     string _url = protocol + "://" + host + (":" + port) + url;
     if (!GET.empty()) {
         _url += '?';
@@ -217,6 +222,9 @@ int HTTP::send(std::vector<unsigned char> &data) {
         init_header(header_string.c_str(), header_string.size());
     }
     return -res;
+#else
+    return -1;
+#endif
 }
 
 size_t HTTP::req_reply(void *ptr, size_t size, size_t nmemb, void *stream) {
@@ -433,10 +441,12 @@ unsigned long int HTTP::init_header(const char *data, unsigned long int size) {
 }
 
 HTTP::~HTTP() {
+#ifdef CURL_ENABLE
     // release curl
     if (curl != nullptr) {
         curl_easy_cleanup(curl);
         curl = nullptr;
     }
+#endif
 }
 

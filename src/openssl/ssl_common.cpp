@@ -6,6 +6,7 @@ bool ssl_common::is_init_ssl = false;
 ssl_common::ssl_common(const char *cert_file, const char *key_file) {
     logger::instance()->d(__FILENAME__, __LINE__, "initialising SSL");
 
+#ifdef ENABLE_OPENSSL
     std::unique_lock<std::mutex> lock{is_init_ssl_lock};
     if (!is_init_ssl) {
         is_init_ssl = true;
@@ -44,17 +45,26 @@ ssl_common::ssl_common(const char *cert_file, const char *key_file) {
 
     /* Recommended to avoid SSLv2 & SSLv3 */
     SSL_CTX_set_options(ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
+#else
+    logger::instance()->e(__FILENAME__, __LINE__, "OpenSSL is disable!!!");
+#endif
 }
 
 bool ssl_common::isReady() {
+#ifdef ENABLE_OPENSSL
     return ctx != nullptr;
+#else
+	return false;
+#endif
 }
 
 ssl_common::~ssl_common() {
+#ifdef ENABLE_OPENSSL
     if (ctx) {
         SSL_CTX_free(ctx);
         ctx = nullptr;
     }
+#endif
 }
 
 bool ssl_common::init_sub(ssl_common::ssl_common_sub *&sub) {
@@ -77,6 +87,7 @@ void ssl_common::free_sub(ssl_common::ssl_common_sub *&sub) {
 
 
 ssl_common::ssl_common_sub::~ssl_common_sub() {
+#ifdef ENABLE_OPENSSL
     if (ssl != nullptr) {
         SSL_shutdown(ssl);
 //        SSL_free(ssl);
@@ -90,11 +101,13 @@ ssl_common::ssl_common_sub::~ssl_common_sub() {
         BIO_free(wBIO);
         wBIO = nullptr;
     } /* SSL writes to, we read from. */
+#endif
 }
 
 ssl_common::ssl_common_sub::ssl_common_sub(ssl_common *parent) {
     this->parent = parent;
 
+#ifdef ENABLE_OPENSSL
     rBIO = BIO_new(BIO_s_mem());
     wBIO = BIO_new(BIO_s_mem());
     ssl = SSL_new(parent->ctx);
@@ -105,9 +118,11 @@ ssl_common::ssl_common_sub::ssl_common_sub(ssl_common *parent) {
         SSL_set_connect_state(ssl); /* ssl client mode */
 
     SSL_set_bio(ssl, rBIO, wBIO);
+#endif
 }
 
 ssl_common::SSL_status ssl_common::ssl_common_sub::get_ssl_status(int n) {
+#ifdef ENABLE_OPENSSL
     switch (SSL_get_error(ssl, n)) {
         case SSL_ERROR_NONE:
             return SSL_STATUS_OK;
@@ -119,6 +134,9 @@ ssl_common::SSL_status ssl_common::ssl_common_sub::get_ssl_status(int n) {
         default:
             return SSL_STATUS_FAIL;
     }
+#else
+    return SSL_STATUS_FAIL;
+#endif
 }
 
 void ssl_common::ssl_common_sub::send_unencrypted_bytes(unsigned char *buf, size_t len) {
@@ -130,48 +148,61 @@ void ssl_common::ssl_common_sub::queue_encrypted_bytes(unsigned char *buf, size_
 }
 
 ssl_common::SSL_status ssl_common::ssl_common_sub::do_ssl_handshake() {
-    unsigned char buf[parent->DEFAULT_BUF_SIZE];
+#ifdef ENABLE_OPENSSL
     enum SSL_status status = SSL_STATUS_OK;
 
     int n = SSL_do_handshake(ssl);
     if (n >= 0)return status;
+    unsigned char* buf = new unsigned char[parent->DEFAULT_BUF_SIZE];
     status = get_ssl_status(n);
 
     /* Did SSL request to write bytes? */
     if (status == SSL_STATUS_WANT_IO) {
         do {
-            n = BIO_read(wBIO, buf, sizeof(buf));
+            n = BIO_read(wBIO, buf, parent->DEFAULT_BUF_SIZE);
             if (n > 0)
                 queue_encrypted_bytes(buf, n);
-            else if (!BIO_should_retry(wBIO))
-                return SSL_STATUS_FAIL;
+			else if (!BIO_should_retry(wBIO)) {
+				delete[] buf;
+				return SSL_STATUS_FAIL;
+			}
         } while (n > 0);
     }
+	delete[] buf;
+	return status;
+#else
+    return SSL_status::SSL_STATUS_FAIL;
+#endif
 
-    return status;
 }
 
 int ssl_common::ssl_common_sub::on_read_cb(std::vector<unsigned char> &data, unsigned char *src, size_t len) {
     write_buf.clear();
-    unsigned char buf[parent->DEFAULT_BUF_SIZE];
     enum SSL_status status = SSL_status::SSL_STATUS_OK;
+#ifdef ENABLE_OPENSSL
+	unsigned char* buf = new unsigned char[parent->DEFAULT_BUF_SIZE];
     int n = 0;
 
     while (len > 0) {
         n = BIO_write(rBIO, src, len);
-        if (n <= 0)
-            return -1; /* assume bio write failure is unrecoverable */
+		if (n <= 0) {
+			delete[] buf;
+			return -1; /* assume bio write failure is unrecoverable */
+		}
         src += n;
         len -= n;
         if (!SSL_is_init_finished(ssl)) {
-            if (do_ssl_handshake() == SSL_STATUS_FAIL)
-                return -1;
+            if (do_ssl_handshake() == SSL_STATUS_FAIL) {
+				delete[] buf;
+				return -1;
+			}
             if (!SSL_is_init_finished(ssl)) {
-                return 0;
-            }
+				delete[] buf;
+				return 0;
+			}
         }
         do {
-            n = SSL_read(ssl, buf, sizeof(buf));
+            n = SSL_read(ssl, buf, parent->DEFAULT_BUF_SIZE);
             if (n > 0) {
                 // TODO
                 // client.io_on_read(buf, (size_t) n);
@@ -182,27 +213,36 @@ int ssl_common::ssl_common_sub::on_read_cb(std::vector<unsigned char> &data, uns
          * renegotiation. */
         if (status == SSL_STATUS_WANT_IO)
             do {
-                n = BIO_read(wBIO, buf, sizeof(buf));
+                n = BIO_read(wBIO, buf, parent->DEFAULT_BUF_SIZE);
                 if (n > 0)
                     queue_encrypted_bytes(buf, n);
-                else if (!BIO_should_retry(wBIO))
-                    return -1;
+				else if (!BIO_should_retry(wBIO)) {
+					delete[] buf;
+					return -1;
+				}
             } while (n > 0);
 
-        if (status == SSL_STATUS_FAIL)
-            return -1;
+			if (status == SSL_STATUS_FAIL) {
+				delete[] buf;
+				return -1;
+			}
     }
     data.insert(data.end(), write_buf.begin(), write_buf.end());
     write_buf.clear();
+	delete[] buf;
+#else
+    return -1;
+#endif
     return 0;
 }
 
 int ssl_common::ssl_common_sub::do_encrypt(std::vector<unsigned char> &encrypt_data, std::vector<unsigned char> data) {
-    unsigned char buf[parent->DEFAULT_BUF_SIZE];
     enum SSL_status status = SSL_status::SSL_STATUS_OK;
 
+#ifdef ENABLE_OPENSSL
     if (!SSL_is_init_finished(ssl))
         return 0;
+	unsigned char* buf = new unsigned char[parent->DEFAULT_BUF_SIZE];
 
     while (!data.empty()) {
         int n = SSL_write(ssl, data.data(), data.size());
@@ -214,25 +254,37 @@ int ssl_common::ssl_common_sub::do_encrypt(std::vector<unsigned char> &encrypt_d
 
             /* take the output of the SSL object and queue it for socket write */
             do {
-                n = BIO_read(wBIO, buf, sizeof(buf));
+                n = BIO_read(wBIO, buf, parent->DEFAULT_BUF_SIZE);
                 if (n > 0)
                     encrypt_data.insert(encrypt_data.end(), &buf[0], &buf[n]);
-                else if (!BIO_should_retry(wBIO))
-                    return -1;
+				else if (!BIO_should_retry(wBIO)) {
+					delete[]buf;
+					return -1;
+				}
             } while (n > 0);
         }
 
-        if (status == SSL_STATUS_FAIL)
-            return -1;
+		if (status == SSL_STATUS_FAIL) {
+			delete[] buf;
+			return -1;
+		}
 
         if (n == 0)
             break;
     }
+	delete[] buf;
+#else
+    return -1;
+#endif
     return 0;
 }
 
 bool ssl_common::ssl_common_sub::SSL_init_finished() {
+#ifdef ENABLE_OPENSSL
     return SSL_is_init_finished(ssl);
+#else
+    return false;
+#endif
 }
 
 

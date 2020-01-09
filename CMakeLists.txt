@@ -31,13 +31,11 @@ include(cmake/MSVC.cmake)
 
 
 FILE(GLOB srcSourceHeader "src/*")
-
 include_directories(
         .
         ${srcSourceHeader}
 )
 set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader})
-
 set(srcSource "")
 foreach (item in ${srcSourceHeader})
     FILE(GLOB subSrcSource "${item}/*")
@@ -62,15 +60,10 @@ target_compile_definitions(
         PUBLIC -D_${libTools_LIBRARIES}_HEADER_ #-D_LOGGER_USE_THREAD_POOL_
 )
 
-
-target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
-
-
-add_custom_command(TARGET ${libTools_LIBRARIES} POST_BUILD        # Adds a post-build event to MyTest
-        COMMAND ${CMAKE_COMMAND} -E copy_directory   # which executes "cmake - E copy_if_different..."
-        "${PROJECT_SOURCE_DIR}/Depend"      # <--this is in-file
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        )                 # <--this is out-file path
+if (CURL_FOUND)
+    target_link_libraries(${libTools_LIBRARIES} ${CURL_LIBRARIES})
+endif ()
+target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES})
 
 
 option(ENABLE_FILENAME "option for FILENAME" ON)
