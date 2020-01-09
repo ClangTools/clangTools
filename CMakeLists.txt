@@ -6,8 +6,9 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
     set(Tools_Other_Project ON)
 endif ()
 project(Tools)
+set(libTools_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-FILE(GLOB ToolsCmakePath "cmake")
+FILE(GLOB ToolsCmakePath "${libTools_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD 14)
 
