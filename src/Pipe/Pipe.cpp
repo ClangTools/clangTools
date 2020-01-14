@@ -63,6 +63,9 @@ int Pipe::Init(bool _is_parent) {
         logger::instance()->e(TAG, __LINE__, "open %d:%s", errno, strerror(errno));
         return -1;
     }
+    if (!_is_parent && fd_W <= 0) {
+        fd_W = open((pipe_name + (is_parent ? "_2" : "_1")).c_str(), O_WRONLY| O_NONBLOCK);
+    }
 #endif
     return 0;
 }
@@ -144,7 +147,7 @@ int Pipe::send(void *data, int len) {
     }
     if (fd_W == -1) /*打开失败*/
     {
-        Free();
+        // Free();
         logger::instance()->e(TAG, __LINE__, "open %d:%s", errno, strerror(errno));
         return -1;
     }

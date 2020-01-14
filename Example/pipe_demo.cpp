@@ -13,9 +13,9 @@ int main(int argc, char **argv) {
     std::vector<unsigned char> data;
     pipe.read(data);
     data.push_back(0);
-    printf("%s %s\n",
-            __FILENAME__
-            , data.data());
+    printf("%s:%d %s\n",
+           __FILENAME__,
+           __LINE__, data.data());
 
     return 0;
 }

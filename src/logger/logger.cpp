@@ -664,7 +664,6 @@ void logger::init_default(std::string path) {
         std::string logfile = path + logger::path_split + "logger.log";
         this->open((logfile).c_str());
         this->logger_files_max_size = 5;
-        this->logger_file_max_size = 100;
     }
 }
 
