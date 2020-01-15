@@ -39,7 +39,11 @@ void test_sleep() {
 
     while (p.poll() == -1) {
         std::cout << "Waiting..." << std::endl;
+#ifdef WIN32
+        Sleep(1);
+#else
         sleep(1);
+#endif
     }
 
     std::cout << "Sleep ended: ret code = " << p.retcode() << std::endl;

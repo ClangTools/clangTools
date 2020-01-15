@@ -1683,7 +1683,7 @@ namespace detail {
   inline void Streams::setup_comm_channels()
   {
 #ifdef _MSC_VER
-    util::configure_pipe(this->g_hChildStd_IN_Rd, &this->g_hChildStd_IN_Wr, &this->g_hChildStd_IN_Wr);
+    util::configure_pipe(&this->g_hChildStd_IN_Rd, &this->g_hChildStd_IN_Wr, &this->g_hChildStd_IN_Wr);
     this->input(util::file_from_handle(this->g_hChildStd_IN_Wr, "w"));
     this->write_to_child_ = _fileno(this->input());
 
