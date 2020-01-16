@@ -2,9 +2,8 @@
 // Created by caesar on 2020/1/15.
 //
 
-#include "Popen.h"
-#include <logger.h>
 #include <poll_tool.h>
+#include "Popen.h"
 
 #ifdef _WIN32
 #else
@@ -12,6 +11,7 @@
 #include <fcntl.h>
 
 #endif
+#include <logger.h>
 
 using namespace std;
 
