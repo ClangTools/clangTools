@@ -4,21 +4,32 @@
 
 #include "poll_tool.h"
 #include <logger.h>
+
 #ifdef __FILENAME__
 const char *poll_tool::TAG = __FILENAME__;
 #else
 const char *poll_tool::TAG = "poll_tool";
 #endif
+
 poll_tool::poll_tool(int *fd) {
     this->fd = fd;
 }
 
 long int poll_tool::check_read_count(int timeout) {
-    if (*fd <= 0) {
+    return check_read_count(*fd, timeout);
+}
+
+/**
+ * 检查是否有数据
+ * @return
+ */
+long int poll_tool::check_read_count(int fd, int timeout) {
+    if (fd <= 0) {
         logger::instance()->e(TAG, __LINE__, "fd is error");
         return -1;
     }
-    client.fd = *fd;
+    struct pollfd client{};
+    client.fd = fd;
     client.revents = 0;
 #ifdef WIN32
     client.events = POLLIN;

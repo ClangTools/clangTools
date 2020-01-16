@@ -23,13 +23,19 @@ private:
     int *fd = nullptr;
     struct pollfd client{};
 public:
-    poll_tool(int *fd);
+    explicit poll_tool(int *fd);
 
     /**
      * 检查是否有数据
      * @return
      */
     long int check_read_count(int timeout_ms = 1);
+
+    /**
+     * 检查是否有数据
+     * @return
+     */
+    static long int check_read_count(int fd, int timeout_ms = 1);
 };
 
 

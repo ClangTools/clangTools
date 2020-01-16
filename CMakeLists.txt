@@ -23,14 +23,6 @@ else ()
 endif ()
 
 
-include(cmake/find_libs.cmake)
-
-option(ENABLE_FILENAME "option for FILENAME" ON)
-if (ENABLE_FILENAME)
-    include(cmake/redefine_filename.cmake)
-endif ()
-
-include(cmake/MSVC.cmake)
 
 
 FILE(GLOB srcSourceHeader "src/*")
@@ -57,6 +49,18 @@ add_library(${libTools_LIBRARIES} STATIC
         ${RC_FILES}
         ${srcSource}
         )
+
+
+include(cmake/find_libs.cmake)
+
+option(ENABLE_FILENAME "option for FILENAME" ON)
+if (ENABLE_FILENAME)
+    include(cmake/redefine_filename.cmake)
+endif ()
+
+include(cmake/MSVC.cmake)
+
+
 
 target_compile_definitions(
         ${libTools_LIBRARIES}

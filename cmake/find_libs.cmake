@@ -91,6 +91,8 @@ ELSE (CURL_FOUND)
         link_directories(${CURL_LIB_DIR})
         include_directories(${CMAKE_BINARY_DIR}/dependencies/include/)
         add_definitions(-DBUILDING_LIBCURL -DHTTP_ONLY)
+
+        target_link_libraries(${libTools_LIBRARIES} ${CURL_LIBRARIES})
     ENDIF (CURL_ENABLE)
 ENDIF (CURL_FOUND)
 if (CURL_FOUND)
