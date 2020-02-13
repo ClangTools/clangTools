@@ -94,6 +94,11 @@ public:
         log_rank_INFO = 4,
         log_rank_DEBUG = 5,
     } log_rank_t;
+
+    static bool exists(const std::string& path_string);
+
+    static std::string extension(const std::string& path_string);
+
 public:
     log_rank_t min_level = log_rank_NONE;
     bool console_show = false;
@@ -146,7 +151,7 @@ public:
 
     bool is_open();
 
-    void init_default(std::string path = "");
+    void init_default(const std::string& path = "");
 
     /**
      * puts info logger
