@@ -472,12 +472,15 @@ std::string logger::get_local_path() {
 
 bool logger::is_dir(const std::string &directory) {
 #ifdef WIN32
-    struct stat buf{};
-    if(lstat(directory.c_str() , &buf) < 0){
+    DWORD dwAttr = GetFileAttributes(directory.c_str());
+    if (dwAttr & FILE_ATTRIBUTE_DIRECTORY)
+    {//是目录
+        return true;
+    }
+    else
+    {//是文件
         return false;
     }
-    int ret = S_IFDIR & buf.st_mode;
-    return ret != 0;
     // return (_access(directory.c_str(), 0) == 0);
 #else
     struct stat buf{};
