@@ -14,18 +14,29 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(libTools_LIBRARIES Tools)
 set_property(GLOBAL PROPERTY libTools_LIBRARIES ${libTools_LIBRARIES})
-
 if (WIN32)
     set(dl_LIBRARIES ws2_32.lib)
 else ()
     find_library(dl dl)
-    set(dl_LIBRARIES dl)
+    set(dl_LIBRARIES dl pthread)
+endif ()
+
+option(ANDROID_SO "option for ANDROID_SO" OFF)
+if (ANDROID_SO)
+    add_definitions(-DANDROID_SO)
 endif ()
 
 
-
-
 FILE(GLOB srcSourceHeader "src/*")
+list(FILTER srcSourceHeader EXCLUDE REGEX ".*libVersion\\.rc")
+
+
+option(ENABLE_I2C "option for I2C tool" OFF)
+if (ENABLE_I2C)
+else ()
+    list(FILTER srcSourceHeader EXCLUDE REGEX ".*i2c_tool")
+endif ()
+
 include_directories(
         .
         ${srcSourceHeader}
@@ -59,7 +70,6 @@ if (ENABLE_FILENAME)
 endif ()
 
 include(cmake/MSVC.cmake)
-
 
 
 target_compile_definitions(
