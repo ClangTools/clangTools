@@ -11,7 +11,7 @@ if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
     option(ENABLE_I2C "option for I2C tool" OFF)
     if (ENABLE_I2C)
     else ()
-        list(FILTER srcSourceHeader EXCLUDE REGEX ".*_i2c.cpp")
+        list(FILTER srcSourceHeader EXCLUDE REGEX ".*i2c.cpp")
     endif ()
 
     option(ENABLE_FILENAME "option for FILENAME" ON)
