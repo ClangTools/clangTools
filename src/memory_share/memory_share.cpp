@@ -87,6 +87,7 @@ bool memory_share::Init(bool _is_parent) {
         if (data8k == (void *) -1)data8k = nullptr;
     }
 #else
+#ifndef ANDROID_SO
     int shm_id;
     //  创建共享内存
     shm_id = shmget(key, sizeof(memory_share_data_8k),
@@ -99,6 +100,7 @@ bool memory_share::Init(bool _is_parent) {
     if (len_type == len_8k) { data8k = (memory_share_data_8k *) shmat(shm_id, nullptr, 0); }
 
     if (data8k == (void *) -1)data8k = nullptr;
+#endif
 #endif
     return data8k != nullptr;
 }
@@ -115,6 +117,7 @@ void memory_share::Free() {
     shared_file_handler = INVALID_HANDLE_VALUE;
     dump_file_descriptor = INVALID_HANDLE_VALUE;
 #else
+#ifndef ANDROID_SO
     int shm_id;
     //  将这块共享内存区附加到自己的内存段
     if (len_type == len_8k) {
@@ -133,7 +136,7 @@ void memory_share::Free() {
                 if (is_parent) {
                     //  删除共享内存
                     if (shmctl(shm_id, IPC_RMID, nullptr) == -1) {
-                        logger::instance()->e(TAG, __LINE__, " delete error %d:%s", errno,strerror(errno));
+                        logger::instance()->e(TAG, __LINE__, " delete error %d:%s", errno, strerror(errno));
                     } else {
                         shm_id = -1;
                     }
@@ -142,28 +145,28 @@ void memory_share::Free() {
         }
     }
 #endif
+#endif
 }
 
 
 int memory_share::write(void *data, int len) {
     //  将这块共享内存区附加到自己的内存段
-    if (len_type == memory_share_data_type::len_8k)
-	{
+    if (len_type == memory_share_data_type::len_8k) {
         if (len >= 1024 * 8)return -2;
         if (data8k == nullptr)return -1;
         if (data8k->flag & (unsigned char) memory_share_data_flag_busy) { return 0; }
         data8k->flag = (unsigned char) memory_share_data_flag_busy | (unsigned char) memory_share_data_flag_write;
         data8k->size = len;
         memcpy(data8k->data, data, len);
-        data8k->flag = ((unsigned char) (is_parent ? memory_share_data_flag_ready_1 : memory_share_data_flag_ready_2)) | (unsigned char) memory_share_data_flag_write;
+        data8k->flag = ((unsigned char) (is_parent ? memory_share_data_flag_ready_1 : memory_share_data_flag_ready_2)) |
+                       (unsigned char) memory_share_data_flag_write;
     }
     return 0;
 }
 
 int memory_share::read(void *data, int len) {
     //  将这块共享内存区附加到自己的内存段
-    if (len_type == memory_share_data_type::len_8k)
-	{
+    if (len_type == memory_share_data_type::len_8k) {
         if (data8k == nullptr)return -1;
         if (data8k->flag & (unsigned char) memory_share_data_flag_busy) { return 0; }
         if (!(data8k->flag &
@@ -171,7 +174,7 @@ int memory_share::read(void *data, int len) {
                                          : memory_share_data_flag_ready_1))) { return 0; }
         data8k->flag = (unsigned char) memory_share_data_flag_busy | (unsigned char) memory_share_data_flag_read;
         if (len < data8k->size)
-			return -2;
+            return -2;
         memcpy(data, data8k->data, data8k->size);
         data8k->flag = (unsigned char) (is_parent ? memory_share_data_flag_ready_1 : memory_share_data_flag_ready_2) |
                        (unsigned char) memory_share_data_flag_read;
@@ -183,18 +186,20 @@ int memory_share::check_exist() {
 #ifdef _WIN32
     return 1;
 #else
+#ifndef ANDROID_SO
     int shm_id;
     //  创建共享内存
     shm_id = shmget(key, len_type == len_8k ? sizeof(memory_share_data_8k) : sizeof(memory_share_data_4k),
                     0640);
     return shm_id != -1;
 #endif
+    return 0;
+#endif
 }
 
 int memory_share::is_busy() {
     //  将这块共享内存区附加到自己的内存段
-    if (len_type == memory_share_data_type::len_8k)
-	{
+    if (len_type == memory_share_data_type::len_8k) {
         if (data8k == nullptr)return -1;
         if (data8k->flag & (unsigned char) memory_share_data_flag_busy) { return 1; }
     }

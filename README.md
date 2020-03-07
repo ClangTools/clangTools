@@ -16,6 +16,11 @@
 [subprocess](src/subprocess),
 [thread_pool](src/thread_pool),
 [xml](src/xml)
+[i2c_tool](src/i2c_tool)
+
+### i2c_tool
+
+为 `Linux` 接口，用于`Linux`以及`嵌入式设备`。需要添加参数 `-DENABLE_I2C=ON` 开启。
 
 ## 引入方式
 

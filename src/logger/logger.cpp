@@ -191,7 +191,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
                 }
 #endif
 #ifdef ANDROID_SO
-                __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, data.c_ste());
+                __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, "%s", data.c_str());
 #endif
 
                 string _time = GetTime("%Y%m%d %H:%M:%S");
@@ -231,7 +231,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
 
                 if (TAG != nullptr) {
                     if (console_show) {
-                        SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Purple);
+                        SetConsoleColor(ConsoleForegroundColor::enmCFC_White, ConsoleBackGroundColor::enmCBC_Cyan);
                         printf("[ %s ]", TAG);
                         SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
                     }
