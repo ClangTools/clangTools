@@ -37,6 +37,12 @@ else ()
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*i2c_tool")
 endif ()
 
+option(ENABLE_LIBUSB1 "option for libusb-1.0 tool" OFF)
+if (ENABLE_LIBUSB1)
+else ()
+    list(FILTER srcSourceHeader EXCLUDE REGEX ".*libusb_1_tool")
+endif ()
+
 include_directories(
         .
         ${srcSourceHeader}
@@ -80,7 +86,7 @@ target_compile_definitions(
 if (CURL_FOUND)
     target_link_libraries(${libTools_LIBRARIES} ${CURL_LIBRARIES})
 endif ()
-target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES})
+target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${Iconv_LIBRARIES} ${LIBUSB_1_LIBRARIES} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES})
 
 
 option(ENABLE_FILENAME "option for FILENAME" ON)

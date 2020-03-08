@@ -17,6 +17,8 @@
 [thread_pool](src/thread_pool),
 [xml](src/xml)
 [i2c_tool](src/i2c_tool)
+[libusb_1_tool](src/libusb_1_tool)
+[opencv_tool](src/opencv_tool)
 
 ### i2c_tool
 

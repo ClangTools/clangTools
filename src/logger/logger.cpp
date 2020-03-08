@@ -231,7 +231,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
 
                 if (TAG != nullptr) {
                     if (console_show) {
-                        SetConsoleColor(ConsoleForegroundColor::enmCFC_White, ConsoleBackGroundColor::enmCBC_Cyan);
+                        SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Cyan);
                         printf("[ %s ]", TAG);
                         SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
                     }
