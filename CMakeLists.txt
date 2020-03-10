@@ -86,7 +86,10 @@ target_compile_definitions(
 if (CURL_FOUND)
     target_link_libraries(${libTools_LIBRARIES} ${CURL_LIBRARIES})
 endif ()
-target_link_libraries(${libTools_LIBRARIES} ${OpenCV_LIBS} ${Iconv_LIBRARIES} ${LIBUSB_1_LIBRARIES} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES})
+target_link_libraries(${libTools_LIBRARIES}
+        ${OpenCV_LIBS} ${Iconv_LIBRARIES} ${LIBUSB_1_LIBRARIES}
+        ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${X11_LIBRARIES}
+        )
 
 
 option(ENABLE_FILENAME "option for FILENAME" ON)

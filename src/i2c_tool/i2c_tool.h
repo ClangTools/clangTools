@@ -61,11 +61,11 @@ public:
      */
     int Close();
 
-    int Read(std::vector<unsigned char> &data, int read_len, int timeout = 10);
+    int Read(std::vector<unsigned char> &data, int read_len);
 
-    int Write(std::vector<unsigned char> data, int timeout = 10);
+    int Write(std::vector<unsigned char> data);
 
-    int Write(unsigned char *data, int data_len, int timeout = 10);
+    int Write(unsigned char *data, int data_len);
 
     int transfer(std::vector<unsigned char> wData, std::vector<unsigned char> *rData = nullptr, int read_len = 0,
                  int timeout = 10);

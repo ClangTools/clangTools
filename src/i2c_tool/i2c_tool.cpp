@@ -6,7 +6,6 @@
 #include <unistd.h>                //Needed for I2C port
 #include <fcntl.h>                //Needed for I2C port
 #include <sys/ioctl.h>            //Needed for I2C port
-#include <iostream>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>        //Needed for I2C port
 #include <logger.h>
@@ -62,10 +61,10 @@ int i2c_tool::Close() {
     return 0;
 }
 
-int i2c_tool::Read(std::vector<unsigned char> &data, int read_len, int timeout) {
+int i2c_tool::Read(std::vector<unsigned char> &data, int read_len) {
     if (!IsOpen())return Type::FailNotOpen;
-    auto *buffer = new unsigned char[read_len+1];
-    memset(buffer, 0x00, read_len+1);
+    auto *buffer = new unsigned char[read_len + 1];
+    memset(buffer, 0x00, read_len + 1);
     //----- READ BYTES -----
     int length = read_len;            //<<< Number of bytes to read
     int ret = read(i2c_handle, buffer, length);
@@ -75,7 +74,7 @@ int i2c_tool::Read(std::vector<unsigned char> &data, int read_len, int timeout) 
     if (ret != length) {
         //ERROR HANDLING: i2c transaction failed
         logger::instance()->e(__FILENAME__, __LINE__,
-                              "failed to read from the i2c bus.return code : %d [ %s ]", ret,strerror(errno));
+                              "failed to read from the i2c bus.return code : %d [ %s ]", ret, strerror(errno));
         delete[]buffer;
         return Type::FailRead;
     }
@@ -84,11 +83,11 @@ int i2c_tool::Read(std::vector<unsigned char> &data, int read_len, int timeout) 
     return ret;
 }
 
-int i2c_tool::Write(std::vector<unsigned char> data, int timeout) {
-    return Write(data.data(), data.size(), timeout);
+int i2c_tool::Write(std::vector<unsigned char> data) {
+    return Write(data.data(), data.size());
 }
 
-int i2c_tool::Write(unsigned char *data, int data_len, int timeout) {
+int i2c_tool::Write(unsigned char *data, int data_len) {
     if (!IsOpen())return Type::FailNotOpen;
     int ret = write(i2c_handle, data, data_len);
     // write() returns the number of bytes actually written,
@@ -107,13 +106,13 @@ int i2c_tool::transfer(std::vector<unsigned char> wData, std::vector<unsigned ch
     if (!IsOpen())return Type::FailNotOpen;
     struct i2c_rdwr_ioctl_data i2c_data{};
     auto *buff = new unsigned char[read_len + 1];
-    memset(buff,0x00,read_len + 1);
+    memset(buff, 0x00, read_len + 1);
     int ret = 0;
     i2c_data.nmsgs = (rData == nullptr || read_len <= 0) ? 1 : 2;
     i2c_data.msgs = (struct i2c_msg *) malloc(i2c_data.nmsgs * sizeof(struct i2c_msg));
     if (i2c_data.msgs == nullptr) {
         logger::instance()->e(__FILENAME__, __LINE__,
-                              "mallocerror:%s", strerror(errno));
+                              "malloc error:%s", strerror(errno));
         delete[]buff;
         free(i2c_data.msgs);
         return FailRead;
@@ -137,7 +136,7 @@ int i2c_tool::transfer(std::vector<unsigned char> wData, std::vector<unsigned ch
     ret = ioctl(i2c_handle, I2C_RDWR, (unsigned long) &i2c_data);
     if (ret < 0) {
         logger::instance()->e(__FILENAME__, __LINE__,
-                              "0x%02X transfer data error,ret:%d [ %s ]", device_addr, ret,strerror(errno));
+                              "0x%02X transfer data error,ret:%d [ %s ]", device_addr, ret, strerror(errno));
         free(i2c_data.msgs);
         delete[]buff;
         return FailRead;
