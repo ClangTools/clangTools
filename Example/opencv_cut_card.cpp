@@ -13,16 +13,15 @@ using namespace cv;
 using namespace std;
 
 
-int main1(int argc, char** argv)
-{
+int main1(int argc, char **argv) {
     logger::instance()->init_default();
     logger::instance()->d(__FILENAME__, __LINE__, "running");
     // 读取RBG图片，转成Lab模式
     Mat bgr_image =
 //            cv::imread(argc == 2 ? argv[1] : "../images/4.jpg");
             cv::imread(argc == 2 ? argv[1] : "../images/2.bmp");
-    if (!bgr_image.rows){
-        cout << "imread failed!"<< endl;
+    if (!bgr_image.rows) {
+        cout << "imread failed!" << endl;
         return 0;
     }
     auto startTime = logger::get_time_tick();
@@ -51,14 +50,15 @@ int main1(int argc, char** argv)
     logger::instance()->d(__FILENAME__, __LINE__, "end");
     return 0;
 }
+
 int main(int argc, char *argv[]) {
     logger::instance()->init_default();
     logger::instance()->d(__FILENAME__, __LINE__, "running");
 
     Mat gray;
     cv::Mat srcImage =
-//            cv::imread(argc == 2 ? argv[1] : "../images/4.jpg");
-            cv::imread(argc == 2 ? argv[1] : "../images/1.bmp");
+            cv::imread(argc == 2 ? argv[1] : "../images/2.bmp");
+//            cv::imread(argc == 2 ? argv[1] : "../images/1.bmp");
     if (srcImage.empty())
         return -1;
 

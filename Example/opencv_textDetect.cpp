@@ -21,10 +21,10 @@ int main(int argc, char *argv[]) {
                           (opencv_tool::instance()->isLoad() ? "true" : "false"));
 
     cv::Mat srcImage =
-            cv::imread(argc == 2 ? argv[1] : "../images/id_card_img.jpg");
+            cv::imread(argc == 2 ? argv[1] : "../images/east-out-patient.jpg");
     if (srcImage.empty())
         return -1;
-    int size = 50;
+    int size = 5;
     srcImage = srcImage(Rect(size, size, srcImage.size().width - size * 2, srcImage.size().height - size * 2));
     auto startTime = logger::get_time_tick();
 
