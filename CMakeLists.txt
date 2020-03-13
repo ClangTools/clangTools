@@ -49,10 +49,18 @@ include_directories(
 )
 set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader})
 set(srcSource "")
+list(FILTER srcSourceHeader EXCLUDE REGEX ".*plthook")
 foreach (item in ${srcSourceHeader})
     FILE(GLOB subSrcSource "${item}/*")
     list(APPEND srcSource ${subSrcSource})
 endforeach ()
+if (APPLE)
+    list(APPEND srcSource "src/plthook/plthook_osx.c")
+elseif (UNIX)
+    list(APPEND srcSource "src/plthook/plthook_elf.c")
+else ()
+    list(APPEND srcSource "src/plthook/plthook_win32.c")
+endif ()
 
 add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
