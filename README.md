@@ -19,6 +19,7 @@
 [i2c_tool](src/i2c_tool)
 [libusb_1_tool](src/libusb_1_tool)
 [opencv_tool](src/opencv_tool)
+[plthook](src/plthook)([here](https://github.com/kubo/plthook))
 
 ### i2c_tool
 
