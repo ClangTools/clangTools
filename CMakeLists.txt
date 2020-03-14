@@ -45,6 +45,7 @@ endif ()
 
 include_directories(
         .
+        ./src
         ${srcSourceHeader}
 )
 set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader})
