@@ -176,107 +176,107 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
     auto fh = executor.commit(
             [this](const string &_tag, const std::string &data, log_rank_t log_rank_type) -> void {
 #endif
-                std::lock_guard<std::mutex> guard(logger_console_mutex);
+    std::lock_guard<std::mutex> guard(logger_console_mutex);
 #ifdef _LOGGER_USE_THREAD_POOL_
-                const char *TAG = _tag.c_str();
+    const char *TAG = _tag.c_str();
 #endif
 #ifdef WIN32
-                HANDLE handle = nullptr;
-                WORD wOldColorAttrs = 0;
-                CONSOLE_SCREEN_BUFFER_INFO csbiInfo{};
-                if (console_show) {
-                    handle = GetStdHandle(STD_OUTPUT_HANDLE);
-                    GetConsoleScreenBufferInfo(handle, &csbiInfo);
-                    wOldColorAttrs = csbiInfo.wAttributes;
-                }
+    HANDLE handle = nullptr;
+    WORD wOldColorAttrs = 0;
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo{};
+    if (console_show) {
+        handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        GetConsoleScreenBufferInfo(handle, &csbiInfo);
+        wOldColorAttrs = csbiInfo.wAttributes;
+    }
 #endif
 #ifdef ANDROID_SO
-                __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, "%s", data.c_str());
+    __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, "%s", data.c_str());
 #endif
 
-                string _time = GetTime("%Y%m%d %H:%M:%S");
-                if (console_show) {
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Default);
-                    printf("%s", _time.c_str());
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                }
+    string _time = GetTime("%Y%m%d %H:%M:%S");
+    if (console_show) {
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Default);
+        printf("%s", _time.c_str());
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+    }
 
-                WriteToFile(_time);
+    WriteToFile(_time);
 
-                string _type = "I";
-                switch (log_rank_type) {
-                    case log_rank_t::log_rank_DEBUG:
-                        _type = "D";
-                        break;
-                    case log_rank_t::log_rank_WARNING:
-                        _type = "W";
-                        break;
-                    case log_rank_t::log_rank_ERROR:
-                        _type = "E";
-                        break;
-                    case log_rank_t::log_rank_FATAL:
-                        _type = "F";
-                        break;
-                    case log_rank_t::log_rank_INFO:
-                    default:
-                        _type = "I";
-                        break;
-                }
-                if (console_show) {
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Yellow);
-                    printf("[%s]", _type.c_str());
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                }
-                WriteToFile("[" + _type + "]");
+    string _type = "I";
+    switch (log_rank_type) {
+        case log_rank_t::log_rank_DEBUG:
+            _type = "D";
+            break;
+        case log_rank_t::log_rank_WARNING:
+            _type = "W";
+            break;
+        case log_rank_t::log_rank_ERROR:
+            _type = "E";
+            break;
+        case log_rank_t::log_rank_FATAL:
+            _type = "F";
+            break;
+        case log_rank_t::log_rank_INFO:
+        default:
+            _type = "I";
+            break;
+    }
+    if (console_show) {
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Yellow);
+        printf("[%s]", _type.c_str());
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+    }
+    WriteToFile("[" + _type + "]");
 
-                if (TAG != nullptr) {
-                    if (console_show) {
-                        SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Cyan);
-                        printf("[ %s ]", TAG);
-                        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                    }
-                    WriteToFile("[" + string(TAG) + "]");
-                }
+    if (TAG != nullptr) {
+        if (console_show) {
+            SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Cyan);
+            printf("[ %s ]", TAG);
+            SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+        }
+        WriteToFile("[" + string(TAG) + "]");
+    }
 
-                if (console_show) {
-                    switch (log_rank_type) {
-                        case log_rank_t::log_rank_DEBUG:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Cyan,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_WARNING:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Yellow,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_ERROR:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_FATAL:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Purple,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                        case log_rank_t::log_rank_INFO:
-                        default:
-                            SetConsoleColor(ConsoleForegroundColor::enmCFC_Green,
-                                            ConsoleBackGroundColor::enmCBC_Default);
-                            break;
-                    }
+    if (console_show) {
+        switch (log_rank_type) {
+            case log_rank_t::log_rank_DEBUG:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Cyan,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_WARNING:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Yellow,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_ERROR:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_FATAL:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Purple,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+            case log_rank_t::log_rank_INFO:
+            default:
+                SetConsoleColor(ConsoleForegroundColor::enmCFC_Green,
+                                ConsoleBackGroundColor::enmCBC_Default);
+                break;
+        }
 
-                    printf("%s", data.c_str());
-                    SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
-                }
-                WriteToFile(data);
+        printf("%s", data.c_str());
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
+    }
+    WriteToFile(data);
 #ifdef WIN32
-                SetConsoleTextAttribute(handle, wOldColorAttrs);
+    SetConsoleTextAttribute(handle, wOldColorAttrs);
 #endif
-                if (console_show) {
-                    printf("\n");
-                }
-                WriteToFile("\n");
+    if (console_show) {
+        printf("\n");
+    }
+    WriteToFile("\n");
 
 #ifdef _LOGGER_USE_THREAD_POOL_
-            }, _tag, data, log_rank_type);
-    if (wait_show)fh.get();
+    }, _tag, data, log_rank_type);
+if (wait_show)fh.get();
 #endif
 }
 
@@ -464,7 +464,11 @@ std::string logger::get_local_path() {
     Dl_info dlInfo;
     dladdr((const void *) get_local_path, &dlInfo);
     if (dlInfo.dli_sname != nullptr && dlInfo.dli_saddr != nullptr) {
-        return get_path_by_filepath(dlInfo.dli_fname);
+        auto path = get_path_by_filepath(dlInfo.dli_fname);
+        if (path[0] != path_split) {
+            return "./";
+        }
+        return path;
     } else
         return "";
 #endif
@@ -484,7 +488,7 @@ bool logger::is_dir(const std::string &directory) {
     // return (_access(directory.c_str(), 0) == 0);
 #else
     struct stat buf{};
-    if(lstat(directory.c_str() , &buf) < 0){
+    if (lstat(directory.c_str(), &buf) < 0) {
         return false;
     }
     int ret = S_IFDIR & buf.st_mode;
@@ -668,7 +672,7 @@ bool logger::EndsWith(const string &text, const string &suffix) {
                    suffix.size()) == 0);
 }
 
-void logger::init_default(const std::string& path) {
+void logger::init_default(const std::string &path) {
     this->min_level = logger::log_rank_t::log_rank_DEBUG;
     this->console_show = true;
 #ifdef _LOGGER_USE_THREAD_POOL_
@@ -687,7 +691,7 @@ bool logger::exists(const std::string &path_string) {
     return (stat(path_string.c_str(), &buffer) == 0);
 }
 
-string logger::extension(const std::string& path_string) {
+string logger::extension(const std::string &path_string) {
     return path_string.substr(path_string.find_last_of('.'));
 }
 
