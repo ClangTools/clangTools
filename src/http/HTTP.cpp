@@ -8,7 +8,7 @@
 #include <utility>
 #include <logger.h>
 #include <UTF8Url.h>
-#ifdef CURL_ENABLE
+#ifdef ENABLE_CURL
 #include <curl/curl.h>
 #endif
 #include <thread>
@@ -51,7 +51,7 @@ bool HTTP::is_curl_global_inited = false;
 std::mutex HTTP::init_curl_global_init_mutex;
 
 HTTP::HTTP(const std::string &full_url) {
-#ifdef CURL_ENABLE
+#ifdef ENABLE_CURL
     // global init
     std::unique_lock<std::mutex> lock(init_curl_global_init_mutex);
     if (!is_curl_global_inited) {
@@ -139,7 +139,7 @@ void HTTP::send(HTTP::callback cb, void *argv) {
 }
 
 int HTTP::send(std::vector<unsigned char> &data) {
-#ifdef CURL_ENABLE
+#ifdef ENABLE_CURL
     string _url = protocol + "://" + host + (":" + port) + url;
     if (!GET.empty()) {
         _url += '?';
@@ -441,7 +441,7 @@ unsigned long int HTTP::init_header(const char *data, unsigned long int size) {
 }
 
 HTTP::~HTTP() {
-#ifdef CURL_ENABLE
+#ifdef ENABLE_CURL
     // release curl
     if (curl != nullptr) {
         curl_easy_cleanup(curl);

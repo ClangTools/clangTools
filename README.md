@@ -25,6 +25,10 @@
 
 为 `Linux` 接口，用于`Linux`以及`嵌入式设备`。需要添加参数 `-DENABLE_I2C=ON` 开启。
 
+### spi_tool
+
+为 `Linux` 接口，用于`Linux`以及`嵌入式设备`。需要添加参数 `-DENABLE_SPI=ON` 开启。
+
 ## 引入方式
 
 ```cmake

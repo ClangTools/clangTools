@@ -19,7 +19,7 @@
 
 #endif
 
-#ifdef CURL_ENABLE
+#ifdef ENABLE_CURL
 #include <curl/curl.h>
 #endif
 
@@ -44,7 +44,7 @@ public:
 #endif
 
 public:
-#ifdef CURL_ENABLE
+#ifdef ENABLE_CURL
     CURL *curl = nullptr;
 #endif
     std::string protocol;
