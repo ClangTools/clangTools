@@ -22,5 +22,7 @@ if ("${Tools_Other_Project}" STREQUAL "ON")
     install(DIRECTORY Example/ DESTINATION Example
             PATTERN "Example/*"
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-            GROUP_EXECUTE GROUP_READ)
+            GROUP_EXECUTE GROUP_READ
+#            SETUID SETGID
+            )
 endif ()

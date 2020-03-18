@@ -39,7 +39,7 @@ if (ENABLE_X11)
     endif ()
 endif (ENABLE_X11)
 
-option(ENABLE_ICONV "option for ICONV" ON)
+option(ENABLE_ICONV "option for ICONV" OFF)
 if (ENABLE_ICONV)
     find_package(Iconv)
     if (Iconv_FOUND)
