@@ -21,8 +21,9 @@ if ("${Tools_Other_Project}" STREQUAL "ON")
     # 复制 lib 代码到 lib 下
     install(DIRECTORY Example/ DESTINATION Example
             PATTERN "Example/*"
-            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-            GROUP_EXECUTE GROUP_READ
-#            SETUID SETGID
+            PERMISSIONS
+            OWNER_WRITE OWNER_READ
+            GROUP_READ
+            # SETUID SETGID
             )
 endif ()
