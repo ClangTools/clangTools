@@ -50,9 +50,9 @@ int main(int argc, char **argv) {
     logger::instance()->i(__FILENAME__, __LINE__, "CAP_PROP_EXPOSURE        \t : %f", video.get(CAP_PROP_EXPOSURE));
     logger::instance()->i(__FILENAME__, __LINE__, "CAP_PROP_AUTO_EXPOSURE   \t : %f",
                           video.get(CAP_PROP_AUTO_EXPOSURE));
-    logger::instance()->i(__FILENAME__, __LINE__, "CAP_PROP_AUTO_WB         \t : %f", video.get(CAP_PROP_AUTO_WB));
-    logger::instance()->i(__FILENAME__, __LINE__, "CAP_PROP_WB_TEMPERATURE  \t : %f",
-                          video.get(CAP_PROP_WB_TEMPERATURE));
+    // logger::instance()->i(__FILENAME__, __LINE__, "CAP_PROP_AUTO_WB         \t : %f", video.get(CAP_PROP_AUTO_WB));
+    // logger::instance()->i(__FILENAME__, __LINE__, "CAP_PROP_WB_TEMPERATURE  \t : %f",
+    //                       video.get(CAP_PROP_WB_TEMPERATURE));
     logger::instance()->i(__FILENAME__, __LINE__, "CAP_PROP_FPS             \t : %lld", fps);
 
 
