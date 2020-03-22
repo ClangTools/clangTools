@@ -23,4 +23,6 @@ if (MSVC)
     add_compile_options(/wd4244)
     add_compile_options(/wd4251)
     add_compile_options(/wd4819)
+    # TARGET_COMPILE_OPTIONS
+    ADD_COMPILE_OPTIONS(/MT)
 endif (MSVC)
