@@ -6,7 +6,7 @@ if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
     )
 
 
-    FILE(GLOB ExampleSourceSrc "Example/*")
+    FILE(GLOB ExampleSourceSrc "${CMAKE_CURRENT_LIST_DIR}/../Example/*")
 
     option(ENABLE_I2C "option for I2C tool" OFF)
     if (ENABLE_I2C)

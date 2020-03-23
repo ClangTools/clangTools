@@ -47,6 +47,11 @@ if (ENABLE_LIBUSB1)
 else ()
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*libusb_1_tool")
 endif ()
+option(ENABLE_OPENCV "option for OpenCV" OFF)
+if (ENABLE_OPENCV)
+else ()
+    list(FILTER srcSourceHeader EXCLUDE REGEX ".*CameraTool")
+endif ()
 
 include_directories(
         .
@@ -112,5 +117,14 @@ if (ENABLE_FILENAME)
     redefine_file_macro(${libTools_LIBRARIES})
 endif ()
 
+include(cmake/resource.cmake)
+
+option(ENABLE_OPENCV_CASCADES "option for OPENCV_CASCADES" OFF)
+if (ENABLE_OPENCV_CASCADES)
+    add_dependencies(${libTools_LIBRARIES} UnpackingOpenCV_Cascades)
+endif (ENABLE_OPENCV_CASCADES)
+
+
 include(cmake/example.cmake)
 include(cmake/install.cmake)
+

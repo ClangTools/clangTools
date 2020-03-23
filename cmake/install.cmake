@@ -6,7 +6,7 @@ if ("${Tools_Other_Project}" STREQUAL "ON")
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION lib)
 
-    FILE(GLOB srcInstallSourceHeader "src/*")
+    FILE(GLOB srcInstallSourceHeader "${CMAKE_CURRENT_LIST_DIR}/../src/*")
 
     set(include_header "")
     foreach (item in ${srcInstallSourceHeader})
@@ -19,8 +19,8 @@ if ("${Tools_Other_Project}" STREQUAL "ON")
             DESTINATION include)
 
     # 复制 lib 代码到 lib 下
-    install(DIRECTORY Example/ DESTINATION Example
-            PATTERN "Example/*"
+    install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../Example/ DESTINATION Example
+            PATTERN "${CMAKE_CURRENT_LIST_DIR}/../Example/*"
             PERMISSIONS
             OWNER_WRITE OWNER_READ
             GROUP_READ

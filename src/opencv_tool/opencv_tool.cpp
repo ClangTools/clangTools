@@ -472,4 +472,23 @@ int opencv_tool::WarpAffine(const cv::Mat &srcImage, std::vector<cv::Mat> &outIm
     return outImage.size();
 }
 
+#ifdef ENABLE_GTK3
+
+GdkPixbuf *opencv_tool::MatToGdkPixbuf(const cv::Mat& inMat) {
+    // IplImage -> GdkPixbuf
+    GdkPixbuf *src = gdk_pixbuf_new_from_data(
+            (const guchar *) inMat.data,
+            GDK_COLORSPACE_RGB,
+            false,
+            8,
+            inMat.size().width,
+            inMat.size().height,
+            inMat.step,
+            nullptr,
+            nullptr);
+    return src;
+}
+
+#endif
+
 #endif

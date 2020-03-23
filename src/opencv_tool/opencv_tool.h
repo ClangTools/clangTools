@@ -9,6 +9,12 @@
 #include <string>
 #include <opencv2/opencv.hpp>
 
+#ifdef ENABLE_GTK3
+
+#include <gdk/gdk.h>
+
+#endif
+
 class opencv_tool {
 public:
     static opencv_tool *instance();
@@ -63,8 +69,13 @@ public:
     FindLine(const cv::Mat &srcImage, std::vector<cv::RotatedRect> &texts, std::vector<cv::RotatedRect> &faces,
              bool useMserGetPlate = false);
 
-    static int WarpAffine(const cv::Mat &srcImage,std::vector<cv::Mat> &outImage,cv::RotatedRect box);
+    static int WarpAffine(const cv::Mat &srcImage, std::vector<cv::Mat> &outImage, cv::RotatedRect box);
 
+#ifdef ENABLE_GTK3
+
+    static GdkPixbuf *MatToGdkPixbuf(const cv::Mat& inMat);
+
+#endif
 private:
     std::string faceXml = "./haarcascades/haarcascade_frontalface_alt2.xml";
     // string faceXml = "./haarcascades/haarcascade_frontalface_default.xml";
