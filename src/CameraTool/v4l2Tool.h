@@ -1,6 +1,6 @@
 #ifndef __V4L2TOOL__H__
 #define __V4L2TOOL__H__
-#ifndef APPLE
+#ifndef __APPLE__
 // #pragma pack(2)
 #ifdef WIN32
 #pragma warning(disable : 4995)

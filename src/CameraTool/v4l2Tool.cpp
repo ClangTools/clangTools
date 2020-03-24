@@ -1,4 +1,4 @@
-#ifndef APPLE
+#ifndef __APPLE__
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

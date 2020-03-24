@@ -63,7 +63,7 @@ public:
     bool Close();
 
     cv::VideoCapture GetCap();
-#ifndef APPLE
+#ifndef __APPLE__
     /**
      * 获取摄像头列表
      * @return

@@ -7,7 +7,7 @@
 using namespace cv;
 using namespace std;
 
-#ifndef APPLE
+#ifndef __APPLE__
 using namespace clangTools;
 
 /**
