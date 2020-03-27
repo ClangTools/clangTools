@@ -81,7 +81,7 @@ private:
     // string faceXml = "./haarcascades/haarcascade_frontalface_default.xml";
     cv::CascadeClassifier faceCascade;
 
-private:
+public:
     static void rotate180(cv::OutputArray &inMat);
 };
 
