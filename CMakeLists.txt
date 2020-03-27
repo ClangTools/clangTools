@@ -52,6 +52,11 @@ if (ENABLE_OPENCV)
 else ()
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*CameraTool")
 endif ()
+option(ENABLE_NCURSES "option for NCURSES" OFF)
+if (ENABLE_NCURSES)
+else ()
+    list(FILTER srcSourceHeader EXCLUDE REGEX ".*ncurses_tool")
+endif ()
 
 include_directories(
         .
@@ -107,7 +112,7 @@ if (CURL_FOUND)
 endif ()
 target_link_libraries(${libTools_LIBRARIES}
         ${OpenCV_LIBS} ${Iconv_LIBRARIES} ${LIBUSB_1_LIBRARIES}
-        ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${X11_LIBRARIES} ${GTK3_LIBRARIES}
+        ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${X11_LIBRARIES} ${GTK3_LIBRARIES} ${NCURSES_LIBRARIES}
         )
 
 
