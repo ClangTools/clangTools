@@ -34,6 +34,14 @@ public:
     }
 
 public:
+    static void create2dArray(cv::Mat *input, uint8_t ***outputPtr);
+
+    static void ImgDithering(const cv::Mat &dithImg, std::vector<std::vector<unsigned char>> &outputPtr);
+
+    // static bool putText(cv::Mat &img, const std::string &text, cv::Point org,
+    //                     int fontFace, double fontScale, cv::Scalar color,
+    //                     int thickness = 1, int lineType = cv::LINE_8,
+    //                     bool bottomLeftOrigin = false, const std::string file_path = "");
 
     template<typename T>
     static std::vector<int> argsort(const std::vector<T> &array);
@@ -80,6 +88,8 @@ private:
     std::string faceXml = "./haarcascades/haarcascade_frontalface_alt2.xml";
     // string faceXml = "./haarcascades/haarcascade_frontalface_default.xml";
     cv::CascadeClassifier faceCascade;
+
+    static uint8_t saturated_add(uint8_t val1, int8_t val2);
 
 public:
     static void rotate180(cv::OutputArray &inMat);

@@ -10,6 +10,8 @@
 #include "opencv_tool.h"
 #include <logger.h>
 
+#include <opencv2/freetype.hpp>
+
 using namespace std;
 using namespace cv;
 
@@ -26,6 +28,41 @@ opencv_tool::opencv_tool(string faceXml) {
 }
 
 opencv_tool::~opencv_tool() = default;
+
+
+/*
+bool opencv_tool::putText(cv::Mat &img, const std::string &text, cv::Point org,
+                    int fontFace, double fontScale, cv::Scalar color,
+                    int thickness, int lineType,
+                    bool bottomLeftOrigin, const std::string file_path){
+    if(file_path.empty()){
+
+    }else{
+        Ptr<freetype::FreeType2> ft2 = cv::freetype::createFreeType2();
+        ft2->loadFontData(file_path, 0);
+        Size textSize = ft2->getTextSize(text,
+                                         fontHeight,
+                                         thickness,
+                                         &baseline);
+        if(thickness > 0){
+            baseline += thickness;
+        }
+
+        Point textOrg((img.cols - textSize.width) / 2,
+                      (img.rows + textSize.height) / 2);
+        rectangle(img, textOrg + Point(0, baseline),
+                  textOrg + Point(textSize.width, -textSize.height),
+                  Scalar(0,255,0),1,8);
+        line(img, textOrg + Point(0, thickness),
+             textOrg + Point(textSize.width, thickness),
+             Scalar(0, 0, 255),1,8);
+        ft2->putText(img, text, textOrg, fontHeight,
+                     Scalar::all(255), thickness, linestyle, true );
+        ft2.release();
+    }
+
+}
+*/
 
 bool opencv_tool::findMaxFace(const cv::Mat &inMat, std::vector<cv::Rect> &faces) {
     if (faceCascade.empty())return false;
@@ -470,6 +507,83 @@ int opencv_tool::WarpAffine(const cv::Mat &srcImage, std::vector<cv::Mat> &outIm
         outImage.push_back(out1(rect));
     }
     return outImage.size();
+}
+
+void opencv_tool::create2dArray(Mat *input, uint8_t ***outputPtr) {
+    int imgWidth = input->cols;
+    int imgHeight = input->rows;
+
+    (*outputPtr) = new uint8_t *[imgHeight];
+    for (int i = 0; i < imgHeight; ++i) {
+        (*outputPtr)[i] = new uint8_t[imgWidth];
+    }
+    for (int i = 0; i < imgHeight; i++) {
+        for (int j = 0; j < imgWidth; j++) {
+            (*outputPtr)[i][j] = input->at<uint8_t>(i, j);
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+uint8_t opencv_tool::saturated_add(uint8_t val1, int8_t val2) {
+    int16_t val1_int = val1;
+    int16_t val2_int = val2;
+    int16_t tmp = val1_int + val2_int;
+
+    if (tmp > 255) {
+        return 255;
+    } else if (tmp < 0) {
+        return 0;
+    } else {
+        return tmp;
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+void opencv_tool::ImgDithering(const cv::Mat &gray, std::vector<std::vector<unsigned char>> &outputPtr) {
+    Mat dithImg = gray.clone();
+
+    if (dithImg.type() != CV_8U) {
+        cvtColor(dithImg, dithImg, cv::COLOR_BGR2GRAY);
+    }
+    
+    /* Get the size info */
+    int imgWidth = dithImg.cols;
+    int imgHeight = dithImg.rows;
+    logger::instance()->d(__FILENAME__, __LINE__, "Image width : %d", imgWidth);
+    logger::instance()->d(__FILENAME__, __LINE__, "Image height: %d", imgHeight);
+
+    outputPtr = std::vector<std::vector<unsigned char>>(imgHeight, std::vector<unsigned char>(imgWidth));
+
+    /* Run the 'Floyd-Steinberg' dithering algorithm ... */
+    int err;
+    int8_t a, b, c, d;
+
+    for (int i = 0; i < imgHeight; i++) {
+        for (int j = 0; j < imgWidth; j++) {
+            if (dithImg.at<uint8_t>(i, j) > 127) {
+                err = dithImg.at<uint8_t>(i, j) - 255;
+                dithImg.at<uint8_t>(i, j) = 255;
+                outputPtr[i][j] = 255;
+            } else {
+                err = dithImg.at<uint8_t>(i, j) - 0;
+                dithImg.at<uint8_t>(i, j) = 0;
+                outputPtr[i][j] = 0;
+            }
+
+            a = (err * 7) / 16;
+            b = (err * 1) / 16;
+            c = (err * 5) / 16;
+            d = (err * 3) / 16;
+
+            if ((i != (imgHeight - 1)) && (j != 0) && (j != (imgWidth - 1))) {
+                dithImg.at<uint8_t>(i + 0, j + 1) = saturated_add(dithImg.at<uint8_t>(i + 0, j + 1), a);
+                dithImg.at<uint8_t>(i + 1, j + 1) = saturated_add(dithImg.at<uint8_t>(i + 1, j + 1), b);
+                dithImg.at<uint8_t>(i + 1, j + 0) = saturated_add(dithImg.at<uint8_t>(i + 1, j + 0), c);
+                dithImg.at<uint8_t>(i + 1, j - 1) = saturated_add(dithImg.at<uint8_t>(i + 1, j - 1), d);
+            }
+        }
+    }
 }
 
 #ifdef ENABLE_GTK3
