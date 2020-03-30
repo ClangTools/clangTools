@@ -9,8 +9,12 @@
 
 #include "opencv_tool.h"
 #include <logger.h>
+#include "QrCode.hpp"
 
-#include <opencv2/freetype.hpp>
+
+using std::uint8_t;
+using qrcodegen::QrCode;
+using qrcodegen::QrSegment;
 
 using namespace std;
 using namespace cv;
@@ -546,7 +550,7 @@ void opencv_tool::ImgDithering(const cv::Mat &gray, std::vector<std::vector<unsi
     if (dithImg.type() != CV_8U) {
         cvtColor(dithImg, dithImg, cv::COLOR_BGR2GRAY);
     }
-    
+
     /* Get the size info */
     int imgWidth = dithImg.cols;
     int imgHeight = dithImg.rows;
@@ -584,6 +588,48 @@ void opencv_tool::ImgDithering(const cv::Mat &gray, std::vector<std::vector<unsi
             }
         }
     }
+}
+
+cv::Mat opencv_tool::CreateQrCode(const std::string &data, int size) {
+    const QrCode qr = QrCode::encodeText(
+            data.c_str(),
+            QrCode::Ecc::LOW);
+    cv::Mat qrImg(qr.getSize() * size, qr.getSize() * size, CV_8UC3,
+                  cv::Scalar(255, 255, 255)); // create a black background
+
+
+    for (int y = 0; y < qr.getSize(); y++) {
+        for (int x = 0; x < qr.getSize(); x++) {
+            if (qr.getModule(x, y)) {
+                // for (int i = 0; i < 3; i++)
+                {
+                    for (int _1 = 0; _1 < size; _1++) {
+                        for (int _2 = 0; _2 < size; _2++) {
+                            // qrImg.at<uint8_t>(x * size + _1, y * size + _2, i) = 0;
+                            auto& pixel = qrImg.at<Vec3b>(x * size + _1, y * size + _2);
+                            pixel[0] = 0;
+                            pixel[1] = 0;
+                            pixel[2] = 0;
+                        }
+                    }
+                }
+            } else {
+                // for (int i = 0; i < 3; i++)
+                {
+                    for (int _1 = 0; _1 < size; _1++) {
+                        for (int _2 = 0; _2 < size; _2++) {
+                            // qrImg.at<uint8_t>(x * size + _1, y * size + _2, i) = 255;
+                            auto& pixel = qrImg.at<Vec3b>(x * size + _1, y * size + _2);
+                            pixel[0] = 255;
+                            pixel[1] = 255;
+                            pixel[2] = 255;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return qrImg;
 }
 
 #ifdef ENABLE_GTK3

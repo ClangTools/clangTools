@@ -51,126 +51,58 @@ int ssd1306::IIC_SetPos(unsigned char x, unsigned char y) {
     return ret;
 }
 
-int ssd1306::Fill_Screen(unsigned char dat1, unsigned char dat2) {
-    int ret = 0;
-    unsigned char x, y;
 
-    ret = WriteCommand(0x02);    /*set lower column address*/
-    if (0 > ret)return ret;
-
-    ret = WriteCommand(0x10);    /*set higher column address*/
-    if (0 > ret)return ret;
-
-    ret = WriteCommand(0xB0);    /*set page address*/
-    if (0 > ret)return ret;
-
-    for (y = 0; y < HEIGHT / 8; y++) {
-        WriteCommand(0xB0 + y);    /*set page address*/
-        WriteCommand(0x02);    /*set lower column address*/
-        WriteCommand(0x10);    /*set higher column address*/
-        for (x = 0; x < WIDTH / 2; x++) {
-            WriteData(dat1);
-            WriteData(dat2);
-        }
-    }
-    return 0;
-}
-
-int ssd1306::Initial() {
+int ssd1306::Initial(unsigned char _vccstate) {
+    this->vccstate = _vccstate;
     if (!i2CTool.IsOpen())return -1;
     logger::instance()->d(__FILENAME__, __LINE__, "initial");
-    int ret = WriteCommand(0xAE);//display off
+    int ret = WriteCommand(SSD1306_DISPLAYOFF);//display off
     if (0 > ret)return ret;
-    // logger::instance()->d(__FILENAME__,__LINE__,"write command 0xAE");
+    WriteCommand(SSD1306_SETDISPLAYCLOCKDIV);//            # 0xD5
+    WriteCommand(0x80);//      # the suggested ratio 0x80
+    WriteCommand(SSD1306_SETMULTIPLEX);//    # 0xA8
+    WriteCommand(HEIGHT == 64 ? 0x3F : 0x1F);
+    WriteCommand(SSD1306_SETDISPLAYOFFSET);//  # 0xD3
+    WriteCommand(0x0);//   # no offset
+    WriteCommand(SSD1306_SETSTARTLINE | 0x0);//    # line #0
+    WriteCommand(SSD1306_CHARGEPUMP);//      # 0x8D
+    if (_vccstate == SSD1306_EXTERNALVCC)
+        WriteCommand(0x10);
+    else
+        WriteCommand(0x14);
+    WriteCommand(SSD1306_MEMORYMODE);//     # 0x20
 
-    WriteCommand(0x00);//set lower column address
-    WriteCommand(0x10);//set higher column address
+    WriteCommand(0x00);//     # 0x0 act like ks0108
+    WriteCommand(SSD1306_SEGREMAP | 0x1);//
+    WriteCommand(SSD1306_COMSCANDEC);//
+    WriteCommand(SSD1306_SETCOMPINS);//       # 0xDA
+    WriteCommand(HEIGHT == 64 ? 0x12 : 0x02);//
+    WriteCommand(SSD1306_SETCONTRAST);//       # 0x81
+    if (HEIGHT == 64) {
+        if (_vccstate == SSD1306_EXTERNALVCC)
+            WriteCommand(0x9F);
+        else
+            WriteCommand(0xCF);
+    } else
+        WriteCommand(0x8F);//
 
-    WriteCommand(0x40);//set display start line
+    WriteCommand(SSD1306_SETPRECHARGE);//       # 0xd9
+    if (_vccstate == SSD1306_EXTERNALVCC)
+        WriteCommand(0x22);
+    else
+        WriteCommand(0xF1);
+    WriteCommand(SSD1306_SETVCOMDETECT);//          # 0xDB
+    WriteCommand(0x40);//
+    WriteCommand(SSD1306_DISPLAYALLON_RESUME);//      # 0xA4
+    WriteCommand(SSD1306_NORMALDISPLAY);//       # 0xA6
 
-    WriteCommand(0xB0);//set page address
-
-    WriteCommand(0x81);//对比度设置
-    WriteCommand(0xCF);//0~255（对比度值⋯⋯效果不是特别明显）
-
-    WriteCommand(0xA1);//set segment remap
-
-    WriteCommand(0xA6);//normal / reverse
-
-    WriteCommand(0xA8);//multiplex ratio
-    WriteCommand(0x3F);//duty = 1/64
-
-    WriteCommand(0xC8);//Com scan direction
-
-    WriteCommand(0xD3);//set display offset
-    WriteCommand(0x00);
-
-    WriteCommand(0xD5);//set osc division
-    WriteCommand(0x80);
-
-    WriteCommand(0xD9);//set pre-charge period
-    WriteCommand(0xF1);
-
-    WriteCommand(0xDA);//set COM pins
-    WriteCommand(0x12);
-
-    WriteCommand(0xDB);//set vcomh
-    WriteCommand(0x40);
-
-    WriteCommand(0x8D);//set charge pump enable
-    WriteCommand(0x14);
-
-    WriteCommand(0xAF);//display ON
-#if 0 //SH1106
-    WriteCommand(0xAE);    /*display off*/
-
-    WriteCommand(0x02);    /*set lower column address*/
-    WriteCommand(0x10);    /*set higher column address*/
-
-    WriteCommand(0x40);    /*set display start line*/
-
-    WriteCommand(0xB0);    /*set page address*/
-
-    WriteCommand(0x81);    /*contract control*/
-    WriteCommand(0x80);    /*128*/
-
-    WriteCommand(0xA1);    /*set segment remap*/
-
-    WriteCommand(0xA6);    /*normal / reverse*/
-
-    WriteCommand(0xA8);    /*multiplex ratio*/
-    WriteCommand(0x3F);    /*duty = 1/32*/
-
-    WriteCommand(0xad);    /*set charge pump enable*/
-    WriteCommand(0x8b);     /*    0x8a    外供VCC   */
-
-    WriteCommand(0x30);    /*0X30---0X33  set VPP   9V 电压可以调整亮度!!!!*/
-
-    WriteCommand(0xC8);    /*Com scan direction*/
-
-    WriteCommand(0xD3);    /*set display offset*/
-    WriteCommand(0x00);   /*   0x20  */
-
-    WriteCommand(0xD5);    /*set osc division*/
-    WriteCommand(0x80);
-
-    WriteCommand(0xD9);    /*set pre-charge period*/
-    WriteCommand(0x1f);    /*0x22*/
-
-    WriteCommand(0xDA);    /*set COM pins*/
-    WriteCommand(0x12);//0x02 -- duanhang xianshi,0x12 -- lianxuhang xianshi!!!!!!!!!
-
-    WriteCommand(0xdb);    /*set vcomh*/
-    WriteCommand(0x40);
-
-
-    WriteCommand(0xAF);    /*display ON*/
-#endif
+    WriteCommand(SSD1306_DISPLAYON);
+    logger::instance()->d(__FILENAME__, __LINE__, "initial finish");
     return 0;
 }
 
 void ssd1306::DisplayState(bool on) {
-    WriteCommand(on ? 0xAF : 0xAE);    /*display off*/
+    WriteCommand(on ? SSD1306_DISPLAYON : SSD1306_DISPLAYOFF);    /*display off*/
 }
 
 int ssd1306::WriteData(unsigned char x, unsigned char y, unsigned char dat) {
@@ -193,23 +125,34 @@ void ssd1306::putText(cv::Mat *img, unsigned int x, unsigned int y, const std::s
                       int thickness) {
     cv::Point p = cv::Point(x, y);
     //加上字符的起始点
-    cv::putText(*img, text, p, cv::FONT_HERSHEY_TRIPLEX, fontScale, cv::Scalar(255, 255, 255), thickness);
-    //在图像上加字符
-    //第一个参数为要加字符的目标函数
-    //第二个参数为要加的字符
-    //第三个参数为字体
-    //第四个参数为子的粗细
-    //第五个参数为字符的颜色
-
+    cv::putText(*img, text, p, cv::FONT_HERSHEY_SIMPLEX, fontScale, cv::Scalar(0, 0, 0), thickness, LINE_AA);
 }
 
-int ssd1306::draw(cv::Mat *pMat) {
+int ssd1306::draw(cv::Mat *pMat, bool is_txt) {
     int ret = 0;
     std::vector<std::vector<unsigned char>> outputPtr;
-    // setenv("DISPLAY", "localhost:10.0", 1);
-    // imshow("p", *pMat);
-    // waitKey();
-    opencv_tool::ImgDithering(*pMat, outputPtr);
+    if (is_txt) {
+        Mat dithImg = pMat->clone();
+        if (dithImg.type() != CV_8U) {
+            cvtColor(dithImg, dithImg, cv::COLOR_BGR2GRAY);
+        }
+        /* Get the size info */
+        int imgWidth = dithImg.cols;
+        int imgHeight = dithImg.rows;
+
+        outputPtr = std::vector<std::vector<unsigned char>>(imgHeight, std::vector<unsigned char>(imgWidth));
+        for (int i = 0; i < imgHeight; i++) {
+            for (int j = 0; j < imgWidth; j++) {
+                if (dithImg.at<uint8_t>(i, j) > 127) {
+                    outputPtr[i][j] = 255;
+                } else {
+                    outputPtr[i][j] = 0;
+                }
+            }
+        }
+    } else {
+        opencv_tool::ImgDithering(*pMat, outputPtr);
+    }
 
     std::vector<std::vector<unsigned char>> points(HEIGHT / 8, std::vector<unsigned char>(WIDTH));
     for (int x = 0; x < WIDTH; x++) {
@@ -217,7 +160,7 @@ int ssd1306::draw(cv::Mat *pMat) {
             unsigned char flag = 0;
             for (int _i = 0; _i < 8; _i++) {
                 int y = i * 8 + _i;
-                flag |= (outputPtr[y][x] == 0 ? 0x00 : 0x01) << _i;
+                flag |= (outputPtr[y][x] == 0 ? 0x01 : 0x00) << _i;
             }
             points[i][x] = flag;
         }
@@ -227,23 +170,17 @@ int ssd1306::draw(cv::Mat *pMat) {
 }
 
 int ssd1306::Fill_Screen(unsigned char dat) {
+
     int ret = 0;
-    unsigned char x, y;
-
-    ret = WriteCommand(0x02);    /*set lower column address*/
+    ret = WriteCommand(SSD1306_COLUMNADDR);    /*set lower column address*/
     if (0 > ret)return ret;
-
-    ret = WriteCommand(0x10);    /*set higher column address*/
-    if (0 > ret)return ret;
-
-    ret = WriteCommand(0xB0);    /*set page address*/
-    if (0 > ret)return ret;
-
-    for (y = 0; y < HEIGHT / 8; y++) {
-        WriteCommand(0xB0 + y);    /*set page address*/
-        WriteCommand(0x02);    /*set lower column address*/
-        WriteCommand(0x10);    /*set higher column address*/
-        for (x = 0; x < WIDTH; x++) {
+    WriteCommand(0);//              # Column start address. (0 = reset)
+    WriteCommand(WIDTH - 1);//  # Column end address.
+    WriteCommand(SSD1306_PAGEADDR);//
+    WriteCommand(0);//              # Page start address. (0 = reset)
+    WriteCommand(HEIGHT / 8 - 1);// # Page end address.
+    for (int y = 0; y < HEIGHT / 8; y++) {
+        for (int x = 0; x < WIDTH; x++) {
             WriteData(dat);
         }
     }
@@ -252,26 +189,40 @@ int ssd1306::Fill_Screen(unsigned char dat) {
 
 int ssd1306::draw(std::vector<std::vector<unsigned char>> outputPtr) {
     int ret = 0;
-    unsigned char x, y;
-
-    ret = WriteCommand(0x02);    /*set lower column address*/
+    ret = WriteCommand(SSD1306_COLUMNADDR);    /*set lower column address*/
     if (0 > ret)return ret;
+    WriteCommand(0);//              # Column start address. (0 = reset)
+    WriteCommand(WIDTH - 1);//  # Column end address.
+    WriteCommand(SSD1306_PAGEADDR);//
+    WriteCommand(0);//              # Page start address. (0 = reset)
+    WriteCommand(HEIGHT / 8 - 1);// # Page end address.
+    //# Write buffer data.
+    // if self._spi is not None:
+    //     ;//# Set DC high for data.
+    //     self._gpio.set_high(self._dc)
+    //             ;//# Write buffer.
+    //     self._spi.write(self._buffer)
+    // else:
 
-    ret = WriteCommand(0x10);    /*set higher column address*/
-    if (0 > ret)return ret;
-
-    ret = WriteCommand(0xB0);    /*set page address*/
-    if (0 > ret)return ret;
-
-    for (y = 0; y < HEIGHT / 8; y++) {
-        WriteCommand(0xB0 + y);    /*set page address*/
-        WriteCommand(0x02);    /*set lower column address*/
-        WriteCommand(0x10);    /*set higher column address*/
-        for (x = 0; x < WIDTH; x++) {
+    for (int y = 0; y < HEIGHT / 8; y++) {
+        for (int x = 0; x < WIDTH; x++) {
             WriteData(outputPtr[y][x]);
         }
     }
+
     return 0;
+}
+
+void ssd1306::clear() {
+    Fill_Screen(0x00);
+}
+
+int ssd1306::GetLineY14(int line) {
+    if(line<1)line=1;
+    if(line>4)line=4;
+    line--;
+    int y = 16 * line + 1;
+    return y;
 }
 
 ssd1306::~ssd1306() =

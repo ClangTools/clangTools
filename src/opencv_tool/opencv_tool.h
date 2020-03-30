@@ -34,6 +34,9 @@ public:
     }
 
 public:
+
+    static cv::Mat CreateQrCode(const std::string& data,int size = 2);
+
     static void create2dArray(cv::Mat *input, uint8_t ***outputPtr);
 
     static void ImgDithering(const cv::Mat &dithImg, std::vector<std::vector<unsigned char>> &outputPtr);

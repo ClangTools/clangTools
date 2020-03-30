@@ -118,7 +118,27 @@ if (ENABLE_OPENCV)
                 ${OpenCV_INCLUDE_DIRS}
         )
     endif ()
+    option(ENABLE_FREETYPE "option for Freetype" OFF)
+    if (ENABLE_FREETYPE)
+        find_package(Freetype REQUIRED)
+        if (Freetype_FOUND)
+            add_definitions(-DENABLE_FREETYPE)
+            if ("${Tools_Other_Project}" STREQUAL "ON")
+                message(STATUS "Freetype library status:")
+                message(STATUS "    version: ${FREETYPE_VERSION}")
+                message(STATUS "    libraries: ${FREETYPE_LIBS}")
+                message(STATUS "    libraries: ${FREETYPE_LIBRARIES}")
+                message(STATUS "    lib_dir: ${FREETYPE_LIB_DIR}")
+                message(STATUS "    include path: ${FREETYPE_INCLUDE_DIRS}")
+            endif ()
+            link_directories(${FREETYPE_LIB_DIR})
+            include_directories(
+                    ${FREETYPE_INCLUDE_DIRS}
+            )
+        endif ()
+    endif (ENABLE_FREETYPE)
 endif (ENABLE_OPENCV)
+
 
 option(ENABLE_CURL "option for CURL" OFF)
 if (ENABLE_CURL)

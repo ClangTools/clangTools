@@ -25,3 +25,27 @@ if (ENABLE_OPENCV_CASCADES)
             # SETUID SETGID
             )
 endif (ENABLE_OPENCV_CASCADES)
+
+option(ENABLE_FREETYPE "option for FREETYPE" OFF)
+if (ENABLE_FREETYPE)
+    file(DOWNLOAD
+            https://github.com/ClangTools/clangTools/releases/download/OpenDotMatrixFont/OpenDotFont.zip
+            ${CMAKE_BINARY_DIR}/OpenDotFont.zip
+            TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "93025e5fae8b85151e4b1ad4be460f2d"
+            )
+    add_custom_target(UnpackingOpenDotFont ALL)
+    add_custom_command(TARGET UnpackingOpenDotFont PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/OpenDotMatrixFont.ttf
+            COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/seguisym.ttf
+            COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_BINARY_DIR}/OpenDotFont.zip
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            DEPENDS ${CMAKE_BINARY_DIR}/OpenDotFont.zip
+            COMMENT "Unpacking OpenDotFont.zip"
+            VERBATIM)
+
+    install(FILES
+            ${CMAKE_BINARY_DIR}/OpenDotMatrixFont.ttf
+            ${CMAKE_BINARY_DIR}/seguisym.ttf
+            DESTINATION font)
+
+endif (ENABLE_FREETYPE)
