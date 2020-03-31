@@ -8,13 +8,23 @@
 
 using namespace cv;
 
-ssd1306::ssd1306(int rst) {
-    // _rst = rst;
-    // pinMode(rst, OUTPUT);
-    for (unsigned char i : i2c_addr) {
-        i2CTool.setAddr(i);
-        i2CTool.Open();
-        if (i2CTool.IsOpen())break;
+ssd1306::ssd1306(int rst, OLED_MODE _mode,const std::string& path) {
+    mode = _mode;
+    if (_mode == OLED_MODE::I2C) {
+        if(!path.empty()){
+            i2CTool.setPath(path.c_str());
+        }
+        for (unsigned char i : i2c_addr) {
+            i2CTool.setAddr(i);
+            i2CTool.Open();
+            if (i2CTool.IsOpen())break;
+        }
+    } else {
+        if(!path.empty()){
+            spiTool.setPath(path.c_str());
+            // spiTool.setSpeed(500000);
+            spiTool.Open();
+        }
     }
     Initial();
 }
@@ -35,11 +45,7 @@ int ssd1306::WriteData(unsigned char dat) {
     return i2CTool.Write(std::vector<unsigned char>{0x40, dat});
 }
 
-int ssd1306::IIC_SetPos(unsigned char x, unsigned char y) {
-    if (!i2CTool.IsOpen()) {
-        logger::instance()->e(__FILENAME__, __LINE__, "open fail");
-        return -1;
-    }
+int ssd1306::SetPos(unsigned char x, unsigned char y) {
     int ret = 0;
     ret = WriteCommand(0xb0 + y);
     if (0 > ret)return ret;
@@ -47,14 +53,14 @@ int ssd1306::IIC_SetPos(unsigned char x, unsigned char y) {
     ret = WriteCommand((((x & 0xf0) >> 4) | 0x10));//|0x10
     if (0 > ret)return ret;
 
-    ret = WriteCommand((x & 0x0f) | 0x00);//|0x01
+    ret = WriteCommand((x & 0x0f) | 0x01);//|0x01
     return ret;
+
 }
 
 
 int ssd1306::Initial(unsigned char _vccstate) {
     this->vccstate = _vccstate;
-    if (!i2CTool.IsOpen())return -1;
     logger::instance()->d(__FILENAME__, __LINE__, "initial");
     int ret = WriteCommand(SSD1306_DISPLAYOFF);//display off
     if (0 > ret)return ret;
@@ -106,7 +112,7 @@ void ssd1306::DisplayState(bool on) {
 }
 
 int ssd1306::WriteData(unsigned char x, unsigned char y, unsigned char dat) {
-    IIC_SetPos(x, y);
+    SetPos(x, y);
     return WriteData(dat);
 }
 
@@ -218,8 +224,8 @@ void ssd1306::clear() {
 }
 
 int ssd1306::GetLineY14(int line) {
-    if(line<1)line=1;
-    if(line>4)line=4;
+    if (line < 1)line = 1;
+    if (line > 4)line = 4;
     line--;
     int y = 16 * line + 1;
     return y;

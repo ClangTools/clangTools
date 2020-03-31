@@ -9,8 +9,6 @@
 #include <opencv_tool.h>
 
 
-void ShowCN(ssd1306 &ssd1306, unsigned char x, unsigned char y, unsigned char N);
-
 int main(int argc, char *argv[]) {
     if (!getenv("DISPLAY"))setenv("DISPLAY", "localhost:10.0", 1);
     logger::instance()->init_default();
@@ -18,47 +16,6 @@ int main(int argc, char *argv[]) {
     ssd1306 ssd1306;
     ssd1306.clear();
 
-#if (0)
-    {
-        ssd1306.WriteData(000, 0, 0b11111111);
-        ssd1306.WriteData(003, 0, 0b11100111);
-        ssd1306.WriteData(064, 0, 0b11111111);
-        ssd1306.WriteData(067, 0, 0b11100111);
-        ssd1306.WriteData(120, 0, 0b11111111);
-        ssd1306.WriteData(127, 0, 0b11100111);
-    }
-#endif
-
-#if (0)
-    {
-        auto *img = ssd1306.GetImg();
-        ssd1306::putText(img, 3, 12, "1234567890^&*()", 0.4, 1);
-        ssd1306::putText(img, 3, 22, "ABCDEFGHIJKLMN#", 0.4, 1);
-        ssd1306::putText(img, 3, 32, "OPQRSTUVWXYZ?,", 0.4, 1);
-        ssd1306::putText(img, 3, 42, "abcdefghijklmn@\\", 0.4, 1);
-        ssd1306::putText(img, 3, 52, "opqrstuvwxyz<>!", 0.4, 1);
-        ssd1306::putText(img, 3, 62, "+-=_{}[]:;\"'./$%", 0.4, 1);
-
-        ssd1306.draw(img, true);
-
-        ssd1306::free(img);
-    }
-#endif
-
-#if (0)
-    for(int i=0;i<1000;i++){
-        auto *img = ssd1306.GetImg();
-        ssd1306::putText(img, 5, 32, "time:" + std::to_string(logger::get_time_tick()));
-        ssd1306.draw(img, true);
-        ssd1306::free(img);
-    }
-#endif
-#if (0)
-    // cv::Mat img = cv::imread("/home/pi/test.bmp");
-    cv::Mat img = cv::imread("/home/pi/柒凯计算机软件服务.jpg");
-    if (img.empty())return 1;
-    ssd1306.draw(&img, true);
-#endif
 #ifdef ENABLE_FREETYPE
     cv::Mat img(64, 128, CV_8UC3, cv::Scalar(255, 255, 255)); // create a black background
 

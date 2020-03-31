@@ -3,3 +3,11 @@
 //
 
 #include "spi_tool.h"
+
+void spi_tool::setPath(const char *path) {
+
+}
+
+bool spi_tool::Open() {
+    return false;
+}

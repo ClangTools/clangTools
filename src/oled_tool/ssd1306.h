@@ -7,7 +7,8 @@
 
 
 #include <cstdint>
-#include <src/i2c_tool/i2c_tool.h>
+#include <i2c_tool.h>
+#include <spi_tool.h>
 
 namespace cv {
     class Mat;
@@ -70,14 +71,14 @@ public:
     } SSD1306_CONFIG;
 
 
-    explicit ssd1306(int rst = 0);
+    explicit ssd1306(int rst = 0, OLED_MODE mode = OLED_MODE::I2C, const std::string& path = "");
 
     ~ssd1306();
 
 
     int WriteData(unsigned char x, unsigned char y, unsigned char dat);
 
-    int IIC_SetPos(unsigned char x, unsigned char y);
+    int SetPos(unsigned char x, unsigned char y);
 
     int Fill_Screen(unsigned char dat);
 
@@ -99,6 +100,7 @@ public:
     int draw(std::vector<std::vector<unsigned char>> outputPtr);
 
     static int GetLineY14(int line);
+
 private:
     int WriteCommand(unsigned char ins);
 
@@ -106,7 +108,9 @@ private:
 
     int _rst = 0;
     const unsigned char i2c_addr[2]{0x3c, 0x3d};
+    OLED_MODE mode = I2C;
     i2c_tool i2CTool;
+    spi_tool spiTool;
 
     unsigned char vccstate = SSD1306_SWITCHCAPVCC;
 
