@@ -190,7 +190,7 @@ int SerialPort::send(unsigned char data[], unsigned long len, unsigned long offs
 #ifdef WIN32
     //WaitForSingleObject(hMutex1, INFINITE);
     int ret = WriteFile(hCom, data, len, &len, nullptr) ? OK : SendFail;
-    logger::instance()->puts_info((string(TAG) + ":" + to_string(__LINE__)).c_str(), "send", data, len);
+    // logger::instance()->puts_info((string(TAG) + ":" + to_string(__LINE__)).c_str(), "send", data, len);
     //ReleaseMutex(hMutex1);
     return ret;
 #else
@@ -242,7 +242,7 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
             break;
         } else {
 #else
-            wCount = ::read(hCom, data, 1);
+            wCount = ::read(hCom, str, 1);
 #endif
             if (wCount <= 0) {
 #ifdef WIN32
@@ -264,7 +264,7 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
 #endif
     }
     //ReleaseMutex(hMutex1);
-    logger::instance()->puts_info((string(TAG) + ":" + to_string(__LINE__)).c_str(), "Read", data, count);
+    // logger::instance()->puts_info((string(TAG) + ":" + to_string(__LINE__)).c_str(), "Read", data, count);
     return count;
 }
 
