@@ -7,8 +7,15 @@
 
 
 #include <cstdint>
+#include <string>
+#include <vector>
+
+#ifdef ENABLE_I2C
 #include <i2c_tool.h>
+#endif
+#ifdef ENABLE_SPI
 #include <spi_tool.h>
+#endif
 
 namespace cv {
     class Mat;
@@ -71,7 +78,7 @@ public:
     } SSD1306_CONFIG;
 
 
-    explicit ssd1306(int rst = 0, OLED_MODE mode = OLED_MODE::I2C, const std::string& path = "");
+    explicit ssd1306(int rst = 0, OLED_MODE mode = OLED_MODE::I2C, const std::string &path = "");
 
     ~ssd1306();
 
@@ -109,8 +116,12 @@ private:
     int _rst = 0;
     const unsigned char i2c_addr[2]{0x3c, 0x3d};
     OLED_MODE mode = I2C;
+#ifdef ENABLE_I2C
     i2c_tool i2CTool;
+#endif
+#ifdef ENABLE_SPI
     spi_tool spiTool;
+#endif
 
     unsigned char vccstate = SSD1306_SWITCHCAPVCC;
 

@@ -4,15 +4,18 @@
 
 #include "net_tool.h"
 #include <cstdio>
+#ifdef __linux__
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <linux/netdevice.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#endif
 #include <unistd.h>
 #include <logger.h>
 
 int net_tool::GetIP(std::vector<std::string> &ips) {
+#ifdef __linux__
     int domains[] = {AF_INET, AF_INET6};
     int i;
     for (i = 0; i < sizeof(domains) / sizeof(domains[0]); i++) {
@@ -34,12 +37,12 @@ int net_tool::GetIP(std::vector<std::string> &ips) {
             return 0;
         }
         ifs = ifconf.ifc_len / sizeof(ifr[0]);
-        logger::instance()->d(__FILENAME__, __LINE__, "interfaces = %d ", ifs);
+        // logger::instance()->d(__FILENAME__, __LINE__, "interfaces = %d ", ifs);
         for (j = 0; j < ifs; j++) {
             char ip[INET_ADDRSTRLEN];
             auto *s_in = (struct sockaddr_in *) &ifr[j].ifr_addr;
             if (!inet_ntop(domain, &s_in->sin_addr, ip, sizeof(ip))) {
-                logger::instance()->e(__FILENAME__, __LINE__, "inet_ntop : %s", strerror(errno));
+                // logger::instance()->e(__FILENAME__, __LINE__, "inet_ntop : %s", strerror(errno));
                 continue;
             }
             logger::instance()->d(__FILENAME__, __LINE__, "%s : %s", ifr[j].ifr_name, ip);
@@ -47,5 +50,6 @@ int net_tool::GetIP(std::vector<std::string> &ips) {
         }
         close(s);
     }
+#endif
     return 0;
 }
