@@ -6,13 +6,13 @@
 #define KPROXYCPP_KPROXY_H
 
 #ifdef WIN32
-#ifdef _kProxy_HEADER_
-#define _kProxy_HEADER_Export  __declspec(dllexport)
+#ifdef _Tools_HEADER_
+#define _Tools_HEADER_Export  __declspec(dllexport)
 #else
-#define _kProxy_HEADER_Export  __declspec(dllimport)
+#define _Tools_HEADER_Export  __declspec(dllimport)
 #endif
 #else
-#define _kProxy_HEADER_Export
+#define _Tools_HEADER_Export
 #endif
 
 #include <logger.h>
@@ -26,7 +26,7 @@ class kHttpdClient;
 
 class kWebSocketClient;
 
-class _kProxy_HEADER_Export kHttpd {
+class _Tools_HEADER_Export kHttpd {
 public:
 private:
     static const char *TAG;

@@ -6,6 +6,9 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
     set(Tools_Other_Project ON)
 endif ()
 project(Tools)
+
+include(cmake/MSVC.cmake)
+
 set(libTools_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 FILE(GLOB ToolsCmakePath "${libTools_DIR}/cmake")
@@ -70,6 +73,10 @@ if (ENABLE_NCURSES)
 else ()
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*ncurses_tool")
 endif ()
+if (WIN32)
+else ()
+    list(FILTER srcSourceHeader EXCLUDE REGEX ".*_win")
+endif ()
 
 include_directories(
         .
@@ -111,8 +118,6 @@ option(ENABLE_FILENAME "option for FILENAME" ON)
 if (ENABLE_FILENAME)
     include(cmake/redefine_filename.cmake)
 endif ()
-
-include(cmake/MSVC.cmake)
 
 
 target_compile_definitions(

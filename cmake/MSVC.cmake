@@ -23,6 +23,18 @@ if (MSVC)
     add_compile_options(/wd4244)
     add_compile_options(/wd4251)
     add_compile_options(/wd4819)
+    add_compile_options(/wd4091)
+    add_compile_options(/wd4996)
     # TARGET_COMPILE_OPTIONS
     ADD_COMPILE_OPTIONS(/MT)
+
+    option(DISABLE_OPTIMIZATION "option for DISABLE OPTIMIZATION" OFF)
+    if (DISABLE_OPTIMIZATION)
+        ADD_COMPILE_OPTIONS(/Od)
+        ADD_COMPILE_OPTIONS(/DEBUG)
+    endif ()
+
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+        add_compile_options(/W0)
+    endif ()
 endif (MSVC)
