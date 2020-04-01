@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
     /* Load the image and convert to grayscale first */
     rawImg = imread(argv[1]);
-    cvtColor(rawImg, dithImg, CV_BGR2GRAY);
+    cvtColor(rawImg, dithImg, COLOR_BGR2GRAY);
 
     std::vector<std::vector<unsigned char>> outputPtr;
     opencv_tool::ImgDithering(dithImg, outputPtr);

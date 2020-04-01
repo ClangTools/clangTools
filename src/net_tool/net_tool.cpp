@@ -13,7 +13,9 @@
 #else
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#ifdef __linux__
 #include <linux/netdevice.h>
+#endif
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
