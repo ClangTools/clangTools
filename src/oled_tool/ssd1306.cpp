@@ -8,9 +8,10 @@
 
 using namespace cv;
 
-ssd1306::ssd1306(int rst, OLED_MODE _mode,const std::string& path) {
+ssd1306::ssd1306(int rst, OLED_MODE _mode, const std::string &path) {
     mode = _mode;
     if (_mode == OLED_MODE::I2C) {
+#ifdef ENABLE_I2C
         if(!path.empty()){
             i2CTool.setPath(path.c_str());
         }
@@ -19,30 +20,42 @@ ssd1306::ssd1306(int rst, OLED_MODE _mode,const std::string& path) {
             i2CTool.Open();
             if (i2CTool.IsOpen())break;
         }
+#endif
     } else {
+#ifdef ENABLE_SPI
         if(!path.empty()){
             spiTool.setPath(path.c_str());
             // spiTool.setSpeed(500000);
             spiTool.Open();
         }
+#endif
     }
     Initial();
 }
 
 int ssd1306::WriteCommand(unsigned char ins) {
+#if defined(ENABLE_I2C) or defined (ENABLE_SPI)
+#ifdef ENABLE_I2C
     if (!i2CTool.IsOpen()) {
         logger::instance()->e(__FILENAME__, __LINE__, "open fail");
         return -1;
     }
     return i2CTool.Write(std::vector<unsigned char>{0x00, ins});
+#endif
+#endif
+    return -1;
 }
 
 int ssd1306::WriteData(unsigned char dat) {
+#if defined(ENABLE_I2C) or defined (ENABLE_SPI)
+#ifdef ENABLE_I2C
     if (!i2CTool.IsOpen()) {
         logger::instance()->e(__FILENAME__, __LINE__, "open fail");
         return -1;
     }
     return i2CTool.Write(std::vector<unsigned char>{0x40, dat});
+#endif
+#endif
 }
 
 int ssd1306::SetPos(unsigned char x, unsigned char y) {
