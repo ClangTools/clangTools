@@ -4,18 +4,25 @@
 
 #include "net_tool.h"
 #include <cstdio>
-#ifdef __linux__
+
+#ifdef WIN32
+
+#include <iostream>
+#include <Winsock2.h>
+
+#else
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <linux/netdevice.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#endif
 #include <unistd.h>
+#endif
+
 #include <logger.h>
 
 int net_tool::GetIP(std::vector<std::string> &ips) {
-#ifdef __linux__
+#ifdef __unix__
     int domains[] = {AF_INET, AF_INET6};
     int i;
     for (i = 0; i < sizeof(domains) / sizeof(domains[0]); i++) {
@@ -50,6 +57,29 @@ int net_tool::GetIP(std::vector<std::string> &ips) {
         }
         close(s);
     }
+#endif
+
+#ifdef WIN32
+    WORD wVersionRequested = MAKEWORD(2, 2);
+    WSADATA wsaData;
+    if (WSAStartup(wVersionRequested, &wsaData) != 0)
+        return -1;
+    char local[255] = {0};
+    gethostname(local, sizeof(local));
+    hostent *ph = gethostbyname(local);
+    if (ph == NULL)
+        return -1;
+
+    for (int i = 0;; i++) {
+        std::string localIP = inet_ntoa(*(IN_ADDR *) ph->h_addr_list[i]);
+        ips.push_back(localIP);
+        if (ph->h_addr_list[i] + ph->h_length >= ph->h_name)
+            break;
+    }
+    //in_addr addr;
+    //memcpy(&addr, ph->h_addr_list[0], sizeof(in_addr)); // 这里仅获取第一个ip
+    //localIP.assign(inet_ntoa(addr));
+    WSACleanup();
 #endif
     return 0;
 }
