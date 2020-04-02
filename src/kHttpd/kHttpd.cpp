@@ -33,6 +33,8 @@
 
 #endif
 
+#include <net_tool.h>
+
 using namespace std;
 using namespace kekxv;
 
@@ -55,7 +57,7 @@ void kHttpd::Init() {
     WORD wVersionRequested;
     WSADATA wsaData;
     wVersionRequested = MAKEWORD(2, 2);
-    (void)WSAStartup(wVersionRequested, &wsaData);
+    (void) WSAStartup(wVersionRequested, &wsaData);
 #endif
 
 }
@@ -68,7 +70,7 @@ kHttpd::kHttpd(const char *web_root_path, unsigned int max_thread) {
     this->threadPool = new thread_pool(max_thread);
     if (web_root_path != nullptr) {
 #ifdef _WIN32
-        const char* path = _fullpath(nullptr, web_root_path, 1024);
+        const char *path = _fullpath(nullptr, web_root_path, 1024);
 #else
         const char *path = realpath(web_root_path, nullptr);
 #endif
@@ -125,6 +127,12 @@ int kHttpd::listen(int listen_count, unsigned short port, const char *ip) {
     }
 
     _logger->d(__FILENAME__, __LINE__, " root : %s", web_root_path.c_str());
+    if (ip == std::string("0.0.0.0")) {
+        std::vector<std::string> ips;
+        net_tool::GetIP(ips);
+        for (auto _ip:ips)
+            _logger->i(__FILENAME__, __LINE__, " http://%s:%d", _ip.c_str(), port);
+    }
     _logger->i(__FILENAME__, __LINE__, " http://%s:%d", ip, port);
     //    std::thread _poll_check_run(poll_check_run, this);
 
@@ -159,7 +167,7 @@ int kHttpd::listen(int listen_count, unsigned short port, const char *ip) {
         if ((num_ready == -1) &&
             #ifdef WIN32
             (WSAGetLastError() == WSAEINTR)
-            #else
+#else
             (errno == EINTR)
 #endif
                 ) {
