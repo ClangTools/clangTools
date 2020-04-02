@@ -114,7 +114,7 @@ int kWebSocketClient::run() {
 #endif
             return 0;
         }
-		_logger->d(TAG, __LINE__, "%s", data.data());
+		//_logger->d(TAG, __LINE__, "%s", data.data());
         if (!data.empty()) {
             if (data.size() >= 2 && data[data.size() - 2] == '\r' && data[data.size() - 1] == '\n') {
                 if (buffer[0 + 0] == '\r' && buffer[0 + 1] == '\n') {

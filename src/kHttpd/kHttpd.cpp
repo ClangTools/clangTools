@@ -153,7 +153,7 @@ int kHttpd::listen(int listen_count, unsigned short port, const char *ip) {
         }
         poll_fd[list_len].fd = fd;
 #ifdef WIN32
-        poll_fd[list_len].events = POLLWRNORM | POLLOUT | POLLIN;
+        poll_fd[list_len].events = POLLWRNORM | POLLOUT | POLLIN | POLLRDNORM | POLLRDBAND;
 #else
         poll_fd[list_len].events = POLLIN | POLLPRI | POLLRDNORM | POLLRDBAND | \
             POLLERR | POLLHUP | POLLNVAL;;
