@@ -64,7 +64,7 @@ HTTP::HTTP(const std::string &full_url) {
 #ifdef ENABLE_OPENSSL
     init_ssl();
 #endif
-    logger::instance()->init_default();
+    // logger::instance()->init_default();
 
     regex urlExpress(url_regex);
 
@@ -82,15 +82,6 @@ HTTP::HTTP(const std::string &full_url) {
         string get_data = ms.str(6);
         init_key_value(GET, get_data);
     }
-    /**
-    logger::instance()->d(TAG, __LINE__, "protocol  : %s", protocol.c_str());
-    logger::instance()->d(TAG, __LINE__, "host      : %s", host.c_str());
-    logger::instance()->d(TAG, __LINE__, "url       : %s", url.c_str());
-    logger::instance()->d(TAG, __LINE__, "GET");
-    for (const auto &item : GET) {
-        logger::instance()->d(TAG, __LINE__, "  %-10s : %s", item.first.c_str(), item.second.c_str());
-    }
-     */
 }
 
 void HTTP::init_key_value(std::map<std::string, std::string> &data, string value) {
@@ -103,7 +94,7 @@ void HTTP::init_key_value(std::map<std::string, std::string> &data, string value
     }
 }
 
-void HTTP::push_JSON(const CJsonObject &data) {
+void HTTP::push_JSON(const nlohmann::json &data) {
     method = "POST";
     ContentType = "application/json;charset=UTF-8";
     JSON = data;
@@ -172,14 +163,8 @@ int HTTP::send(std::vector<unsigned char> &data) {
                     postParams += item.first + "=" + UTF8Url::Encode(item.second) + "&";
                 }
                 postParams.erase(postParams.end() - 1);
-//                struct curl_httppost *post = NULL;
-//                struct curl_httppost *last = NULL;
-//                curl_formadd(&post, &last,CURLFORM_COPYNAME, "picture1", //此处表示要传的参数名
-//                             CURLFORM_STREAM, "1.jpg",                               //此处表示图片文件的路径
-//                             //CURLFORM_CONTENTTYPE, "image/jpeg",
-//                             CURLFORM_END);
-            } else if (!JSON.IsEmpty()) {
-                postParams = JSON.ToString();
+            } else if (!JSON.empty()) {
+                postParams = JSON.dump();
             }
             curl_easy_setopt(curl, CURLOPT_POST, 1); // post req
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postParams.c_str()); // params
@@ -429,14 +414,6 @@ unsigned long int HTTP::init_header(const char *data, unsigned long int size) {
             value.push_back(data[offset]);
         }
     }
-
-    /***
-    logger::instance()->d(TAG, __LINE__, "header size:%ld", ResponseHeader.size());
-    for (auto &item : ResponseHeader) {
-        logger::instance()->d(TAG, __LINE__, "%-20s : %s", item.first.c_str(), item.second.c_str());
-    }
-    //*/
-
     return offset;
 }
 

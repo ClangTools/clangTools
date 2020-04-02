@@ -8,7 +8,8 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <CJsonObject.h>
+// #include <CJsonObject.h>
+#include <nlohmann/json.hpp>
 #include <mutex>
 
 #ifdef ENABLE_OPENSSL
@@ -55,7 +56,7 @@ public:
     std::map<std::string, std::string> POST;
     std::map<std::string, std::string> HEADER;
     std::map<std::string, std::string> ResponseHeader;
-    CJsonObject JSON;
+    nlohmann::json JSON;
     std::string method = "GET";
     std::string USERPWD;
     std::string http_version = "HTTP/1.1";
@@ -78,7 +79,7 @@ public:
 
     void push_HEADER(const std::map<std::string, std::string> &data);
 
-    void push_JSON(const CJsonObject &data);
+    void push_JSON(const nlohmann::json &data);
 
     void send(callback cb, void *argv = nullptr);
 

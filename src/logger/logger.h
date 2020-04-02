@@ -95,9 +95,28 @@ public:
         log_rank_DEBUG = 5,
     } log_rank_t;
 
-    static bool exists(const std::string& path_string);
+    static bool exists(const std::string &path_string);
 
-    static std::string extension(const std::string& path_string);
+    static std::string extension(const std::string &path_string);
+
+    /**
+     * replace_all(string("12212"),"12","21")  -> 22211
+     * @param str
+     * @param old_value
+     * @param new_value
+     * @return
+     */
+    static std::string &replace_all(std::string &str, const std::string &old_value, const std::string &new_value);
+
+    /**
+     * replace_all_distinct(string("12212"),"12","21")    -> 21221
+     * @param str
+     * @param old_value
+     * @param new_value
+     * @return
+     */
+    static std::string &
+    replace_all_distinct(std::string &str, const std::string &old_value, const std::string &new_value);
 
 public:
     log_rank_t min_level = log_rank_NONE;
@@ -151,7 +170,7 @@ public:
 
     bool is_open();
 
-    void init_default(const std::string& path = "");
+    void init_default(const std::string &path = "");
 
     /**
      * puts info logger
@@ -329,6 +348,7 @@ public:
     static void get_files(const std::string &folder_path, std::vector<std::string> &files, int depth = -1);
 
     static bool StartsWith(const std::string &text, const std::string &prefix);
+
     // EndsWith()
     //
     // Returns whether a given string `text` ends with `suffix`.
