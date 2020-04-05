@@ -173,9 +173,10 @@ int ssd1306::draw(cv::Mat *pMat, bool is_txt) {
         opencv_tool::ImgDithering(*pMat, outputPtr);
     }
 
-    std::vector<std::vector<unsigned char>> points(HEIGHT / 8, std::vector<unsigned char>(WIDTH));
-    for (int x = 0; x < WIDTH; x++) {
-        for (int i = 0; i < HEIGHT / 8; i++) {
+    if(outputPtr.empty())return -1;
+    std::vector<std::vector<unsigned char>> points(outputPtr.size() / 8, std::vector<unsigned char>(outputPtr[0].size()));
+    for (int x = 0; x < outputPtr[0].size(); x++) {
+        for (int i = 0; i < outputPtr.size() / 8; i++) {
             unsigned char flag = 0;
             for (int _i = 0; _i < 8; _i++) {
                 int y = i * 8 + _i;
@@ -207,14 +208,15 @@ int ssd1306::Fill_Screen(unsigned char dat) {
 }
 
 int ssd1306::draw(std::vector<std::vector<unsigned char>> outputPtr) {
+    if(outputPtr.empty())return -1;
     int ret = 0;
     ret = WriteCommand(SSD1306_COLUMNADDR);    /*set lower column address*/
     if (0 > ret)return ret;
     WriteCommand(0);//              # Column start address. (0 = reset)
-    WriteCommand(WIDTH - 1);//  # Column end address.
+    WriteCommand(outputPtr[0].size() - 1);//  # Column end address.
     WriteCommand(SSD1306_PAGEADDR);//
     WriteCommand(0);//              # Page start address. (0 = reset)
-    WriteCommand(HEIGHT / 8 - 1);// # Page end address.
+    WriteCommand(outputPtr.size()-1);// # Page end address.
     //# Write buffer data.
     // if self._spi is not None:
     //     ;//# Set DC high for data.
@@ -223,8 +225,8 @@ int ssd1306::draw(std::vector<std::vector<unsigned char>> outputPtr) {
     //     self._spi.write(self._buffer)
     // else:
 
-    for (int y = 0; y < HEIGHT / 8; y++) {
-        for (int x = 0; x < WIDTH; x++) {
+    for (int y = 0; y < outputPtr.size(); y++) {
+        for (int x = 0; x < outputPtr[0].size(); x++) {
             WriteData(outputPtr[y][x]);
         }
     }
@@ -241,6 +243,13 @@ int ssd1306::GetLineY14(int line) {
     if (line > 4)line = 4;
     line--;
     int y = 16 * line + 1;
+    return y;
+}
+int ssd1306::GetLineY16(int line) {
+    if (line < 1)line = 1;
+    if (line > 4)line = 4;
+    line--;
+    int y = 18 * line + 1;
     return y;
 }
 

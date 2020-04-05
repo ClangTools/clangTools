@@ -54,7 +54,7 @@ int net_tool::GetIP(std::vector<std::string> &ips) {
                 // logger::instance()->e(__FILENAME__, __LINE__, "inet_ntop : %s", strerror(errno));
                 continue;
             }
-            logger::instance()->d(__FILENAME__, __LINE__, "%s : %s", ifr[j].ifr_name, ip);
+            // logger::instance()->d(__FILENAME__, __LINE__, "%s : %s", ifr[j].ifr_name, ip);
             ips.emplace_back(ip);
         }
         close(s);

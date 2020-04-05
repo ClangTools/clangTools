@@ -107,6 +107,7 @@ public:
     int draw(std::vector<std::vector<unsigned char>> outputPtr);
 
     static int GetLineY14(int line);
+    static int GetLineY16(int line);
 
 private:
     int WriteCommand(unsigned char ins);

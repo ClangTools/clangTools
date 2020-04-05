@@ -114,7 +114,7 @@ int i2c_tool::transfer(std::vector<unsigned char> wData, std::vector<unsigned ch
         logger::instance()->e(__FILENAME__, __LINE__,
                               "malloc error:%s", strerror(errno));
         delete[]buff;
-        free(i2c_data.msgs);
+        // free(i2c_data.msgs);
         return FailRead;
     }
     ioctl(i2c_handle, I2C_TIMEOUT, timeout);
