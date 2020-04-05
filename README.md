@@ -19,6 +19,7 @@
 [i2c_tool](src/i2c_tool)
 [libusb_1_tool](src/libusb_1_tool)
 [opencv_tool](src/opencv_tool)
+[Hzk_tool](src/Hzk_tool)
 [plthook](src/plthook)([here](https://github.com/kubo/plthook))
 
 ### i2c_tool
@@ -51,3 +52,17 @@ if (ENABLE_FILENAME)
     redefine_file_macro(目标)
 endif ()
 ```
+
+## demo
+
+### clock oled
+
+编译树莓派 时钟 OLED 程序可以使用以下参数：
+
+```shell script
+cmake -DENABLE_CURL=ON -DENABLE_OPENCV=ON -DENABLE_HZK=ON -DENABLE_I2C=ON -DENABLE_SPI=ON -DENABLE_OLED=ON -DENABLE_FREETYPE=ON -DENABLE_ICONV=ON -DENABLE_OLED_TOOL=ON <cmake-source-dir>
+make clock_oled
+```
+
+将会在 `ssd1306 oled (128x64)` 屏幕上显示`日期`、`温度`、`天气`、`时间`、`IP地址`。
+

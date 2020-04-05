@@ -54,7 +54,7 @@ if (ENABLE_HZK)
     file(DOWNLOAD
             https://github.com/ClangTools/clangTools/releases/download/HzkFont/HzkFont.zip
             ${CMAKE_BINARY_DIR}/HzkFont.zip
-            TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "e8d9666f8231ce263f006ea40f2ef3fb"
+            TIMEOUT 250 INACTIVITY_TIMEOUT 250 SHOW_PROGRESS EXPECTED_MD5 "e8d9666f8231ce263f006ea40f2ef3fb"
             )
     add_custom_target(UnpackingHzkFont ALL)
     add_custom_command(TARGET UnpackingHzkFont PRE_BUILD
@@ -81,8 +81,8 @@ if (ENABLE_HZK)
             ${CMAKE_BINARY_DIR}/gov.json.zip
             TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "6b8b2b0e9f85de3f62cf5fc396c0ca33"
             )
-    add_custom_target(UnpackingHzkFont ALL)
-    add_custom_command(TARGET UnpackingHzkFont PRE_BUILD
+    add_custom_target(UnpackingGovJson ALL)
+    add_custom_command(TARGET UnpackingGovJson PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/gov.json
             COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_BINARY_DIR}/gov.json.zip
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}

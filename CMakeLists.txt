@@ -159,6 +159,7 @@ endif (ENABLE_FREETYPE)
 option(ENABLE_HZK "option for HZK tool" OFF)
 if (ENABLE_HZK)
     add_dependencies(${libTools_LIBRARIES} UnpackingHzkFont)
+    add_dependencies(${libTools_LIBRARIES} UnpackingGovJson)
 endif (ENABLE_HZK)
 
 

@@ -7,9 +7,9 @@
 #include <ctime>
 
 #if defined(LINUX) || defined(linux)
-
+#ifdef ENABLE_X11
 #include <X11/Xlib.h>
-
+#endif
 #endif
 
 using namespace cv;
@@ -18,8 +18,10 @@ using namespace std;
 int main(int argc, char **argv) {
     logger::instance()->init_default();
 #if defined(LINUX) || defined(linux)
+#ifdef ENABLE_X11
     setenv("DISPLAY", "localhost:10.0", 1);
     logger::instance()->i(__FILENAME__, __LINE__, "XOpenDisplay : %s", XOpenDisplay(nullptr) ? "True" : "False");
+#endif
 #endif
     // Start default camera
     VideoCapture video(0);
@@ -104,12 +106,14 @@ int main(int argc, char **argv) {
     imshow("hdr", hdr);
 
 #if defined(LINUX) || defined(linux)
+#ifdef ENABLE_X11
     logger::instance()->i(__FILENAME__, __LINE__, "XOpenDisplay : %s", XOpenDisplay(nullptr) ? "True" : "False");
     for (int i = 0; i < 3; i++) {
         imshow(to_string(i), img[i]);
         logger::instance()->i(__FILENAME__, __LINE__, "Capturing : %d", i);
     }
     waitKey();
+#endif
 #endif
 
     // Release video
