@@ -106,10 +106,12 @@ void OledShowNew(Mat *srcImg) {
                     ips.emplace_back("潮湿度:" + weather_data["observe"]["humidity"].string_value());
             }
             auto _ips = Hzk_Font::instance()->get(ips[(i / 10) % ips.size()], Hzk_Font::S12);
+            int x = 0;
             for (int j = 0; j < _ips.size(); j++) {
                 auto _ip = _ips[j];
-                cv::Mat roi = img(cv::Rect(j * _ips[j].cols, img.rows - _ip.rows, _ip.cols, _ip.rows));
+                cv::Mat roi = img(cv::Rect(x, img.rows - _ip.rows, _ip.cols, _ip.rows));
                 _ip.copyTo(roi);
+                x += _ips[j].cols;
             }
         }
 

@@ -11,19 +11,25 @@
 #include <Winsock2.h>
 
 #else
+
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+
 #ifdef __linux__
+
 #include <linux/netdevice.h>
+
 #endif
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
+
 #endif
 
 #include <logger.h>
 
-int net_tool::GetIP(std::vector<std::string> &ips) {
+int net_tool::GetIP(std::vector<std::string> &ips, bool hasIpv6) {
 #ifdef __unix__
     int domains[] = {AF_INET, AF_INET6};
     int i;
@@ -58,6 +64,7 @@ int net_tool::GetIP(std::vector<std::string> &ips) {
             ips.emplace_back(ip);
         }
         close(s);
+        if (!hasIpv6)break;
     }
 #endif
 
