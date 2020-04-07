@@ -119,6 +119,9 @@ add_library(${libTools_LIBRARIES} STATIC
 
 
 include(cmake/find_libs.cmake)
+if (OPENSSL_FOUND)
+    link_directories(${OPENSSL_LIBRARY_DIRS})
+endif ()
 
 option(ENABLE_FILENAME "option for FILENAME" ON)
 if (ENABLE_FILENAME)

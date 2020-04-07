@@ -13,11 +13,9 @@
 using namespace std;
 using namespace cv;
 
-json11::Json city_list;
 
 const char *_province = "广东";
 const char *_cityName = "深圳";
-string city_code = "101280601";
 json11::Json weather_data;
 
 /**
@@ -39,55 +37,18 @@ void setTime(Mat *img);
 void setQR(Mat *img);
 
 /**
- * 初始化城市代码
- */
-void updateCityList() {
-    std::ifstream fin(logger::get_local_path() + logger::path_split + "gov.json",
-                      std::ifstream::in | std::ifstream::binary);
-    if (!fin.is_open()) {
-        logger::instance()->i(__FILENAME__, __LINE__, "not open %s",
-                              (logger::get_local_path() + logger::path_split + "gov.json").c_str());
-        return;
-    }
-    vector<char> buf(static_cast<unsigned int>(fin.seekg(0, std::ios::end).tellg()));
-    fin.seekg(0, std::ios::beg).read(&buf[0], static_cast<std::streamsize>(buf.size()));
-
-    fin.close();
-
-
-    string str = buf.data();
-    logger::replace_all_distinct(str, "\n", "");
-    std::string err;
-    city_list = json11::Json::parse(str, err);
-}
-
-/**
- * 获取城市代码
- * @param province 省份   北京    广东
- * @param cityName 城市名 北京    广州
- * @return
- */
-string getCityCode(const string province, const string cityName) {
-    string _city_code = "101280601";
-    if (city_list.is_array()) {
-        for (auto &i : city_list.array_items()) {
-            if (i["province"] == province && i["cityName"] == cityName) {
-                _city_code = i["cityCode"].string_value();
-                break;
-            }
-        }
-    }
-    return _city_code;
-}
-/**
  * 获取天气详情
  * @param _city_code
  * @return
  */
-json11::Json getWeather(const string &_city_code = "101010100") {
+json11::Json getWeather(const char *province, const char *cityName, const char *county = nullptr) {
     json11::Json json;
     std::vector<unsigned char> data;
-    HTTP http_get("http://www.weather.com.cn/data/cityinfo/" + _city_code + ".html");
+    std::string _province = province == nullptr ? "" : province;
+    std::string _cityName = cityName == nullptr ? "" : cityName;
+    std::string _county = county == nullptr ? "" : county;
+    HTTP http_get("https://wis.qq.com/weather/common?source=xw&weather_type=observe|forecast_24h|tips|air&province=" +
+                  _province + "&city=" + _cityName + "&county=" + _county);
     data.clear();
     http_get.timeout = 500;
     auto ret = http_get.send(data);
@@ -96,7 +57,8 @@ json11::Json getWeather(const string &_city_code = "101010100") {
         std::string err;
         json = json11::Json::parse((const char *) data.data(), err);
         if (err.empty()) {
-            json = json["weatherinfo"];
+            if (json["status"].int_value() == 200)
+                json = json["data"];
         }
     }
     return json;
@@ -114,6 +76,7 @@ long long last_get_weather_time = 0;
  * 天气锁
  */
 std::mutex _weather_mutex;
+
 /**
  * 开始时钟循环
  * @param srcImg
@@ -156,50 +119,59 @@ void OledShowNew(Mat *srcImg) {
                 last_get_weather_time = logger::get_time_tick() + 30 * 60 * 1000;
 
                 get_weather_task.commit([]() -> void {
-                    auto _weather_data = getWeather(city_code);
-                    logger::instance()->i(__FILENAME__, __LINE__, "%s 气温：%s - %s；气象：%s", weather_data["city"].string_value().c_str(),
-                                          weather_data["temp1"].string_value().c_str(),
-                                          weather_data["temp2"].string_value().c_str(), weather_data["weather"].string_value().c_str()
-                    );
-                    std::unique_lock<std::mutex> lock(_weather_mutex);
-                    weather_data = _weather_data;
+                    auto _weather_data = getWeather(_province, _cityName);
+                    if (weather_data["observe"].is_object()) {
+                        logger::instance()->i(__FILENAME__, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
+                                              _province,
+                                              _cityName,
+                                              weather_data["observe"]["degree"].string_value().c_str(),
+                                              weather_data["observe"]["humidity"].string_value().c_str(),
+                                              weather_data["observe"]["weather"].string_value().c_str()
+                        );
+
+                        std::unique_lock<std::mutex> lock(_weather_mutex);
+                        weather_data = _weather_data;
+                    }
 
                 });
             }
-            std::unique_lock<std::mutex> lock(_weather_mutex);
-            string temp1 = weather_data["temp1"].string_value();
-            string temp2 = weather_data["temp2"].string_value();
-            logger::replace_all_distinct(temp1, "℃", "");
-            logger::replace_all_distinct(temp2, "℃", "");
-            auto temps = Hzk_Font::instance()->get(temp1.append("~") + temp2, Hzk_Font::S16);
-            auto _temp = Hzk_Font::instance()->get("℃", Hzk_Font::S12)[0];
-            int x = 0;
-            int width = 0;
-            for (auto &temp : temps) {
-                width += temp.cols;
-            }
-            x = 127 - width - _temp.cols;
-            for (auto &temp : temps) {
-                cv::Mat roi = img(cv::Rect(x, ssd1306::GetLineY14(1), temp.cols, temp.rows));
-                temp.copyTo(roi);
-                x += temp.cols;
-            }
-            cv::Mat roi = img(cv::Rect(127 - _temp.cols, ssd1306::GetLineY14(1), _temp.cols, _temp.rows));
-            _temp.copyTo(roi);
+            if (weather_data["observe"].is_object()) {
+                std::unique_lock<std::mutex> lock(_weather_mutex);
+                string temp = weather_data["observe"]["degree"].string_value();
+                auto temps = Hzk_Font::instance()->get(temp, Hzk_Font::S16);
+                auto _temp = Hzk_Font::instance()->get("℃", Hzk_Font::S12)[0];
+                int x = 0;
+                int width = 0;
+                for (auto &temp : temps) {
+                    width += temp.cols;
+                }
+                x = 127 - width - _temp.cols;
+                for (auto &temp : temps) {
+                    cv::Mat roi = img(cv::Rect(x, ssd1306::GetLineY14(1), temp.cols, temp.rows));
+                    temp.copyTo(roi);
+                    x += temp.cols;
+                }
+                cv::Mat roi = img(cv::Rect(127 - _temp.cols, ssd1306::GetLineY14(1), _temp.cols, _temp.rows));
+                _temp.copyTo(roi);
 
 
-            int weather_len = 3;
-            string weather = weather_data["weather"].string_value();
-            auto weathers = Hzk_Font::instance()->get(weather, Hzk_Font::S12);
-            int weather_index = 0;
-            int weather_y = 14;
-            while (weather_index < weathers.size()) {
-                roi = img(cv::Rect((weather_index % weather_len) * 12, weather_y + (weather_index / weather_len) * 13,
-                                   _temp.cols,
-                                   _temp.rows));
-                weathers[weather_index].copyTo(roi);
-                weather_index++;
-                if (weather_index >= 9)break;
+                int weather_len = 2;
+                string weather = weather_data["observe"]["weather"].string_value();
+                auto weathers = Hzk_Font::instance()->get(weather, Hzk_Font::S14);
+                int weather_index = 0;
+                int weather_y = 15 + 15 / 2;
+                // logger::instance()->d(__FILENAME__,__LINE__,"weathers.size() : %zu",weathers.size());
+                while (weather_index < weathers.size()) {
+                    _temp = weathers[weather_index];
+                    roi = img(
+                            cv::Rect((weather_index % weather_len) * _temp.cols,
+                                     weather_y + (weather_index / weather_len) * (_temp.rows + 1),
+                                     _temp.cols,
+                                     _temp.rows));
+                    _temp.copyTo(roi);
+                    weather_index++;
+                    if (weather_index >= weather_len * 3)break;
+                }
             }
         }
 
@@ -273,14 +245,16 @@ int main() {
     logger::instance()->i(__FILENAME__, __LINE__, "start");
     cv::Mat srcImg(64, 128, CV_8UC3, cv::Scalar(255, 255, 255)); // create a black background
 
-    updateCityList();
-    city_code = getCityCode(_province, _cityName);
-    weather_data = getWeather(city_code);
+    weather_data = getWeather(_province, _cityName);
 
-    logger::instance()->i(__FILENAME__, __LINE__, "%s 气温：%s - %s；气象：%s", weather_data["city"].string_value().c_str(),
-                          weather_data["temp1"].string_value().c_str(),
-                          weather_data["temp2"].string_value().c_str(), weather_data["weather"].string_value().c_str()
-    );
+    if (weather_data["observe"].is_object())
+        logger::instance()->i(__FILENAME__, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
+                              _province,
+                              _cityName,
+                              weather_data["observe"]["degree"].string_value().c_str(),
+                              weather_data["observe"]["humidity"].string_value().c_str(),
+                              weather_data["observe"]["weather"].string_value().c_str()
+        );
 
 
     OledShowNew(&srcImg);

@@ -182,10 +182,11 @@ int HTTP::send(std::vector<unsigned char> &data) {
             }
         }
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, plist);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, protocol == "https"); // if want to use https
+        // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, protocol == "https"); // if want to use https
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, protocol == "https"); // set peer and host verify false
         curl_easy_setopt(curl, CURLOPT_VERBOSE, debug ? 1 : 0);
         curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &data);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, req_reply);
         curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
