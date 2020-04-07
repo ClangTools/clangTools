@@ -83,7 +83,7 @@ std::mutex _weather_mutex;
  */
 void OledShowNew(Mat *srcImg) {
     ssd1306 ssd1306;
-    ssd1306.clear();
+    // ssd1306.clear();
     thread_pool get_weather_task(2);
     std::vector<std::string> ips;
     for (int i = 10000; i > 0; i--) {
@@ -102,6 +102,8 @@ void OledShowNew(Mat *srcImg) {
                 ips.clear();
                 net_tool::GetIP(ips);
                 ips.emplace_back("blog.kekxv.com");
+                if (weather_data["observe"]["humidity"].is_string())
+                    ips.emplace_back("潮湿度:" + weather_data["observe"]["humidity"].string_value());
             }
             auto _ips = Hzk_Font::instance()->get(ips[(i / 10) % ips.size()], Hzk_Font::S12);
             for (int j = 0; j < _ips.size(); j++) {
@@ -155,7 +157,8 @@ void OledShowNew(Mat *srcImg) {
                 _temp.copyTo(roi);
 
 
-                int weather_len = 2;
+                int weather_len = 3;
+                int weather_len_rows = 3;
                 string weather = weather_data["observe"]["weather"].string_value();
                 auto weathers = Hzk_Font::instance()->get(weather, Hzk_Font::S14);
                 int weather_index = 0;
@@ -170,7 +173,7 @@ void OledShowNew(Mat *srcImg) {
                                      _temp.rows));
                     _temp.copyTo(roi);
                     weather_index++;
-                    if (weather_index >= weather_len * 3)break;
+                    if (weather_index >= weather_len * weather_len_rows)break;
                 }
             }
         }

@@ -7,6 +7,8 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
 endif ()
 project(Tools)
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc -Wl,-rpath=.") # -static
+
 include(cmake/MSVC.cmake)
 
 set(libTools_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
