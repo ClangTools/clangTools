@@ -109,6 +109,9 @@ void kHttpdClient::init(kHttpd *_parent, int _fd) {
 #endif
         _logger->console_show = true;
     }
+    response_header["Access-Control-Allow-Origin"]="*";
+    response_header["Access-Control-Allow-Methods"]="POST,GET,OPTIONS,DELETE";
+    response_header["Access-Control-Allow-Credentials"]="true";
 
     struct sockaddr_in remote_addr{};
     socklen_t sin_size = 0;

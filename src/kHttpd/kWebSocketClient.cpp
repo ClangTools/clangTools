@@ -57,6 +57,11 @@ kWebSocketClient::kWebSocketClient(kHttpd *parent, int fd) {
         _logger->console_show = true;
     }
 
+    response_header["Access-Control-Allow-Origin"]="*";
+    response_header["Access-Control-Allow-Methods"]="POST,GET,OPTIONS,DELETE";
+    response_header["Access-Control-Allow-Credentials"]="true";
+
+
     struct sockaddr_in remote_addr{};
     socklen_t sin_size = 0;
     getpeername(fd, (struct sockaddr *) &remote_addr, &sin_size);
