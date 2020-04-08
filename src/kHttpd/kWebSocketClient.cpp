@@ -57,9 +57,9 @@ kWebSocketClient::kWebSocketClient(kHttpd *parent, int fd) {
         _logger->console_show = true;
     }
 
-    response_header["Access-Control-Allow-Origin"]="*";
-    response_header["Access-Control-Allow-Methods"]="POST,GET,OPTIONS,DELETE";
-    response_header["Access-Control-Allow-Credentials"]="true";
+    response_header["Access-Control-Allow-Origin"] = "*";
+    response_header["Access-Control-Allow-Methods"] = "POST,GET,OPTIONS,DELETE";
+    response_header["Access-Control-Allow-Credentials"] = "true";
 
 
     struct sockaddr_in remote_addr{};
@@ -119,7 +119,7 @@ int kWebSocketClient::run() {
 #endif
             return 0;
         }
-		//_logger->d(TAG, __LINE__, "%s", data.data());
+        //_logger->d(TAG, __LINE__, "%s", data.data());
         if (!data.empty()) {
             if (data.size() >= 2 && data[data.size() - 2] == '\r' && data[data.size() - 1] == '\n') {
                 if (buffer[0 + 0] == '\r' && buffer[0 + 1] == '\n') {
@@ -166,7 +166,10 @@ int kWebSocketClient::run() {
     }
     // _logger->i(TAG, __LINE__, "%s", SecWebSocketAccept.c_str());
     if ((connection != string("upgrade")) || (upgrade != string("websocket"))) {
-        return kHttpdClient(parent, fd, header, data, split_index, is_split_n, method, url_path, http_version,
+        return kHttpdClient(parent, fd, header, data, split_index, is_split_n, method, url_path,
+                            _url_path_get,
+                            GET,
+                            http_version,
                             _socket).run();
     }
 
@@ -239,6 +242,40 @@ void kWebSocketClient::init_header(const char *data, unsigned long int size, boo
     if (method.empty())method = "GET";
     if (url_path.empty())url_path = "/";
     if (http_version.empty())http_version = "HTTP/1.1";
+
+
+    _url_path_get = url_path;
+    auto _index = url_path.find('?');
+    if (_index != string::npos) {
+        url_path = _url_path_get.substr(0, _index);
+        auto _get = _url_path_get.substr(_index + 1);
+        // UTF8Url::Decode()
+        string key, value;
+        bool is_value = false;
+        for (char i : _get) {
+            if (i == '&') {
+                is_value = false;
+                GET[key] = UTF8Url::Decode(value);
+                key = "";
+                value = "";
+                continue;
+            }
+            if (i == '=') {
+                is_value = true;
+                continue;
+            }
+            if (is_value) {
+                value.push_back(i);
+            } else {
+                key.push_back(i);
+            }
+        }
+        if (!key.empty()) {
+            GET[key] = UTF8Url::Decode(value);
+            key = "";
+            value = "";
+        }
+    }
 
     space_index = 0;
     string key, value;

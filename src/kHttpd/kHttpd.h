@@ -22,6 +22,9 @@
 #include <ssl_common.h>
 #endif
 
+#include <URLParser.hpp>
+#include <UTF8Url.h>
+
 class kHttpdClient;
 
 class kWebSocketClient;

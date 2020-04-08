@@ -24,10 +24,12 @@ public:
     HttpResponseCode::ResponseCode response_code = HttpResponseCode::ResponseCode::OK;
     std::string method;
     std::string url_path;
+    std::string _url_path_get;
     std::string http_version;
     std::string ContentType = "text/html;charset=UTF-8";
     std::vector<unsigned char> ResponseContent;
     std::map<std::string, std::string> header;
+    std::map<std::string, std::string> GET;
     std::map<std::string, std::string> response_header;
     std::vector<unsigned char> body_data;
 
@@ -37,6 +39,8 @@ public:
                  std::vector<unsigned char> data, unsigned long int split_index, bool is_split_n,
                  std::string method,
                  std::string url_path,
+                 std::string _url_path_get,
+                 std::map<std::string, std::string> GET,
                  std::string http_version,
                  kekxv::socket *_socket);
 

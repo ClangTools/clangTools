@@ -6,8 +6,10 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
     set(Tools_Other_Project ON)
 endif ()
 project(Tools)
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc -Wl,-rpath=.") # -static
+if (APPLE)
+else ()
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc -Wl,-rpath=.") # -static
+endif ()
 
 include(cmake/MSVC.cmake)
 

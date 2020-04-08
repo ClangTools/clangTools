@@ -24,10 +24,12 @@ public:
     HttpResponseCode::ResponseCode response_code = HttpResponseCode::ResponseCode::SwitchingProtocols;
     std::string method;
     std::string url_path;
+    std::string _url_path_get;
     std::string http_version;
     std::string SecWebSocketAccept = "";
     std::string SecWebSocketKey = "";
     std::map<std::string, std::string> header;
+    std::map<std::string, std::string> GET;
     std::map<std::string, std::string> response_header;
 
     kWebSocketClient(kHttpd *parent, int fd);

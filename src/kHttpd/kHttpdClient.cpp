@@ -86,6 +86,8 @@ kHttpdClient::kHttpdClient(kHttpd *parent, int fd, const std::map<std::string, s
                            std::vector<unsigned char> data, unsigned long int split_index, bool is_split_n,
                            std::string method,
                            std::string url_path,
+                           std::string _url_path_get,
+                           std::map<std::string, std::string> GET,
                            std::string http_version,
                            kekxv::socket *_socket) {
     this->fd = fd;
@@ -94,9 +96,11 @@ kHttpdClient::kHttpdClient(kHttpd *parent, int fd, const std::map<std::string, s
 
     init(parent, fd);
     this->url_path = std::move(url_path);
+    this->_url_path_get = std::move(_url_path_get);
     this->method = std::move(method);
     this->http_version = std::move(http_version);
     this->header = header;
+    this->GET = GET;
     /********* 读取body数据内容 *********/
     body_data.insert(body_data.end(), data.begin() + split_index, data.end());
 }
@@ -109,9 +113,9 @@ void kHttpdClient::init(kHttpd *_parent, int _fd) {
 #endif
         _logger->console_show = true;
     }
-    response_header["Access-Control-Allow-Origin"]="*";
-    response_header["Access-Control-Allow-Methods"]="POST,GET,OPTIONS,DELETE";
-    response_header["Access-Control-Allow-Credentials"]="true";
+    response_header["Access-Control-Allow-Origin"] = "*";
+    response_header["Access-Control-Allow-Methods"] = "POST,GET,OPTIONS,DELETE";
+    response_header["Access-Control-Allow-Credentials"] = "true";
 
     struct sockaddr_in remote_addr{};
     socklen_t sin_size = 0;
@@ -368,11 +372,14 @@ int kHttpdClient::run() {
     send_body();
 
     if (response_code < 400) {
-        _logger->i(TAG, __LINE__, "%-6s %3d %s ", method.c_str(), response_code, url_path.c_str());
+        _logger->i(TAG, __LINE__, "%-6s %3d %s ", method.c_str(), response_code,
+                   _url_path_get.empty() ? url_path.c_str() : _url_path_get.c_str());
     } else if (response_code < 500) {
-        _logger->w(TAG, __LINE__, "%-6s %3d %s ", method.c_str(), response_code, url_path.c_str());
+        _logger->w(TAG, __LINE__, "%-6s %3d %s ", method.c_str(), response_code,
+                   _url_path_get.empty() ? url_path.c_str() : _url_path_get.c_str());
     } else {
-        _logger->e(TAG, __LINE__, "%-6s %3d %s ", method.c_str(), response_code, url_path.c_str());
+        _logger->e(TAG, __LINE__, "%-6s %3d %s ", method.c_str(), response_code,
+                   _url_path_get.empty() ? url_path.c_str() : _url_path_get.c_str());
     }
     return fd;
 }
@@ -431,6 +438,39 @@ void kHttpdClient::init_header(const char *data, unsigned long int size, bool is
     if (method.empty())method = "GET";
     if (url_path.empty())url_path = "/";
     if (http_version.empty())http_version = "HTTP/1.0";
+
+    auto _index = url_path.find('?');
+    _url_path_get = url_path;
+    if (_index != string::npos) {
+        url_path = _url_path_get.substr(0, _index);
+        auto _get = _url_path_get.substr(_index + 1);
+        // UTF8Url::Decode()
+        string key, value;
+        bool is_value = false;
+        for (char i : _get) {
+            if (i == '&') {
+                is_value = false;
+                GET[key] = UTF8Url::Decode(value);
+                key = "";
+                value = "";
+                continue;
+            }
+            if (i == '=') {
+                is_value = true;
+                continue;
+            }
+            if (is_value) {
+                value.push_back(i);
+            } else {
+                key.push_back(i);
+            }
+        }
+        if (!key.empty()) {
+            GET[key] = UTF8Url::Decode(value);
+            key = "";
+            value = "";
+        }
+    }
 
     space_index = 0;
     string key, value;
