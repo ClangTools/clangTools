@@ -1,5 +1,23 @@
 # clangTools 使用教程
 
+## 支持
+
+如果有任何需要，可以联系我：
+
+>
+> kekxv1@163.com
+>
+> caesar@kekxv.com
+>
+
+If you need anything, please contact me :
+
+>
+> kekxv1@163.com
+>
+> caesar@kekxv.com
+>
+
 ## 支持功能
 [Base64](src/Base64),
 [ConfigTool](src/ConfigTool),
@@ -65,4 +83,6 @@ make clock_oled
 ```
 
 将会在 `ssd1306 oled (128x64)` 屏幕上显示`日期`、`温度`、`天气`、`时间`、`IP地址`。
+
+
 
