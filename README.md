@@ -85,4 +85,8 @@ make clock_oled
 将会在 `ssd1306 oled (128x64)` 屏幕上显示`日期`、`温度`、`天气`、`时间`、`IP地址`。
 
 
+## 致谢
 
+非常感谢 [`JetBrains`](https://account.jetbrains.com/) 为本项目提供开源项目授权。
+
+Thank you [`JetBrains`](https://account.jetbrains.com/) for providing open source project authorization for this project.
