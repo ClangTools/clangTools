@@ -47,8 +47,8 @@ if (ENABLE_FREETYPE)
             ${CMAKE_BINARY_DIR}/OpenDotMatrixFont.ttf
             ${CMAKE_BINARY_DIR}/seguisym.ttf
             DESTINATION font)
-
 endif (ENABLE_FREETYPE)
+
 option(ENABLE_HZK "option for HZK" OFF)
 if (ENABLE_HZK)
     file(DOWNLOAD

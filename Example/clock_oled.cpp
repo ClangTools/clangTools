@@ -118,9 +118,9 @@ void OledShowNew(Mat *srcImg) {
         { // 天气
             if (last_get_weather_time < logger::get_time_tick()) {
                 /**
-                 * 每 30 分钟更新一次天气情况
+                 * 每 5 分钟更新一次天气情况
                  */
-                last_get_weather_time = logger::get_time_tick() + 30 * 60 * 1000;
+                last_get_weather_time = logger::get_time_tick() + 5 * 60 * 1000;
 
                 get_weather_task.commit([]() -> void {
                     auto _weather_data = getWeather(_province, _cityName);

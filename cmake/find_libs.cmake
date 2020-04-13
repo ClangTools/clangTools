@@ -50,6 +50,70 @@ if (ENABLE_ICONV)
         pkg_search_module(Iconv iconv)
     endif ()
     if (Iconv_FOUND)
+    else ()
+
+        include(ExternalProject)
+
+        if (WIN32)
+            if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
+                if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
+                    set(CMAKE_GENERATOR_PLATFORM WIN64)
+                endif ()
+                set(G_CMAKE_GENERATOR_PLATFORM
+                        -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
+            elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+                set(G_CMAKE_GENERATOR_PLATFORM
+                        -G "${CMAKE_GENERATOR}")
+            else ()
+                set(G_CMAKE_GENERATOR_PLATFORM
+                        -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
+            endif ()
+            # ExternalProject_Add(Iconv
+            #        URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
+            #        URL_MD5 "7d2a800b952942bb2880efb00cfd524c"
+            #        CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+            #        PREFIX ${CMAKE_BINARY_DIR}/dependencies
+            #        INSTALL_DIR ${INSTALL_DIR}
+            #        BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build"
+            #        INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build" --target install
+            #        )
+        else ()
+            ExternalProject_Add(Iconv
+                    URL https://github.com/ClangTools/clangTools/releases/download/libiconv-1.16/libiconv-1.16.tar.gz
+                    URL_MD5 "7d2a800b952942bb2880efb00cfd524c"
+                    # CONFIGURE_COMMAND echo CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} <SOURCE_DIR>/configure --prefix=${CMAKE_BINARY_DIR}/dependencies --enable-static=yes --enable-shared=no
+                    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} <SOURCE_DIR>/configure --prefix=${CMAKE_BINARY_DIR}/dependencies --enable-static=yes --enable-shared=no
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                    PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                    INSTALL_DIR ${INSTALL_DIR}
+                    BUILD_COMMAND ${MAKE}
+                    )
+        endif ()
+        set(Iconv_FOUND ON)
+        set(Iconv_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
+        set(prefix "lib")
+        if (WIN32)
+            # set(suffix "-d.lib")
+            set(suffix ".lib")
+            set(Iconv_LIBRARIES
+                    "${Iconv_LIB_DIR}/${prefix}charset${suffix}"
+                    "${Iconv_LIB_DIR}/${prefix}iconv${suffix}"
+                    )
+        else ()
+            set(suffix ".a")
+            set(Iconv_LIBRARIES
+                    "${Iconv_LIB_DIR}/${prefix}charset${suffix}"
+                    "${Iconv_LIB_DIR}/${prefix}iconv${suffix}"
+                    )
+        endif ()
+        link_directories(${Iconv_LIB_DIR})
+        include_directories(${CMAKE_BINARY_DIR}/dependencies/include/)
+        add_definitions(-DBUILDING_LIBICONV)
+
+        add_dependencies(${libTools_LIBRARIES} Iconv)
+        target_link_libraries(${libTools_LIBRARIES} ${Iconv_LIBRARIES})
+    endif ()
+    if (Iconv_FOUND)
         set(ENABLE_ICONV ON)
         add_definitions(-DENABLE_ICONV)
         if ("${Tools_Other_Project}" STREQUAL "ON")
