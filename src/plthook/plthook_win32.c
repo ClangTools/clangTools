@@ -228,6 +228,12 @@ static void replace_funcaddr(void **addr, void *newfunc, void **oldfunc)
     VirtualProtect(addr, sizeof(void *), dwOld, &dwDummy);
 }
 
+void replace_relative_funcaddr(plthook_t *plthook,uintptr_t addr, void *newfunc, void **oldfunc)
+{
+    void ** _addr = (void **)((uintptr_t)(plthook->hMod) + addr);
+    replace_funcaddr(_addr,newfunc,oldfunc);
+}
+
 int plthook_replace(plthook_t *plthook, const char *funcname, void *funcaddr, void **oldfunc)
 {
 #ifndef _WIN64
