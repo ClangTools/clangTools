@@ -58,7 +58,9 @@ int plthook_enum(plthook_t *plthook, unsigned int *pos, const char **name_out, v
 int plthook_replace(plthook_t *plthook, const char *funcname, void *funcaddr, void **oldfunc);
 void plthook_close(plthook_t *plthook);
 const char *plthook_error(void);
-
+#ifdef WIN32
+void replace_relative_funcaddr(plthook_t *plthook,uintptr_t addr, void *newfunc, void **oldfunc);
+#endif
 #ifdef __cplusplus
 }; /* extern "C" */
 #endif
