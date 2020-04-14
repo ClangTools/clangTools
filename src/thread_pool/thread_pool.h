@@ -32,6 +32,7 @@
 #define DLL_thread_pool_Export
 #endif
 
+class DLL_thread_pool_Export thread_pool;
 class DLL_thread_pool_Export thread_pool {
 
     static const char *TAG;
@@ -60,6 +61,8 @@ public:
     ~thread_pool();
 
     void wait_finish();
+
+    thread_pool(thread_pool const &pool);
 
 public:
     template<class F, class... Args>

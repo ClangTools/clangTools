@@ -85,11 +85,34 @@ unsigned thread_pool::init(void *arg) {
                             self->tasks.pop();
                         }
                         self->idlThrNum--;
-                        task();
+                        try {
+                            task();
+                        }catch (std::exception &e) {
+
+                        }catch (...){
+
+                        }
                         self->idlThrNum++;
                     }
                 }
         );
     }
     return 0;
+}
+
+thread_pool::thread_pool(thread_pool const &pool) : stoped{false} {
+    thread_pool *self = this;
+    idlThrNum.store(pool.idlThrNum.load());
+#ifdef WIN32
+    HANDLE handle = (HANDLE)_beginthread([](void *arg) -> void {
+        auto self = (thread_pool*)arg;
+#endif
+        thread_pool::init(self);
+#ifdef WIN32
+        _endthread();
+        return;
+    },1024, (void*)this);
+    // WaitForSingleObject( handle, INFINITE );
+    // CloseHandle(handle);
+#endif
 }

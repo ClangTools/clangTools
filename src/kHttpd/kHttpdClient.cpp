@@ -25,20 +25,10 @@
 #include <vector>
 #include <cstring>
 
-#ifdef WIN32
-
-#include <experimental/filesystem>
-
 using namespace std;
-using namespace std::experimental;
-using namespace std::experimental::filesystem;
-#else
 #ifdef HAVE_EXPERIMENTAL_FILESYSTEM
 #include <experimental/filesystem>
 using namespace std::experimental;
-#else
-
-#endif
 #endif
 
 #include <ctime>
