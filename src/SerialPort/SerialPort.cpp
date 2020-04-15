@@ -419,7 +419,8 @@ std::vector<std::string> SerialPort::list() {
 
     while (ent = readdir(dir), ent != nullptr) {
         string name = std::string(ent->d_name);
-        if ("tty" == name.substr(0, 3) && (name.size() > 3 && name[3] > '9')) {
+        if ("tty" == name.substr(0, 3) && name.size() > 3 && (name[3] > '9' && (name[3] != 'S' && name[3] != 'T'))) {
+            // logger::instance()->d(__FILENAME__, __LINE__, "%s", ent->d_name);
             ttyList.emplace_back(ent->d_name);
         }
     }
