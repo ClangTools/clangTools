@@ -109,7 +109,7 @@ int kWebSocketClient::run() {
 #endif
             return 0;
         } else if (0 > size && (errno != EINTR && errno != EWOULDBLOCK && errno != EAGAIN)) {
-            _logger->w(TAG, __LINE__, "read size is %ld for socket: %d is errno:", size, fd, errno);
+            _logger->w(TAG, __LINE__, "read size is %ld for socket: %d is errno:%d", size, fd, errno);
 #ifdef WIN32
             shutdown(fd, SD_BOTH);
             closesocket(fd);

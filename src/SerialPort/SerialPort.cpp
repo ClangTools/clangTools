@@ -101,11 +101,11 @@ bool SerialPort::InitCom(const char *PortNum) {
     options.parity = parity;// SerialPort::Parity::ParityNone;
     options.dataBits = byteSize;// SerialPort::DataBits::DataBits8;
     options.stopBits = stopBits;// SerialPort::StopBits::StopBits1;
-    options.baudRate = SerialPort::BaudRateMake(baudtate);
+    options.baudRate = baudtate;//SerialPort::BaudRateMake(baudtate);
 
     _open_options = options;
 
-    hCom = ::open(PortNum, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    hCom = ::open(PortNum, O_RDWR | O_NOCTTY | O_NONBLOCK | O_SYNC);
     if (hCom < 0) {
         _is_open = false;
         return false;
@@ -242,23 +242,23 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
             break;
         } else {
 #else
-            wCount = ::read(hCom, str, 1);
+        wCount = ::read(hCom, str, 1);
 #endif
-            if (wCount <= 0) {
+        if (wCount <= 0) {
 #ifdef WIN32
-                start = GetTickCount();
+            start = GetTickCount();
 #else
-                gettimeofday(&tv, nullptr);
-                start = static_cast<size_t >(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+            gettimeofday(&tv, nullptr);
+            start = static_cast<size_t >(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 #endif
-                if (stop > start && count <= 0) {
-                    continue;
-                }
-                break;
-            } else {
-                data[count] = str[0];
-                count++;
+            if (stop > start && count <= 0) {
+                continue;
             }
+            break;
+        } else {
+            data[count] = str[0];
+            count++;
+        }
 #ifdef WIN32
         }
 #endif
@@ -418,7 +418,8 @@ std::vector<std::string> SerialPort::list() {
     std::vector<std::string> ttyList;
 
     while (ent = readdir(dir), ent != nullptr) {
-        if ("tty" == std::string(ent->d_name).substr(0, 3)) {
+        string name = std::string(ent->d_name);
+        if ("tty" == name.substr(0, 3) && (name.size() > 3 && name[3] > '9')) {
             ttyList.emplace_back(ent->d_name);
         }
     }
