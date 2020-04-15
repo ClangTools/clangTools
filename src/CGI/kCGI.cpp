@@ -230,7 +230,6 @@ size_t kCGI::ReadFromPhp(map<string, string> &header, vector<unsigned char> &dat
 //            getHtmlFromContent(content);
             /* 跳过填充部分 */
             if (responderHeader.paddingLength > 0) {
-//                printf("-----> %d\n",ret);
                 ret = Read(tmp, responderHeader.paddingLength);
             }
         } //end of type FCGI_STDOUT
@@ -244,7 +243,6 @@ size_t kCGI::ReadFromPhp(map<string, string> &header, vector<unsigned char> &dat
                 kD->next = new kCgiData();
                 kD = kD->next;
             }
-//            fprintf(stdout, "error:%s\n", content);
             /* 跳过填充部分 */
             if (responderHeader.paddingLength > 0) {
                 ret = Read(tmp, responderHeader.paddingLength);

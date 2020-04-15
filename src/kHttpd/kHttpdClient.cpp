@@ -25,20 +25,10 @@
 #include <vector>
 #include <cstring>
 
-#ifdef WIN32
-
-#include <experimental/filesystem>
-
 using namespace std;
-using namespace std::experimental;
-using namespace std::experimental::filesystem;
-#else
 #ifdef HAVE_EXPERIMENTAL_FILESYSTEM
 #include <experimental/filesystem>
 using namespace std::experimental;
-#else
-
-#endif
 #endif
 
 #include <ctime>
@@ -170,7 +160,7 @@ int kHttpdClient::run() {
 #endif
                 return 0;
             } else if (0 > size && (errno != EINTR && errno != EWOULDBLOCK && errno != EAGAIN)) {
-                _logger->w(TAG, __LINE__, "read size is %ld for socket: %d is errno:", size, fd, errno);
+                _logger->w(TAG, __LINE__, "read size is %ld for socket: %d is errno: %d", size, fd, errno);
 #ifdef WIN32
                 //shutdown(fd, SD_BOTH);
                 closesocket(fd);
