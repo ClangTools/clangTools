@@ -108,6 +108,10 @@ elseif (UNIX)
 else ()
     list(APPEND srcSource "src/plthook/plthook_win32.c")
 endif ()
+if (UNIX)
+else ()
+    list(FILTER subSrcSource EXCLUDE REGEX ".*Unix.*")
+endif ()
 
 add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
