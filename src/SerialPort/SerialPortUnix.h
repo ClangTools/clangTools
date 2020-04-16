@@ -24,11 +24,15 @@ public:
 
     ssize_t write(std::vector<unsigned char> data);
 
+    ssize_t write(unsigned char *data, ssize_t data_size);
+
     ssize_t read(std::vector<unsigned char> &data, int timeout = 300);
 
     ssize_t read(unsigned char *data, ssize_t data_size, int timeout = 300);
 
-    inline bool is_open() { return fd > 0; }
+    inline bool is_open() const { return fd > 0; }
+
+    inline bool IsOpen() const { return is_open(); }
 
 private:
     int fd = -1;

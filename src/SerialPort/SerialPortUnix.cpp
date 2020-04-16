@@ -113,7 +113,6 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
         logger::instance()->d(__FILENAME__, __LINE__, "Opening serial port %s with flags 0x%x", path,
                               O_RDWR | O_NOCTTY | O_NONBLOCK | flags);
         fd = ::open(path, O_RDWR | flags);
-        logger::instance()->d(__FILENAME__, __LINE__, "open() fd = %d", fd);
         if (fd == -1) {
             /* Throw an exception */
             logger::instance()->e(__FILENAME__, __LINE__, "Cannot open port");
@@ -125,7 +124,6 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
     /* Configure device */
     {
         struct termios cfg;
-        logger::instance()->d(__FILENAME__, __LINE__, "Configuring serial port");
         if (tcgetattr(fd, &cfg)) {
             logger::instance()->e(__FILENAME__, __LINE__, "tcgetattr() failed");
             close();
@@ -209,9 +207,14 @@ SerialPortUnix::~SerialPortUnix() {
 }
 
 ssize_t SerialPortUnix::write(std::vector<unsigned char> data) {
-    if (!is_open())return -1;
-    return ::write(fd, data.data(), data.size());
+    return write(data.data(), data.size());
 }
+
+ssize_t SerialPortUnix::write(unsigned char *data, ssize_t data_size) {
+    if (!is_open())return -1;
+    return ::write(fd, data, data_size);
+}
+
 
 ssize_t SerialPortUnix::read(std::vector<unsigned char> &data, int timeout) {
     unsigned char _data[1024]{};
