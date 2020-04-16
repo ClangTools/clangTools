@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <poll.h>
 
 #endif
 using namespace std;
@@ -101,20 +102,26 @@ bool SerialPort::InitCom(const char *PortNum) {
     options.parity = parity;// SerialPort::Parity::ParityNone;
     options.dataBits = byteSize;// SerialPort::DataBits::DataBits8;
     options.stopBits = stopBits;// SerialPort::StopBits::StopBits1;
-    options.baudRate = baudtate;//SerialPort::BaudRateMake(baudtate);
+    options.baudRate = BaudRateMake(baudtate);
 
     _open_options = options;
 
-    hCom = ::open(PortNum, O_RDWR | O_NOCTTY | O_NONBLOCK | O_SYNC);
+    hCom = ::open(PortNum, O_RDWR | O_NOCTTY | O_NONBLOCK/* | O_SYNC*/);
     if (hCom < 0) {
         _is_open = false;
         return false;
     }
-
+#if true
+    fcntl(hCom, F_SETFL, O_RDWR);
+    set_opt(hCom, baudtate, SerialPort::DataBits::DataBits8, SerialPort::Parity::ParityNone,
+            SerialPort::StopBits::StopBits1);
+#endif
+#if false
     struct termios tios{};
     termiosOptions(tios, _open_options);
     tcsetattr(_tty_fd, TCSANOW, &tios);
     tcflush(_tty_fd, TCIOFLUSH);
+#endif
     _is_open = true;
 #endif
     return IsOpen();
@@ -126,6 +133,12 @@ void SerialPort::Free() {
     CloseHandle(hCom);
     hCom = nullptr;
 #else
+    logger::instance()->d(__FILENAME__, __LINE__, "old_flag");
+    if (old_flag)
+        if ((tcsetattr(hCom, TCSAFLUSH, &oldtio)) != 0) {
+            logger::instance()->e(__FILENAME__, __LINE__, "SetupSerial com set error %s", strerror(errno));
+        }
+    logger::instance()->d(__FILENAME__, __LINE__, "old_flag");
     ::close(hCom);
     _is_open = false;
 #endif
@@ -226,15 +239,12 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
     SetCommTimeouts(hCom, &TimeOuts); //设置超时
     start = GetTickCount();
 #else
-
-
-    struct timeval tv{};
-    gettimeofday(&tv, nullptr);
-    start = static_cast<size_t >(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+    start = logger::get_time_tick();
 #endif
 
     stop = start + timeOut;
 
+    logger::instance()->d(__FILENAME__, __LINE__, "read start %d ", timeOut);
     while (count < len) {
 #ifdef WIN32
         bReadStat = ReadFile(hCom, str, 1, &wCount, nullptr);
@@ -242,14 +252,22 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
             break;
         } else {
 #else
+#ifdef ENABLE_POLL
+        struct pollfd pfd[2]{};
+        pfd[0].fd = hCom;
+        pfd[0].events = POLLIN | POLLPRI |
+                        POLLRDNORM |
+                        POLLRDBAND;
+        if (poll(pfd, 1, timeOut) < 0 && !pfd[0].revents)
+            break;
+#endif
         wCount = ::read(hCom, str, 1);
 #endif
         if (wCount <= 0) {
 #ifdef WIN32
             start = GetTickCount();
 #else
-            gettimeofday(&tv, nullptr);
-            start = static_cast<size_t >(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+            start = logger::get_time_tick();
 #endif
             if (stop > start && count <= 0) {
                 continue;
@@ -263,6 +281,7 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
         }
 #endif
     }
+    logger::instance()->d(__FILENAME__, __LINE__, "read end");
     //ReleaseMutex(hMutex1);
     // logger::instance()->puts_info((string(TAG) + ":" + to_string(__LINE__)).c_str(), "Read", data, count);
     return count;
@@ -344,70 +363,70 @@ const SerialPort::OpenOptions SerialPort::defaultOptions = {
         50,                     // c_cc vtime
 };
 
-SerialPort::BaudRate SerialPort::BaudRateMake(unsigned long baudrate) {
+unsigned long SerialPort::BaudRateMake(unsigned long baudrate) {
     switch (baudrate) {
         case 50:
-            return BR50;
+            return B50;
         case 75:
-            return BR75;
+            return B75;
         case 134:
-            return BR134;
+            return B134;
         case 150:
-            return BR150;
+            return B150;
         case 200:
-            return BR200;
+            return B200;
         case 300:
-            return BR300;
+            return B300;
         case 600:
-            return BR600;
+            return B600;
         case 1200:
-            return BR1200;
+            return B1200;
         case 1800:
-            return BR1800;
+            return B1800;
         case 2400:
-            return BR2400;
+            return B2400;
         case 4800:
-            return BR4800;
+            return B4800;
         case 9600:
-            return BR9600;
+            return B9600;
         case 19200:
-            return BR19200;
+            return B19200;
         case 38400:
-            return BR38400;
+            return B38400;
         case 57600:
-            return BR57600;
+            return B57600;
         case 115200:
-            return BR115200;
+            return B115200;
         case 230400:
-            return BR230400;
+            return B230400;
         case 460800:
-            return BR460800;
+            return B460800;
         case 500000:
-            return BR500000;
+            return B500000;
         case 576000:
-            return BR576000;
+            return B576000;
         case 921600:
-            return BR921600;
+            return B921600;
         case 1000000:
-            return BR1000000;
+            return B1000000;
         case 1152000:
-            return BR1152000;
+            return B1152000;
         case 1500000:
-            return BR1500000;
+            return B1500000;
         case 2000000:
-            return BR2000000;
+            return B2000000;
         case 2500000:
-            return BR2500000;
+            return B2500000;
         case 3000000:
-            return BR3000000;
+            return B3000000;
         case 3500000:
-            return BR3500000;
+            return B3500000;
         case 4000000:
-            return BR4000000;
+            return B4000000;
         default:
             break;
     }
-    return BR0;
+    return B0;
 }
 
 
@@ -419,7 +438,8 @@ std::vector<std::string> SerialPort::list() {
 
     while (ent = readdir(dir), ent != nullptr) {
         string name = std::string(ent->d_name);
-        if ("tty" == name.substr(0, 3) && name.size() > 3 && (name[3] > '9' && (name[3] != 'S' && name[3] != 'T'))) {
+        if ("tty" == name.substr(0, 3) && name.size() > 3 &&
+            (name[3] > '9' /*&& (name[3] != 'S' && name[3] != 'T')*/)) {
             // logger::instance()->d(__FILENAME__, __LINE__, "%s", ent->d_name);
             ttyList.emplace_back(ent->d_name);
         }
@@ -443,6 +463,62 @@ bool SerialPort::open(const std::string &path, const SerialPort::OpenOptions &op
     tcflush(_tty_fd, TCIOFLUSH);
     _is_open = true;
     return _is_open;
+}
+
+int SerialPort::set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
+    struct termios newtio{};
+    if (tcgetattr(fd, &oldtio) != 0) {
+        logger::instance()->e(__FILENAME__, __LINE__, "SetupSerial %s", strerror(errno));
+        return -1;
+    }
+    old_flag = true;
+    // bzero(&newtio, sizeof(newtio));
+    cfmakeraw(&newtio);
+    newtio.c_cflag |= CLOCAL | CREAD;
+    newtio.c_cflag &= ~CSIZE;
+
+    switch (nBits) {
+        case 7:
+            newtio.c_cflag |= CS7;
+            break;
+        case 8:
+        default:
+            newtio.c_cflag |= CS8;
+            break;
+    }
+
+    switch (nEvent) {
+        case 'O':
+            newtio.c_cflag |= PARENB;
+            newtio.c_cflag |= PARODD;
+            newtio.c_iflag |= (INPCK | ISTRIP);
+            break;
+        case 'E':
+            newtio.c_iflag |= (INPCK | ISTRIP);
+            newtio.c_cflag |= PARENB;
+            newtio.c_cflag &= ~PARODD;
+            break;
+        default:
+        case 'N':
+            newtio.c_cflag &= ~PARENB;
+            break;
+    }
+
+    cfsetspeed(&newtio, BaudRateMake(nSpeed));
+
+    if (nStop == 1)
+        newtio.c_cflag &= ~CSTOPB;
+    else if (nStop == 2)
+        newtio.c_cflag |= CSTOPB;
+    newtio.c_cc[VTIME] = 0;
+    newtio.c_cc[VMIN] = 0;
+    // tcflush(fd, TCIFLUSH);
+    if ((tcsetattr(fd, TCSAFLUSH, &newtio)) != 0) {
+        logger::instance()->e(__FILENAME__, __LINE__, "SetupSerial com set error %s", strerror(errno));
+        return -1;
+    }
+    // printf("set done!\n\r");
+    return 0;
 }
 
 
