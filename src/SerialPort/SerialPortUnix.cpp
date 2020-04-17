@@ -67,6 +67,7 @@ speed_t SerialPortUnix::getBaudrate(int baudrate) {
             return B115200;
         case 230400:
             return B230400;
+#ifndef __apple_build_version__
         case 460800:
             return B460800;
         case 500000:
@@ -91,6 +92,7 @@ speed_t SerialPortUnix::getBaudrate(int baudrate) {
             return B3500000;
         case 4000000:
             return B4000000;
+#endif
         default:
             return -1;
     }
