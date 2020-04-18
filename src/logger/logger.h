@@ -46,7 +46,7 @@ class DLL_thread_pool_Export thread_pool;
 
 #include <io.h>
 #include <direct.h>
-#include <windows.h>
+#include <Windows.h>
 
 #else
 
@@ -70,6 +70,9 @@ class DLL_thread_pool_Export thread_pool;
 #define LOGGER_ATTR(x, y)
 #endif
 #endif // LOGGER_ATTR
+#ifndef _Printf_format_string_
+#define _Printf_format_string_
+#endif
 
 #ifdef WIN32
 #ifdef _Tools_HEADER_
@@ -178,7 +181,7 @@ public:
      * @param fmt
      * @param ...
      */
-    void i(const char *TAG, const char *format, ...) LOGGER_ATTR(3, 4);
+    void i(const char *TAG,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(3, 4);
 
     /**
      * puts debug logger
@@ -186,7 +189,7 @@ public:
      * @param format
      * @param ...
      */
-    void d(const char *TAG, const char *format, ...) LOGGER_ATTR(3, 4);
+    void d(const char *TAG,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(3, 4);
 
     /**
      * puts warning logger
@@ -194,7 +197,7 @@ public:
      * @param format
      * @param ...
      */
-    void w(const char *TAG, const char *format, ...) LOGGER_ATTR(3, 4);
+    void w(const char *TAG,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(3, 4);
 
     /**
      * puts error logger
@@ -202,7 +205,7 @@ public:
      * @param format
      * @param ...
      */
-    void e(const char *TAG, const char *format, ...) LOGGER_ATTR(3, 4);
+    void e(const char *TAG,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(3, 4);
 
     /**
      * puts fatal logger
@@ -210,7 +213,7 @@ public:
      * @param format
      * @param ...
      */
-    void f(const char *TAG, const char *format, ...) LOGGER_ATTR(3, 4);
+    void f(const char *TAG,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(3, 4);
 
     /**
      * puts info logger
@@ -219,7 +222,7 @@ public:
      * @param format a format string
      * @param ...
      */
-    void i(const char *TAG, size_t line, const char *format, ...) LOGGER_ATTR(4, 5);
+    void i(const char *TAG, size_t line,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(4, 5);
 
     /**
      * puts debug logger
@@ -228,7 +231,7 @@ public:
      * @param format
      * @param ...
      */
-    void d(const char *TAG, size_t line, const char *format, ...) LOGGER_ATTR(4, 5);
+    void d(const char *TAG, size_t line,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(4, 5);
 
     /**
      * puts warning logger
@@ -237,7 +240,7 @@ public:
      * @param format
      * @param ...
      */
-    void w(const char *TAG, size_t line, const char *format, ...) LOGGER_ATTR(4, 5);
+    void w(const char *TAG, size_t line,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(4, 5);
 
     /**
      * puts error logger
@@ -246,7 +249,7 @@ public:
      * @param format
      * @param ...
      */
-    void e(const char *TAG, size_t line, const char *format, ...) LOGGER_ATTR(4, 5);
+    void e(const char *TAG, size_t line,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(4, 5);
 
     /**
      * puts fatal logger
@@ -255,7 +258,7 @@ public:
      * @param format
      * @param ...
      */
-    void f(const char *TAG, size_t line, const char *format, ...) LOGGER_ATTR(4, 5);
+    void f(const char *TAG, size_t line,_Printf_format_string_ const char *format, ...) LOGGER_ATTR(4, 5);
 
     void puts_info(const char *TAG, const char *tag_by_data, unsigned char *data, size_t data_len,
                    log_rank_t log_rand_type = log_rank_t::log_rank_DEBUG);
