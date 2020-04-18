@@ -110,7 +110,7 @@ else ()
 endif ()
 if (UNIX)
 else ()
-    list(FILTER subSrcSource EXCLUDE REGEX ".*Unix.*")
+    list(FILTER srcSource EXCLUDE REGEX ".*Unix.*")
 endif ()
 
 add_definitions(
