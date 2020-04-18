@@ -1,12 +1,16 @@
 #pragma once
 
 #include <cstdio>
+
 #ifdef WIN32
 #include <Windows.h>
 #else
+
 #include <ctime>
 #include <termios.h>
+
 #endif
+
 #include <string>
 #include <vector>
 
@@ -51,6 +55,7 @@ public:
 
     bool InitCom(const char *PortNum);
 
+
 #ifdef WIN32
 
     static int GetList(int sList[], int len);
@@ -63,63 +68,67 @@ public:
         return InitCom(com.c_str());
     };
 #else
+    bool old_flag = false;
+    struct termios oldtio{};
+    int set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop);
+
     enum BaudRate {
-        BR0 = 0000000,
-        BR50 = 0000001,
-        BR75 = 0000002,
-        BR110 = 0000003,
-        BR134 = 0000004,
-        BR150 = 0000005,
-        BR200 = 0000006,
-        BR300 = 0000007,
-        BR600 = 0000010,
-        BR1200 = 0000011,
-        BR1800 = 0000012,
-        BR2400 = 0000013,
-        BR4800 = 0000014,
-        BR9600 = 0000015,
-        BR19200 = 0000016,
-        BR38400 = 0000017,
-        BR57600 = 0010001,
-        BR115200 = 0010002,
-        BR230400 = 0010003,
-        BR460800 = 0010004,
-        BR500000 = 0010005,
-        BR576000 = 0010006,
-        BR921600 = 0010007,
-        BR1000000 = 0010010,
-        BR1152000 = 0010011,
-        BR1500000 = 0010012,
-        BR2000000 = 0010013,
-        BR2500000 = 0010014,
-        BR3000000 = 0010015,
-        BR3500000 = 0010016,
-        BR4000000 = 0010017
+        BR0 = 0,
+        BR50 = 50,
+        BR75 = 75,
+        BR110 = 110,
+        BR134 = 134,
+        BR150 = 150,
+        BR200 = 200,
+        BR300 = 300,
+        BR600 = 600,
+        BR1200 = 1200,
+        BR1800 = 1800,
+        BR2400 = 2400,
+        BR4800 = 4800,
+        BR9600 = 9600,
+        BR19200 = 19200,
+        BR38400 = 38400,
+        BR57600 = 57600,
+        BR115200 = 115200,
+        BR230400 = 230400,
+        BR460800 = 460800,
+        BR500000 = 500000,
+        BR576000 = 576000,
+        BR921600 = 921600,
+        BR1000000 = 1000000,
+        BR1152000 = 1152000,
+        BR1500000 = 1500000,
+        BR2000000 = 2000000,
+        BR2500000 = 2500000,
+        BR3000000 = 3000000,
+        BR3500000 = 3500000,
+        BR4000000 = 4000000
     };
 
     enum DataBits {
-        DataBits5,
-        DataBits6,
-        DataBits7,
-        DataBits8,
+        DataBits5 = 5,
+        DataBits6 = 6,
+        DataBits7 = 7,
+        DataBits8 = 8,
     };
 
     enum StopBits {
-        StopBits1,
-        StopBits2
+        StopBits1 = 1,
+        StopBits2 = 2
     };
 
     enum Parity {
-        ParityNone,
-        ParityEven,
-        PariteMark,
-        ParityOdd,
-        ParitySpace
+        ParityNone = 'N',
+        ParityEven = 'E',
+        PariteMark = 'M',
+        ParityOdd = 'O',
+        ParitySpace = 'S'
     };
 
     struct OpenOptions {
         bool autoOpen;
-        BaudRate baudRate;
+        unsigned long baudRate;
         DataBits dataBits;
         StopBits stopBits;
         Parity parity;
@@ -129,13 +138,19 @@ public:
         int vmin;
         int vtime;
     };
-    static BaudRate BaudRateMake(unsigned long baudrate);
+
+    static unsigned long BaudRateMake(unsigned long baudrate);
+
     static const OpenOptions defaultOptions;
-    bool open(const std::string& path, const OpenOptions& options);
-    static std::vector<std::string > list();
+
+    bool open(const std::string &path, const OpenOptions &options);
+
+    static std::vector<std::string> list();
+
 #endif
 
     void Free();
+
 #ifdef WIN32
     void SetRtsControl(unsigned char Control = RTS_CONTROL_HANDSHAKE);
 
@@ -151,6 +166,7 @@ public:
 
     void SetStopBits(unsigned char stopBits = ONESTOPBIT);
 #else
+
     void SetRtsControl(unsigned char Control = RTS_CONTROL_HANDSHAKE);
 
     void SetDtrControl(unsigned char Control = DTR_CONTROL_HANDSHAKE);
@@ -164,6 +180,7 @@ public:
     void SetParity(SerialPort::Parity _parity = SerialPort::ParityNone);
 
     void SetStopBits(SerialPort::StopBits _stopBits = SerialPort::StopBits1);
+
 #endif
 
 public:
@@ -171,7 +188,9 @@ public:
 #ifdef WIN32
     ///
 #else
-    void termiosOptions(termios& tios, const OpenOptions& options);
+
+    void termiosOptions(termios &tios, const OpenOptions &options);
+
 #endif
 
     int send(unsigned char data[], unsigned long len, unsigned long offset = 0);
@@ -215,14 +234,16 @@ private:
 #else
     SerialPort::BaudRate baudtate = SerialPort::BaudRate::BR115200;
     SerialPort::DataBits byteSize = SerialPort::DataBits::DataBits8;           //每个字节有8位
-    SerialPort::Parity parity =SerialPort::Parity::ParityNone;
-    SerialPort::StopBits stopBits =SerialPort::StopBits::StopBits1;
+    SerialPort::Parity parity = SerialPort::Parity::ParityNone;
+    SerialPort::StopBits stopBits = SerialPort::StopBits::StopBits1;
 #endif
 };
 
 #ifndef WIN32
 
-bool operator==(const SerialPort::OpenOptions& lhs, const SerialPort::OpenOptions& rhs);
-bool operator!=(const SerialPort::OpenOptions& lhs, const SerialPort::OpenOptions& rhs);
+bool operator==(const SerialPort::OpenOptions &lhs, const SerialPort::OpenOptions &rhs);
+
+bool operator!=(const SerialPort::OpenOptions &lhs, const SerialPort::OpenOptions &rhs);
+
 #endif // WIN32
 

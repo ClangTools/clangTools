@@ -108,6 +108,10 @@ elseif (UNIX)
 else ()
     list(APPEND srcSource "src/plthook/plthook_win32.c")
 endif ()
+if (UNIX)
+else ()
+    list(FILTER subSrcSource EXCLUDE REGEX ".*Unix.*")
+endif ()
 
 add_definitions(
         -D_CRT_SECURE_NO_WARNINGS
@@ -143,9 +147,10 @@ if (CURL_FOUND)
     target_link_libraries(${libTools_LIBRARIES} ${CURL_LIBRARIES})
 endif ()
 target_link_libraries(${libTools_LIBRARIES}
-        ${OpenCV_LIBS} ${FREETYPE_LIBRARIES} ${Iconv_LIBRARIES} ${LIBUSB_1_LIBRARIES}
+        ${OpenCV_LIBS} ${FREETYPE_LIBRARIES} ${LIBUSB_1_LIBRARIES}
         ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${X11_LIBRARIES} ${GTK3_LIBRARIES} ${NCURSES_LIBRARIES}
         )
+target_link_libraries(${libTools_LIBRARIES} ${Iconv_LIBRARIES})
 
 
 option(ENABLE_FILENAME "option for FILENAME" ON)

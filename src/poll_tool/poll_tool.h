@@ -35,7 +35,7 @@ public:
      * 检查是否有数据
      * @return
      */
-    static long int check_read_count(int fd, int timeout_ms = 1);
+    static long int check_read_count(int fd, int timeout_ms);
 };
 
 
