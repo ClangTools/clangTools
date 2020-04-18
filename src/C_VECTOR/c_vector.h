@@ -48,14 +48,26 @@ int c_vector_push_back(c_vector *cVector, void *data, size_t offset, size_t coun
 int c_vector_push_back_zero(c_vector *cVector);
 
 /**
- * set c_vector data
+ * set data
  * @param cVector
- * @param offset
+ * @param index
  * @param data
+ * @param offset
  * @param count
  * @return
  */
 size_t c_vector_set(c_vector *cVector, size_t index, void *data, size_t offset, size_t count);
+
+/**
+ * insert data
+ * @param cVector
+ * @param index
+ * @param data
+ * @param offset
+ * @param count
+ * @return
+ */
+size_t c_vector_insert(c_vector *cVector, size_t index, void *data, size_t offset, size_t count);
 
 /**
  * get c_vector data

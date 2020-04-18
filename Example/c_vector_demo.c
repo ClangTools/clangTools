@@ -20,11 +20,14 @@ int main(void) {
     c_vector_push_back(v, "\n", 0, 1);
 
     c_vector_push_back_zero(v);
-    printf("%s", (const char *) c_vector_data(v));
+    printf("%s\n", (const char *) c_vector_data(v));
 
+    printf("%s\n", (const char *) c_vector_data(v));
+    c_vector_insert(v, 2, "abcd", 0, 4);
+    printf("%s\n", (const char *) c_vector_data(v));
     c_vector_delete(v, strlen(hello) + 1, 4);
 
-    printf("%s", (const char *) c_vector_data(v));
+    printf("%s\n", (const char *) c_vector_data(v));
 
     c_vector_free(&v);
     return 0;

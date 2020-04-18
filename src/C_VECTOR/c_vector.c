@@ -103,6 +103,33 @@ size_t c_vector_set(c_vector *cVector, size_t index, void *data, size_t offset, 
 }
 
 /**
+ * insert data
+ * @param cVector
+ * @param index
+ * @param data
+ * @param offset
+ * @param count
+ * @return
+ */
+size_t c_vector_insert(c_vector *cVector, size_t index, void *data, size_t offset, size_t count) {
+    if (cVector->total <= index) {
+        return -1;
+    }
+    size_t last_total = cVector->total;
+    size_t new_size = count + cVector->total;
+    if (c_vector_resize(cVector, new_size) < 0) {
+        // error realloc
+        return -1;
+    }
+    size_t len = last_total - index;
+    for (size_t i = 1; i <= len; i++) {
+        memcpy(&cVector->items[new_size - i], &cVector->items[last_total - i], 1);
+    }
+    memcpy(&(cVector->items[index]), &data[offset], count);
+    return 0;
+}
+
+/**
  * get c_vector data
  * @param cVector
  * @param offset
