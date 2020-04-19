@@ -98,4 +98,13 @@ size_t c_vector_delete(c_vector *cVector, size_t offset, size_t count);
  */
 void c_vector_free(c_vector **cVector);
 
+int c_vector_seek(c_vector *cVector, size_t offset, int whence);
+int c_vector_seekg(size_t offset,c_vector *cVector);
+int c_vector_skip(size_t offset,c_vector *cVector);
+
+size_t c_vector_read(void *p_buffer, size_t p_nb_bytes, c_vector *v);
+
+size_t c_vector_write(void *p_buffer, size_t p_nb_bytes, c_vector *v);
+
+
 #endif //CLANGTOOLS_VECTOR_H

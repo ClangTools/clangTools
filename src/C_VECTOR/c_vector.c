@@ -7,6 +7,7 @@
 typedef struct c_vector {
     void *items;
     size_t total;
+    size_t index;
 } c_vector;
 
 
@@ -18,6 +19,7 @@ int c_vector_init(c_vector **cVector) {
     if (!cVector)return -1;
     if (NULL != (*cVector))return -2;
     *cVector = (c_vector *) malloc(sizeof(c_vector));
+    (*cVector)->index = 0;
     (*cVector)->total = 0;
     (*cVector)->items = NULL;
     return 0;
@@ -182,3 +184,45 @@ void c_vector_free(c_vector **cVector) {
     free(*cVector);
     *cVector = NULL;
 }
+
+int c_vector_seekg(size_t offset, c_vector *cVector) {
+    return c_vector_seek(cVector, offset, SEEK_SET);
+}
+
+int c_vector_skip(size_t offset, c_vector *cVector) {
+    return c_vector_seek(cVector, offset, SEEK_CUR);
+}
+
+int c_vector_seek(c_vector *cVector, size_t offset, int whence) {
+    if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END) {
+        return -1;
+    }
+    if (SEEK_SET == whence) {
+        cVector->index = offset;
+    } else if (SEEK_END == whence) {
+        cVector->index = cVector->total - 1 - offset;
+    } else if (SEEK_CUR == whence) {
+        cVector->index = cVector->total + offset;
+    }
+    return -1;
+}
+
+size_t c_vector_read(void *p_buffer, size_t p_nb_bytes, c_vector *v) {
+    if (v->total - v->index < p_nb_bytes) {
+        p_nb_bytes = v->total - v->index;
+    }
+    memcpy(p_buffer, &(v->items[v->index]), p_nb_bytes);
+    v->index += p_nb_bytes;
+    return p_nb_bytes;
+}
+
+size_t c_vector_write(void *p_buffer, size_t p_nb_bytes,
+                      c_vector *v) {
+    if (v->index + p_nb_bytes > v->total) {
+        c_vector_resize(v, v->index + p_nb_bytes);
+    }
+    c_vector_set(v, v->index, p_buffer, 0, p_nb_bytes);
+    v->index += p_nb_bytes;
+    return p_nb_bytes;
+}
+
