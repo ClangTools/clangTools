@@ -328,7 +328,7 @@ private:
     static std::mutex logger_console_mutex;
 
 public:
-#if WIN32
+#ifdef WIN32
     static char path_split;
 #else
     static char path_split;
