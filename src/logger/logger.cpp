@@ -44,7 +44,7 @@ logger::logger(const char *path) {
     open(path);
 }
 
-logger::logger(std::fstream *path) {
+logger::logger(FILE *path) {
     open(path);
 }
 
@@ -52,14 +52,14 @@ void logger::open(const char *path) {
     Free();
     if (path != nullptr) {
         mk_dir(get_path_by_filepath(path));
-        logger_file = new fstream();
+        logger_file = fopen( path, "ab+" );;
         need_free = true;
-        logger_file->open(path, ios::app);
+        // logger_file->open(path, ios::app);
         this->filepath = path;
     }
 }
 
-void logger::open(std::fstream *path) {
+void logger::open(FILE *path) {
     Free();
     need_free = false;
     logger_file = path;
@@ -85,24 +85,27 @@ void logger::Free() {
     std::lock_guard<std::mutex> guard1(logger_file_mutex);
     if (need_free) {
         need_free = true;
-        logger_file->flush();
-        delete logger_file;
+        fclose(logger_file);
         logger_file = nullptr;
     }
 }
 
 void logger::WriteToFile(const std::string &data) {
     std::lock_guard<std::mutex> guard(logger_file_mutex);
-    if (logger_file == nullptr || !logger_file->is_open())return;
-    logger_file->write(data.c_str(), data.size());
+    if (!is_open()) {
+        //printf("%s:%d\n", __FILENAME__, __LINE__);
+        return;
+    }
+    fwrite(data.c_str(), data.size(),1,logger_file);
     if (data.find('\n') == string::npos) return;
-    logger_file->flush();
+    fflush(logger_file);
     if (logger_file_max_size <= 0) return;
     if (filepath.empty()) return;
     if (!need_free) return;
-    logger_file->seekp(0, logger_file->beg);
-    logger_file->seekp(0, logger_file->end);
-    auto dst_file_size = logger_file->tellp();
+    fseek(logger_file,0,SEEK_SET);
+    fseek(logger_file,0,SEEK_END);
+    ssize_t dst_file_size = ftell(logger_file);
+    // printf("%zd : %zu",dst_file_size,logger_file_max_size);
     if (dst_file_size < logger_file_max_size)return;
     string path = get_path_by_filepath(filepath);
     if (path.empty()) {
@@ -113,8 +116,7 @@ void logger::WriteToFile(const std::string &data) {
         logger_file_max_size = 0;
         return;
     }
-    logger_file->close();
-    delete logger_file;
+    fclose(logger_file);
     logger_file = nullptr;
 
     string filename = filepath.substr(path.size() + 1);
@@ -144,9 +146,8 @@ void logger::WriteToFile(const std::string &data) {
     if (ret != 0) {
         logger_file_max_size = 0;
     }
-    logger_file = new fstream();
     need_free = true;
-    logger_file->open(filepath, ios::app);
+    logger_file = fopen(filepath.c_str(), "ab+");
     if (logger_files_max_size <= 0)return;
     if (logger_file_max_size > 0) {
         std::vector<std::string> files, log_files;
@@ -393,7 +394,7 @@ void logger::puts_info(log_rank_t log_rank_type, const char *TAG, const char *fo
 }
 
 bool logger::is_open() {
-    return logger_file != nullptr && logger_file->is_open();
+    return logger_file != nullptr/* && logger_file->is_open()*/;
 }
 
 #ifdef WIN32
