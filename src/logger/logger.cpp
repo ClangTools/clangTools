@@ -104,7 +104,7 @@ void logger::WriteToFile(const std::string &data) {
     if (!need_free) return;
     fseek(logger_file,0,SEEK_SET);
     fseek(logger_file,0,SEEK_END);
-    ssize_t dst_file_size = ftell(logger_file);
+    size_t dst_file_size = ftell(logger_file);
     // printf("%zd : %zu",dst_file_size,logger_file_max_size);
     if (dst_file_size < logger_file_max_size)return;
     string path = get_path_by_filepath(filepath);
