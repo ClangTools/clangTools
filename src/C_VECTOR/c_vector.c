@@ -43,7 +43,7 @@ int c_vector_resize(c_vector* cVector, size_t count) {
 	void* items = NULL;
 	if (!cVector)return -1;
 	if (cVector->items) {
-		items = (void*)realloc(cVector->items, sizeof(void) * count);
+		items = (void*)realloc(cVector->items, sizeof(unsigned char) * count);
 		if (items) {
 			cVector->items = items;
 			cVector->total = count;
@@ -52,7 +52,7 @@ int c_vector_resize(c_vector* cVector, size_t count) {
 		return -1;
 	}
 	else {
-		cVector->items = (void*)malloc(sizeof(void) * count);
+		cVector->items = (void*)malloc(sizeof(unsigned char) * count);
 		if (cVector->items == NULL) {
 			return -1;
 		}
