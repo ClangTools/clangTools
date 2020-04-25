@@ -244,7 +244,7 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
 
     stop = start + timeOut;
 
-    logger::instance()->d(__FILENAME__, __LINE__, "read start %d ", timeOut);
+    // logger::instance()->d(__FILENAME__, __LINE__, "read start %d ", timeOut);
     while (count < len) {
 #ifdef WIN32
         bReadStat = ReadFile(hCom, str, 1, &wCount, nullptr);
@@ -281,7 +281,7 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
         }
 #endif
     }
-    logger::instance()->d(__FILENAME__, __LINE__, "read end");
+    // logger::instance()->d(__FILENAME__, __LINE__, "read end");
     //ReleaseMutex(hMutex1);
     // logger::instance()->puts_info((string(TAG) + ":" + to_string(__LINE__)).c_str(), "Read", data, count);
     return count;
