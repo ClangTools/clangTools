@@ -267,7 +267,7 @@ class v4l2Tool
 	LONG wWidth = 800;  //修改采集视频的宽为320
 	LONG wHeight = 600; //修改采集视频的高为240
 
-	int num_devices;
+	int num_devices = 0;
 };
 #else
 #include <stddef.h>
