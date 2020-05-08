@@ -52,7 +52,8 @@ void logger::open(const char *path) {
     Free();
     if (path != nullptr) {
         mk_dir(get_path_by_filepath(path));
-        logger_file = fopen( path, "ab+" );;
+        d(__FILENAME__, __LINE__, "log save to %s", path);
+        logger_file = fopen(path, "ab+");;
         need_free = true;
         // logger_file->open(path, ios::app);
         this->filepath = path;
@@ -96,14 +97,14 @@ void logger::WriteToFile(const std::string &data) {
         //printf("%s:%d\n", __FILENAME__, __LINE__);
         return;
     }
-    fwrite(data.c_str(), data.size(),1,logger_file);
+    fwrite(data.c_str(), data.size(), 1, logger_file);
     if (data.find('\n') == string::npos) return;
     fflush(logger_file);
     if (logger_file_max_size <= 0) return;
     if (filepath.empty()) return;
     if (!need_free) return;
-    fseek(logger_file,0,SEEK_SET);
-    fseek(logger_file,0,SEEK_END);
+    fseek(logger_file, 0, SEEK_SET);
+    fseek(logger_file, 0, SEEK_END);
     size_t dst_file_size = ftell(logger_file);
     // printf("%zd : %zu",dst_file_size,logger_file_max_size);
     if (dst_file_size < logger_file_max_size)return;
@@ -465,7 +466,9 @@ std::string logger::get_local_path() {
     Dl_info dlInfo;
     dladdr((const void *) get_local_path, &dlInfo);
     if (dlInfo.dli_fname != nullptr) {
-        auto path = get_path_by_filepath(dlInfo.dli_fname);
+        const char *_path = realpath(dlInfo.dli_fname, nullptr);
+        if (_path == nullptr)_path = dlInfo.dli_fname;
+        auto path = get_path_by_filepath(_path);
         if (path[0] != path_split) {
             return "./";
         }
