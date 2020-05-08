@@ -26,4 +26,5 @@ if ("${Tools_Other_Project}" STREQUAL "ON")
             GROUP_READ
             # SETUID SETGID
             )
+    include(${CMAKE_CURRENT_SOURCE_DIR}/vInstallCpack.cmake)
 endif ()
