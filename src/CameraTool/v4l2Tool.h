@@ -63,6 +63,8 @@ static const CLSID CLSID_AudioEffects2Category = {0xcc7bfb45, 0xf175, 0x11d1, {0
 #endif
 #else
 
+#ifndef VideoDeviceStruct
+#define VideoDeviceStruct
 /**
  * @brief 摄像头对象
  *
@@ -73,6 +75,7 @@ struct VideoDevice {
     char vid[10];
     char pid[10];
 };
+#endif
 #endif // WIN32
 
 namespace clangTools
@@ -267,7 +270,7 @@ class v4l2Tool
 	LONG wWidth = 800;  //修改采集视频的宽为320
 	LONG wHeight = 600; //修改采集视频的高为240
 
-	int num_devices;
+	int num_devices = 0;
 };
 #else
 #include <stddef.h>

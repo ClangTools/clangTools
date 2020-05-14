@@ -33,6 +33,8 @@ extern int c_vector_init(c_vector **cVector) {
 extern size_t c_vector_size(c_vector *cVector) {
     if (!cVector)return 0;
     return cVector->total;
+	if (!cVector)return 0;
+	return cVector->total;
 }
 
 /**
@@ -231,4 +233,5 @@ extern size_t c_vector_write(unsigned char *p_buffer, size_t p_nb_bytes,
     v->index += p_nb_bytes;
     return p_nb_bytes;
 }
+
 

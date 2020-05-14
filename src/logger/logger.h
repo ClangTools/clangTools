@@ -151,7 +151,7 @@ public:
      *
      * @param path puts logger to path,if path isn't null
      */
-    explicit logger(std::fstream *path);
+    explicit logger(FILE *path);
 
 #ifdef _LOGGER_USE_THREAD_POOL_
 
@@ -169,7 +169,7 @@ public:
      *
      * @param path puts logger to path,if path isn't null
      */
-    void open(std::fstream *path);
+    void open(FILE *path);
 
     bool is_open();
 
@@ -320,7 +320,8 @@ private:
 #endif
     bool need_free = false;
     std::string filepath = "";
-    std::fstream *logger_file = nullptr;
+    // std::fstream *logger_file = nullptr;
+    FILE *logger_file = nullptr;
     std::mutex logger_file_mutex;
     size_t string_max_size = std::string().max_size();
 private:
@@ -328,7 +329,7 @@ private:
     static std::mutex logger_console_mutex;
 
 public:
-#if WIN32
+#ifdef WIN32
     static char path_split;
 #else
     static char path_split;

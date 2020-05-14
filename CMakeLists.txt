@@ -13,6 +13,7 @@ else ()
 endif ()
 
 include(cmake/MSVC.cmake)
+include(cmake/setCPP11.cmake)
 
 set(libTools_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
