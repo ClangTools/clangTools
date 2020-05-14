@@ -38,7 +38,7 @@ extern int c_vector_resize(c_vector *cVector, size_t count);
  * @param offset
  * @param count
  */
-extern int c_vector_push_back(c_vector *cVector, void *data, size_t offset, size_t count);
+extern int c_vector_push_back(c_vector *cVector, unsigned char*data, size_t offset, size_t count);
 
 /**
  * push zero to c_vector
@@ -75,14 +75,14 @@ extern size_t c_vector_insert(c_vector *cVector, size_t index, void *data, size_
  * @param offset
  * @return
  */
-extern void *c_vector_get(c_vector *cVector, size_t offset);
+extern unsigned char *c_vector_get(c_vector *cVector, size_t offset);
 
 /**
  * get c_vector data
  * @param cVector
  * @return
  */
-extern void *c_vector_data(c_vector *cVector);
+extern unsigned char *c_vector_data(c_vector *cVector);
 
 /**
  * c_vector delete
@@ -102,9 +102,9 @@ extern int c_vector_seek(c_vector *cVector, size_t offset, int whence);
 extern int c_vector_seekg(size_t offset,c_vector *cVector);
 extern int c_vector_skip(size_t offset,c_vector *cVector);
 
-extern size_t c_vector_read(void *p_buffer, size_t p_nb_bytes, c_vector *v);
+extern size_t c_vector_read(unsigned char *p_buffer, size_t p_nb_bytes, c_vector *v);
 
-extern size_t c_vector_write(void *p_buffer, size_t p_nb_bytes, c_vector *v);
+extern size_t c_vector_write(unsigned char *p_buffer, size_t p_nb_bytes, c_vector *v);
 
 
 #endif //CLANGTOOLS_VECTOR_H

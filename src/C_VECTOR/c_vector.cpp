@@ -5,7 +5,7 @@
 #include "c_vector.h"
 
 typedef struct c_vector {
-    void *items;
+    unsigned char *items;
     size_t total;
     size_t index;
 } c_vector;
@@ -15,7 +15,7 @@ typedef struct c_vector {
  * init
  * @param cVector
  */
-int c_vector_init(c_vector **cVector) {
+extern int c_vector_init(c_vector **cVector) {
     if (!cVector)return -1;
     if (NULL != (*cVector))return -2;
     *cVector = (c_vector *) malloc(sizeof(c_vector));
@@ -30,7 +30,7 @@ int c_vector_init(c_vector **cVector) {
  * @param cVector
  * @return
  */
-size_t c_vector_size(c_vector *cVector) {
+extern size_t c_vector_size(c_vector *cVector) {
     if (!cVector)return 0;
     return cVector->total;
 }
@@ -39,11 +39,11 @@ size_t c_vector_size(c_vector *cVector) {
  * resize c_vector
  * @param cVector
  */
-int c_vector_resize(c_vector *cVector, size_t count) {
-    void *items = NULL;
+extern int c_vector_resize(c_vector *cVector, size_t count) {
+    unsigned char *items = NULL;
     if (!cVector)return -1;
     if (cVector->items) {
-        items = (void *) realloc(cVector->items, sizeof(void) * count);
+        items = (unsigned char *) realloc(cVector->items, sizeof(unsigned char) * count);
         if (items) {
             cVector->items = items;
             cVector->total = count;
@@ -51,7 +51,7 @@ int c_vector_resize(c_vector *cVector, size_t count) {
         }
         return -1;
     } else {
-        cVector->items = (void *) malloc(sizeof(void) * count);
+        cVector->items = (unsigned char *) malloc(sizeof(unsigned char) * count);
         if (cVector->items == NULL) {
             return -1;
         } else {
@@ -68,7 +68,7 @@ int c_vector_resize(c_vector *cVector, size_t count) {
  * @param offset
  * @param count
  */
-int c_vector_push_back(c_vector *cVector, void *data, size_t offset, size_t count) {
+extern int c_vector_push_back(c_vector *cVector, unsigned char *data, size_t offset, size_t count) {
     size_t index, new_size;
     index = cVector->total;
     new_size = count + cVector->total;
@@ -85,7 +85,7 @@ int c_vector_push_back(c_vector *cVector, void *data, size_t offset, size_t coun
  * @param cVector
  * @return
  */
-int c_vector_push_back_zero(c_vector *cVector) {
+extern int c_vector_push_back_zero(c_vector *cVector) {
     unsigned char data[1] = {0};
     return c_vector_push_back(cVector, data, 0, 1);
 }
@@ -98,7 +98,7 @@ int c_vector_push_back_zero(c_vector *cVector) {
  * @param count
  * @return
  */
-size_t c_vector_set(c_vector *cVector, size_t index, void *data, size_t offset, size_t count) {
+extern size_t c_vector_set(c_vector *cVector, size_t index, unsigned char *data, size_t offset, size_t count) {
     if (cVector->total <= index || index + count >= cVector->total) {
         return 0;
     }
@@ -115,7 +115,7 @@ size_t c_vector_set(c_vector *cVector, size_t index, void *data, size_t offset, 
  * @param count
  * @return
  */
-size_t c_vector_insert(c_vector *cVector, size_t index, void *data, size_t offset, size_t count) {
+extern size_t c_vector_insert(c_vector *cVector, size_t index, unsigned char *data, size_t offset, size_t count) {
     size_t last_total;
     size_t len;
     size_t i;
@@ -143,7 +143,7 @@ size_t c_vector_insert(c_vector *cVector, size_t index, void *data, size_t offse
  * @param offset
  * @return
  */
-void *c_vector_get(c_vector *cVector, size_t offset) {
+extern unsigned char *c_vector_get(c_vector *cVector, size_t offset) {
     if (cVector->total <= offset) {
         return NULL;
     }
@@ -155,7 +155,7 @@ void *c_vector_get(c_vector *cVector, size_t offset) {
  * @param cVector
  * @return
  */
-void *c_vector_data(c_vector *cVector) {
+extern unsigned char *c_vector_data(c_vector *cVector) {
     return c_vector_get(cVector, 0);
 }
 
@@ -165,7 +165,7 @@ void *c_vector_data(c_vector *cVector) {
  * @param offset
  * @param count
  */
-size_t c_vector_delete(c_vector *cVector, size_t offset, size_t count) {
+extern size_t c_vector_delete(c_vector *cVector, size_t offset, size_t count) {
     if (cVector->total <= offset) {
         return 0;
     }
@@ -182,7 +182,7 @@ size_t c_vector_delete(c_vector *cVector, size_t offset, size_t count) {
  * free c_vector
  * @param cVector
  */
-void c_vector_free(c_vector **cVector) {
+extern void c_vector_free(c_vector **cVector) {
     if (!cVector)return;
     if (!*cVector)return;
     if ((*cVector)->items)free((*cVector)->items);
@@ -191,15 +191,15 @@ void c_vector_free(c_vector **cVector) {
     *cVector = NULL;
 }
 
-int c_vector_seekg(size_t offset, c_vector *cVector) {
+extern int c_vector_seekg(size_t offset, c_vector *cVector) {
     return c_vector_seek(cVector, offset, SEEK_SET);
 }
 
-int c_vector_skip(size_t offset, c_vector *cVector) {
+extern int c_vector_skip(size_t offset, c_vector *cVector) {
     return c_vector_seek(cVector, offset, SEEK_CUR);
 }
 
-int c_vector_seek(c_vector *cVector, size_t offset, int whence) {
+extern int c_vector_seek(c_vector *cVector, size_t offset, int whence) {
     if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END) {
         return -1;
     }
@@ -213,7 +213,7 @@ int c_vector_seek(c_vector *cVector, size_t offset, int whence) {
     return -1;
 }
 
-size_t c_vector_read(void *p_buffer, size_t p_nb_bytes, c_vector *v) {
+extern size_t c_vector_read(unsigned char *p_buffer, size_t p_nb_bytes, c_vector *v) {
     if (v->total - v->index < p_nb_bytes) {
         p_nb_bytes = v->total - v->index;
     }
@@ -222,7 +222,7 @@ size_t c_vector_read(void *p_buffer, size_t p_nb_bytes, c_vector *v) {
     return p_nb_bytes;
 }
 
-size_t c_vector_write(void *p_buffer, size_t p_nb_bytes,
+extern size_t c_vector_write(unsigned char *p_buffer, size_t p_nb_bytes,
                       c_vector *v) {
     if (v->index + p_nb_bytes > v->total) {
         c_vector_resize(v, v->index + p_nb_bytes);
