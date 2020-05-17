@@ -59,6 +59,8 @@ usb_tool::usb_tool(unsigned short vid, unsigned short pid) {
     if (ret < 0) {
         logger::instance()->e(TAG, __LINE__, "Failed to init libusb");
         ctx = nullptr;
+    } else {
+        // libusb_set_debug(ctx,LIBUSB_LOG_LEVEL_DEBUG);
     }
 }
 
@@ -87,35 +89,79 @@ bool usb_tool::Open() {
             continue;
         }
         if (desc.idVendor == vid && desc.idProduct == pid) {
+            logger::instance()->d(TAG, __LINE__, "find one device");
             ret = libusb_open(dev, &deviceHandle);
             if (ret < 0) {
                 logger::instance()->e(TAG, __LINE__, "Failed libusb_open: %d", ret);
                 break;
             }
+#if 0
 //#ifndef WIN32
-            libusb_detach_kernel_driver(deviceHandle, 0);
-//#endif
-            ret = libusb_claim_interface(deviceHandle, 0);
+            ret = libusb_kernel_driver_active(deviceHandle, 0);
             if (ret < 0) {
-                libusb_close(deviceHandle);
-                deviceHandle = nullptr;
-                break;
+                logger::instance()->d(TAG, __LINE__, "Failed libusb_kernel_driver_active: %d (%s)", ret,
+                                      libusb_error_name(ret));
             }
+            // ret = libusb_set_auto_detach_kernel_driver(deviceHandle, 1);
+            // if (ret < 0) {
+            //     logger::instance()->d(TAG, __LINE__, "Failed libusb_set_auto_detach_kernel_driver: %d (%s)", ret,
+            //                           libusb_error_name(ret));
+            // }
+            ret = libusb_detach_kernel_driver(deviceHandle, 0);
+            if (ret < 0) {
+                logger::instance()->d(TAG, __LINE__, "Failed libusb_detach_kernel_driver: %d (%s)", ret,
+                                      libusb_error_name(ret));
+            }
+//#endif
+
+            ret = libusb_set_configuration(deviceHandle, 0);
+            if (ret < 0) {
+                logger::instance()->d(__FILENAME__, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
+                                      libusb_error_name(ret));
+            }
+#endif
+
+// Detaching always fails as a regular user on FreeBSD
+// https://lists.freebsd.org/pipermail/freebsd-usb/2016-March/014161.html
+#ifndef __FreeBSD__
+            int result = libusb_set_auto_detach_kernel_driver(deviceHandle, 1);
+            if (result != 0)
+            {
+                result = libusb_detach_kernel_driver(deviceHandle, INTERFACE);
+                if (result < 0 && result != LIBUSB_ERROR_NOT_FOUND && result != LIBUSB_ERROR_NOT_SUPPORTED)
+                {
+                    logger::instance()->d(TAG, __LINE__, "Failed to detach kernel driver for BT passthrough: %s",
+                                libusb_error_name(result));
+                    // return false;
+                }
+            }
+#endif
+            // ret = libusb_set_configuration(deviceHandle, 0);
+            // if (ret < 0) {
+            //     logger::instance()->d(__FILENAME__, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
+            //                           libusb_error_name(ret));
+            // }
+            ret = libusb_claim_interface(deviceHandle, INTERFACE);
+            if (ret < 0) {
+                logger::instance()->d(TAG, __LINE__, "Failed libusb_claim_interface: %d (%s)", ret,
+                                      libusb_error_name(ret));
+            }
+
             logger::instance()->d(TAG, __LINE__, "bNumConfigurations: %d", desc.bNumConfigurations);
             struct libusb_config_descriptor *conf = nullptr;
             for (unsigned long j = 0; j < desc.bNumConfigurations; ++j) {
                 ret = libusb_get_config_descriptor(dev, j, &conf);
-                if (ret) {
+                if (LIBUSB_SUCCESS != ret) {
                     logger::instance()->e(TAG, __LINE__, "Couldn't get configuration "
                                                          "descriptor %lu, some information will "
                                                          "be missing", j);
                 } else {
-                    // printf("bNumberInterfaces = %5u\n", conf->bNumInterfaces);
-                    // printf("bConfigurationValue = %5u\n", conf->bConfigurationValue);
+                    logger::instance()->d(TAG, __LINE__, "bNumInterfaces: 0x%02X", conf->bNumInterfaces);
+                    logger::instance()->d(TAG, __LINE__, "bConfigurationValue: 0x%02X", conf->bConfigurationValue);
                     if (j == 0 && conf != nullptr) {
                         // usb_in_offset = usb_out_offset =
                         //        conf->interface->altsetting->endpoint->bEndpointAddress - LIBUSB_ENDPOINT_IN;
-                        logger::instance()->i(TAG, __LINE__, "bEndpointAddress: 0x%02X",
+                        logger::instance()->d(TAG, __LINE__, "bEndpointAddress: 0x%02X",
                                               conf->interface->altsetting->endpoint->bEndpointAddress);
                     }
                     libusb_free_config_descriptor(conf);
@@ -134,6 +180,11 @@ bool usb_tool::IsOpen() { return nullptr != deviceHandle; }
 
 void usb_tool::Close() {
     if (IsOpen()) {
+        // int ret = libusb_release_interface(deviceHandle, INTERFACE);
+        // if (ret < 0) {
+        //     logger::instance()->d(TAG, __LINE__, "Failed libusb_release_interface: %d (%s)", ret,
+        //                           libusb_error_name(ret));
+        // }
         libusb_close(deviceHandle);
     }
     deviceHandle = nullptr;
@@ -155,12 +206,12 @@ int usb_tool::send(std::vector<unsigned char> sData, int timeout) {
     int ret = 0;
     int actual_length = 0;
     do {
-        ret = libusb_bulk_transfer(deviceHandle,
-                                   LIBUSB_ENDPOINT_OUT + usb_out_offset,
-                                   sData.data(),
-                                   sData.size(),
-                                   &actual_length,
-                                   timeout);
+        ret = libusb_interrupt_transfer(deviceHandle,
+                                        LIBUSB_ENDPOINT_OUT + usb_out_offset,
+                                        sData.data(),
+                                        sData.size(),
+                                        &actual_length,
+                                        timeout);
         // logger::instance()->d(TAG, __LINE__, "LIBUSB_ENDPOINT_OUT:ret = %d ; actual_length=%d", ret, actual_length);
         if (ret != -1 && ret != -5) {
             is_out_update = true;
@@ -168,6 +219,9 @@ int usb_tool::send(std::vector<unsigned char> sData, int timeout) {
         }
         usb_out_offset++;
     } while (!is_out_update && usb_out_offset < 20);
+    if (ret < 0 || actual_length <= 0)
+        logger::instance()->d(TAG, __LINE__, "Failed libusb_interrupt_transfer: %d (%s);%d", ret,
+                              libusb_error_name(ret), actual_length);
     // logger::instance()->i(TAG, __LINE__, "LIBUSB_ENDPOINT_OUT:ret = %d ; actual_length=%d", ret, actual_length);
     return ret;
 }
@@ -183,12 +237,12 @@ int usb_tool::read(std::vector<unsigned char> &data, int max_size, int timeout) 
     int ret = 0;
     int actual_length = 0;
     do {
-        ret = libusb_bulk_transfer(deviceHandle,
-                                   LIBUSB_ENDPOINT_IN + usb_in_offset,
-                                   rData,
-                                   max_size,
-                                   &actual_length,
-                                   timeout);
+        ret = libusb_interrupt_transfer(deviceHandle,
+                                        LIBUSB_ENDPOINT_IN + usb_in_offset,
+                                        rData,
+                                        max_size,
+                                        &actual_length,
+                                        timeout);
         // logger::instance()->e(TAG, __LINE__, "LIBUSB_ENDPOINT_IN:ret = %d ; actual_length=%d", ret, actual_length);
         if (ret != -1 && ret != -5) {
             is_in_update = true;
@@ -198,6 +252,8 @@ int usb_tool::read(std::vector<unsigned char> &data, int max_size, int timeout) 
     } while (!is_in_update && usb_in_offset < 20);
     // logger::instance()->i(TAG, __LINE__, "LIBUSB_ENDPOINT_IN:ret = %d ; actual_length=%d", ret, actual_length);
     if (ret < 0) {
+        logger::instance()->d(TAG, __LINE__, "Failed libusb_interrupt_transfer: %d (%s)", ret,
+                              libusb_error_name(ret));
         delete[]rData;
         return ret;
     }

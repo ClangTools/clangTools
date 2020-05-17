@@ -51,7 +51,7 @@ logger::logger(FILE *path) {
 void logger::open(const char *path) {
     Free();
     if (path != nullptr) {
-        mk_dir(get_path_by_filepath(path));
+        mk_dir(get_path_by_filepath(path,false));
         d(__FILENAME__, __LINE__, "log save to %s", path);
         logger_file = fopen(path, "ab+");;
         need_free = true;
@@ -615,13 +615,13 @@ int logger::vscprintf(const char *format, va_list pargs) {
     return ret_val;
 }
 
-std::string logger::get_path_by_filepath(const std::string &filename) {
+std::string logger::get_path_by_filepath(const std::string &filename,bool check_exist) {
     if (filename.empty())return filename;
     std::string directory;
     const size_t last_slash_idx = filename.rfind(path_split);
     if (std::string::npos != last_slash_idx) {
         directory = filename.substr(0, last_slash_idx);
-        if (!is_dir(directory)) {
+        if (!is_dir(directory) && check_exist) {
             directory = get_path_by_filepath(directory);
         }
         return directory;

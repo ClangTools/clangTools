@@ -378,7 +378,7 @@ public:
 private:
     static int vscprintf(const char *format, va_list pargs);
 
-    static std::string get_path_by_filepath(const std::string &filename);
+    static std::string get_path_by_filepath(const std::string &filename,bool check_exist = true);
 
     static bool _sort_logfile(const std::string &v1, const std::string &v2);
 

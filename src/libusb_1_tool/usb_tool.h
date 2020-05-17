@@ -84,6 +84,7 @@ namespace clangTools {
         bool is_in_update = false;
         int usb_out_offset = 0;
         int usb_in_offset = 0;
+        int INTERFACE = 0x00;
     };
 }
 
