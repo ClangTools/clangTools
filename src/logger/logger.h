@@ -121,6 +121,12 @@ public:
     static std::string &
     replace_all_distinct(std::string &str, const std::string &old_value, const std::string &new_value);
 
+    static int g2u(char *buf, size_t buf_size, std::string &data);
+#ifndef WIN32
+    static int code_convert(char *from_charset, char *to_charset,
+                             char *inBuff, size_t inlen, char *outbuf, size_t outlen);
+#endif
+
 public:
     log_rank_t min_level = log_rank_NONE;
     bool console_show = false;

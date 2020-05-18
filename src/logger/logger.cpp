@@ -10,6 +10,11 @@
 #include <sys/time.h>
 
 #endif
+
+#ifdef ENABLE_ICONV
+#include <iconv.h>
+#endif
+
 using namespace std;
 
 #ifdef __FILENAME__
@@ -51,7 +56,7 @@ logger::logger(FILE *path) {
 void logger::open(const char *path) {
     Free();
     if (path != nullptr) {
-        mk_dir(get_path_by_filepath(path,false));
+        mk_dir(get_path_by_filepath(path, false));
         d(__FILENAME__, __LINE__, "log save to %s", path);
         logger_file = fopen(path, "ab+");;
         need_free = true;
@@ -615,7 +620,7 @@ int logger::vscprintf(const char *format, va_list pargs) {
     return ret_val;
 }
 
-std::string logger::get_path_by_filepath(const std::string &filename,bool check_exist) {
+std::string logger::get_path_by_filepath(const std::string &filename, bool check_exist) {
     if (filename.empty())return filename;
     std::string directory;
     const size_t last_slash_idx = filename.rfind(path_split);
@@ -716,6 +721,100 @@ string &logger::replace_all_distinct(string &str, const string &old_value, const
         } else { break; }
     }
     return str;
+}
+
+
+#ifndef WIN32
+#ifdef ENABLE_ICONV
+int logger::code_convert(char *from_charset, char *to_charset,
+                          char *inBuff, size_t inlen, char *outbuf, size_t outlen) {
+    iconv_t cd;
+    char **pin = &inBuff;
+    char **pout = &outbuf;
+#ifdef ARM64
+    char *errorInfo;
+    auto libm_handle = dlopen((logger::get_local_path() + logger::path_split + "preloadable_libiconv.so").c_str(),
+                              RTLD_LAZY);
+    iconv_t (*iconv_open)(const char *__tocode, const char *__fromcode) = nullptr;
+    int (*iconv_close)(iconv_t _cd);
+    size_t
+    (*iconv)(iconv_t __cd, char **__restrict __inbuf, size_t *__restrict __inbytesleft, char **__restrict __outbuf,
+             size_t *__restrict __outbytesleft);
+    if (!libm_handle) {
+        logger::instance()->d(__FILENAME__, __LINE__, "Open Error: %s.", dlerror());
+        return -1;
+    }
+    iconv_open = (iconv_t(*)(const char *__tocode, const char *__fromcode)) dlsym(libm_handle, "iconv_open");
+    errorInfo = dlerror();
+    if (errorInfo != nullptr) {
+        logger::instance()->d(__FILENAME__, __LINE__, "Dlsym Error:%s.", errorInfo);
+        return -2;
+    }
+    iconv = (size_t(*)(iconv_t __cd, char **__restrict __inbuf, size_t *__restrict __inbytesleft,
+                       char **__restrict __outbuf, size_t *__restrict __outbytesleft)) dlsym(libm_handle, "iconv");
+    iconv_close = (int (*)(iconv_t _cd)) dlsym(libm_handle, "iconv_close");
+
+#endif
+    cd = iconv_open(to_charset, from_charset);
+    if (cd == (iconv_t) -1) {
+        logger::instance()->d(__FILENAME__, __LINE__, "iconv failed:%s", dlerror());
+#ifdef ARM64
+        dlclose(libm_handle);
+#endif
+        return -1;
+    }
+    memset(outbuf, 0, outlen);
+    if (iconv(cd, pin, &inlen, pout, &outlen) == -1) {
+        logger::instance()->d(__FILENAME__, __LINE__, "errno=%d", errno);
+        logger::instance()->d(__FILENAME__, __LINE__, "iconv failed:%s", dlerror());
+        iconv_close(cd);
+#ifdef ARM64
+        dlclose(libm_handle);
+#endif
+        return -1;
+    }
+    iconv_close(cd);
+#ifdef ARM64
+    dlclose(libm_handle);
+#endif
+    return 0;
+}
+#endif
+#endif
+
+int logger::g2u(char *inbuf, size_t inlen, string &data) {
+    char *outbuf = new char[inlen * 2];
+    size_t outlen = inlen * 2;
+#ifdef WIN32
+    //获取所需缓冲区大小
+    int nUtf8Count = WideCharToMultiByte(CP_ACP, 0, (const wchar_t *) inbuf, inlen / 2, nullptr, 0, nullptr, nullptr);
+    if (nUtf8Count == 0) {
+        delete[] outbuf;
+        return -1;
+    }
+
+    //此处理解：wide char是windows对UTF16的存储实现，
+    //传递CP_UTF8是告诉【输出】的字节流为UTF8格式，
+    //这样函数内部就知道将UTF16的wide char转化成什么格式的字节流了
+    char *pUtf8Buff = new char[nUtf8Count];
+    WideCharToMultiByte(CP_ACP, 0, (const wchar_t *) inbuf, inlen / 2, pUtf8Buff, nUtf8Count, nullptr, nullptr);
+    memcpy(outbuf, pUtf8Buff, nUtf8Count);
+    outbuf[nUtf8Count] = 0;
+    delete[]pUtf8Buff;
+    delete[] outbuf;
+    return 0;
+#else
+#ifdef ENABLE_ICONV
+    int flag = code_convert((char *) "UTF-16LE", (char *) "UTF-8//TRANSLIT", inbuf, inlen, outbuf, outlen);
+    data = outbuf;
+
+    delete[] outbuf;
+    return flag;
+#else
+    delete[] outbuf;
+    return 0;
+#endif
+#endif
 }
 
 

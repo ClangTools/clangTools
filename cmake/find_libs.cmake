@@ -44,85 +44,95 @@ endif (ENABLE_X11)
 
 option(ENABLE_ICONV "option for ICONV" OFF)
 if (ENABLE_ICONV)
-    pkg_search_module(Iconv iconv)
-    if (Iconv_FOUND)
-    else ()
-        find_package(Iconv)
-    endif ()
-    if (Iconv_FOUND)
-    else ()
 
-        include(ExternalProject)
+    include(CheckSymbolExists)
+    # Check for macro SEEK_SET
+    check_symbol_exists(iconv_open "iconv.h" HAVE_iconv_open)
 
-        if (WIN32)
-            if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
-                if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
-                    set(CMAKE_GENERATOR_PLATFORM WIN64)
-                endif ()
-                set(G_CMAKE_GENERATOR_PLATFORM
-                        -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
-            elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
-                set(G_CMAKE_GENERATOR_PLATFORM
-                        -G "${CMAKE_GENERATOR}")
-            else ()
-                set(G_CMAKE_GENERATOR_PLATFORM
-                        -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
-            endif ()
-            # ExternalProject_Add(Iconv
-            #        URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
-            #        URL_MD5 "7d2a800b952942bb2880efb00cfd524c"
-            #        CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
-            #        PREFIX ${CMAKE_BINARY_DIR}/dependencies
-            #        INSTALL_DIR ${INSTALL_DIR}
-            #        BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build"
-            #        INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build" --target install
-            #        )
-        else ()
-            ExternalProject_Add(Iconv
-                    URL https://github.com/ClangTools/clangTools/releases/download/libiconv-1.16/libiconv-1.16.tar.gz
-                    URL_MD5 "7d2a800b952942bb2880efb00cfd524c"
-                    # CONFIGURE_COMMAND echo CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} <SOURCE_DIR>/configure --prefix=${CMAKE_BINARY_DIR}/dependencies --enable-static=yes --enable-shared=no
-                    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} <SOURCE_DIR>/configure --prefix=${CMAKE_BINARY_DIR}/dependencies --enable-static=yes --enable-shared=no
-                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                    PREFIX ${CMAKE_BINARY_DIR}/dependencies
-                    INSTALL_DIR ${INSTALL_DIR}
-                    BUILD_COMMAND ${MAKE}
-                    )
-        endif ()
-        set(Iconv_FOUND ON)
-        set(Iconv_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
-        set(prefix "lib")
-        if (WIN32)
-            # set(suffix "-d.lib")
-            set(suffix ".lib")
-            set(Iconv_LIBRARIES
-                    "${Iconv_LIB_DIR}/${prefix}charset${suffix}"
-                    "${Iconv_LIB_DIR}/${prefix}iconv${suffix}"
-                    )
-        else ()
-            set(suffix ".a")
-            set(Iconv_LIBRARIES
-                    "${Iconv_LIB_DIR}/${prefix}charset${suffix}"
-                    "${Iconv_LIB_DIR}/${prefix}iconv${suffix}"
-                    )
-        endif ()
-        include_directories(${CMAKE_BINARY_DIR}/dependencies/include/)
-        add_definitions(-DBUILDING_LIBICONV)
-        add_dependencies(${libTools_LIBRARIES} Iconv)
-    endif ()
-    if (Iconv_FOUND)
+    if (HAVE_iconv_open)
         set(ENABLE_ICONV ON)
         add_definitions(-DENABLE_ICONV)
-        if ("${Tools_Other_Project}" STREQUAL "ON")
-            message(STATUS "Iconv library status:")
-            message(STATUS "    version: ${Iconv_VERSION}")
-            message(STATUS "    libraries: ${Iconv_LIBRARY_NAMES}")
-            message(STATUS "    libraries: ${Iconv_LIBRARIES}")
-            message(STATUS "    lib_dir: ${Iconv_LIB_DIR}")
-            message(STATUS "    lib_dir: ${Iconv_LIBRARY_DIRS}")
-            message(STATUS "    include path: ${Iconv_INCLUDE_DIRS}")
+    else ()
+        pkg_search_module(Iconv iconv)
+        if (Iconv_FOUND)
+        else ()
+            find_package(Iconv)
         endif ()
-        link_directories(${Iconv_LIB_DIR})
+        if (Iconv_FOUND)
+        else ()
+
+            include(ExternalProject)
+
+            if (WIN32)
+                if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
+                    if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
+                        set(CMAKE_GENERATOR_PLATFORM WIN64)
+                    endif ()
+                    set(G_CMAKE_GENERATOR_PLATFORM
+                            -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
+                elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+                    set(G_CMAKE_GENERATOR_PLATFORM
+                            -G "${CMAKE_GENERATOR}")
+                else ()
+                    set(G_CMAKE_GENERATOR_PLATFORM
+                            -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
+                endif ()
+                # ExternalProject_Add(Iconv
+                #        URL https://github.com/curl/curl/archive/curl-7_67_0.tar.gz
+                #        URL_MD5 "7d2a800b952942bb2880efb00cfd524c"
+                #        CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DSTACK_DIRECTION=-1 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                #        PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                #        INSTALL_DIR ${INSTALL_DIR}
+                #        BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build"
+                #        INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/curl-build" --target install
+                #        )
+            else ()
+                ExternalProject_Add(Iconv
+                        URL https://github.com/ClangTools/clangTools/releases/download/libiconv-1.16/libiconv-1.16.tar.gz
+                        URL_MD5 "7d2a800b952942bb2880efb00cfd524c"
+                        # CONFIGURE_COMMAND echo CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} <SOURCE_DIR>/configure --prefix=${CMAKE_BINARY_DIR}/dependencies --enable-static=yes --enable-shared=no
+                        CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} <SOURCE_DIR>/configure --prefix=${CMAKE_BINARY_DIR}/dependencies --enable-static=yes --enable-shared=no
+                        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                        PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                        INSTALL_DIR ${INSTALL_DIR}
+                        BUILD_COMMAND ${MAKE}
+                        )
+            endif ()
+            set(Iconv_FOUND ON)
+            set(Iconv_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
+            set(prefix "lib")
+            if (WIN32)
+                # set(suffix "-d.lib")
+                set(suffix ".lib")
+                set(Iconv_LIBRARIES
+                        "${Iconv_LIB_DIR}/${prefix}charset${suffix}"
+                        "${Iconv_LIB_DIR}/${prefix}iconv${suffix}"
+                        )
+            else ()
+                set(suffix ".a")
+                set(Iconv_LIBRARIES
+                        "${Iconv_LIB_DIR}/${prefix}charset${suffix}"
+                        "${Iconv_LIB_DIR}/${prefix}iconv${suffix}"
+                        )
+            endif ()
+            include_directories(${CMAKE_BINARY_DIR}/dependencies/include/)
+            add_definitions(-DBUILDING_LIBICONV)
+            add_dependencies(${libTools_LIBRARIES} Iconv)
+        endif ()
+        if (Iconv_FOUND)
+            set(ENABLE_ICONV ON)
+            add_definitions(-DENABLE_ICONV)
+            if ("${Tools_Other_Project}" STREQUAL "ON")
+                message(STATUS "Iconv library status:")
+                message(STATUS "    version: ${Iconv_VERSION}")
+                message(STATUS "    libraries: ${Iconv_LIBRARY_NAMES}")
+                message(STATUS "    libraries: ${Iconv_LIBRARIES}")
+                message(STATUS "    lib_dir: ${Iconv_LIB_DIR}")
+                message(STATUS "    lib_dir: ${Iconv_LIBRARY_DIRS}")
+                message(STATUS "    include path: ${Iconv_INCLUDE_DIRS}")
+            endif ()
+            link_directories(${Iconv_LIB_DIR})
+        endif ()
     endif ()
 endif (ENABLE_ICONV)
 
@@ -314,66 +324,66 @@ endif (ENABLE_NCURSES)
 
 option(ENABLE_OpenJPEG "option for OpenJPEG" OFF)
 if (ENABLE_OpenJPEG)
-#    find_package(OpenJPEG)
-#    IF (OpenJPEG_FOUND)
-#        INCLUDE_DIRECTORIES(${OpenJPEG_INCLUDE_DIR})
-#    ELSE (OpenJPEG_FOUND)
-        include(ExternalProject)
+    #    find_package(OpenJPEG)
+    #    IF (OpenJPEG_FOUND)
+    #        INCLUDE_DIRECTORIES(${OpenJPEG_INCLUDE_DIR})
+    #    ELSE (OpenJPEG_FOUND)
+    include(ExternalProject)
 
-        if (WIN32)
-            if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
-                if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
-                    set(CMAKE_GENERATOR_PLATFORM WIN64)
-                endif ()
-                set(G_CMAKE_GENERATOR_PLATFORM
-                        -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
-            elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
-                set(G_CMAKE_GENERATOR_PLATFORM
-                        -G "${CMAKE_GENERATOR}")
-            else ()
-                set(G_CMAKE_GENERATOR_PLATFORM
-                        -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
+    if (WIN32)
+        if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
+            if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
+                set(CMAKE_GENERATOR_PLATFORM WIN64)
             endif ()
-            ExternalProject_Add(OpenJPEG
-                    URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
-                    URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
-                    CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
-                    PREFIX ${CMAKE_BINARY_DIR}/dependencies
-                    INSTALL_DIR ${INSTALL_DIR}
-                    BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build"
-                    INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build" --target install
-                    )
+            set(G_CMAKE_GENERATOR_PLATFORM
+                    -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
+        elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+            set(G_CMAKE_GENERATOR_PLATFORM
+                    -G "${CMAKE_GENERATOR}")
         else ()
-            ExternalProject_Add(OpenJPEG
-                    URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
-                    URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
-                    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
-                    PREFIX ${CMAKE_BINARY_DIR}/dependencies
-                    INSTALL_DIR ${INSTALL_DIR}
-                    BUILD_COMMAND ${MAKE}
-                    )
+            set(G_CMAKE_GENERATOR_PLATFORM
+                    -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
         endif ()
-        set(OpenJPEG_FOUND ON)
-        set(OpenJPEG_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
-        set(prefix "lib")
-        if (WIN32)
-            #            set(suffix "-d.lib")
-            set(suffix ".lib")
-            set(OpenJPEG_LIBRARIES
-                    "${OpenJPEG_LIB_DIR}/${prefix}openjp2${suffix}" ws2_32.lib winmm.lib wldap32.lib)
-        else ()
-            set(suffix ".a")
-            set(OpenJPEG_LIBRARIES "${OpenJPEG_LIB_DIR}/${prefix}openjp2${suffix}")
-        endif ()
-        set(OpenJPEG_LIBS ${OpenJPEG_LIBRARIES})
-        link_directories(${OpenJPEG_LIB_DIR})
-        set(OpenJPEG_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/dependencies/include/)
-        include_directories(${OpenJPEG_INCLUDE_DIRS})
-        add_definitions(-DBUILDING_LIBOpenJPEG)
+        ExternalProject_Add(OpenJPEG
+                URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
+                URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
+                CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                INSTALL_DIR ${INSTALL_DIR}
+                BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build"
+                INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build" --target install
+                )
+    else ()
+        ExternalProject_Add(OpenJPEG
+                URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
+                URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
+                CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                INSTALL_DIR ${INSTALL_DIR}
+                BUILD_COMMAND ${MAKE}
+                )
+    endif ()
+    set(OpenJPEG_FOUND ON)
+    set(OpenJPEG_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
+    set(prefix "lib")
+    if (WIN32)
+        #            set(suffix "-d.lib")
+        set(suffix ".lib")
+        set(OpenJPEG_LIBRARIES
+                "${OpenJPEG_LIB_DIR}/${prefix}openjp2${suffix}" ws2_32.lib winmm.lib wldap32.lib)
+    else ()
+        set(suffix ".a")
+        set(OpenJPEG_LIBRARIES "${OpenJPEG_LIB_DIR}/${prefix}openjp2${suffix}")
+    endif ()
+    set(OpenJPEG_LIBS ${OpenJPEG_LIBRARIES})
+    link_directories(${OpenJPEG_LIB_DIR})
+    set(OpenJPEG_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/dependencies/include/)
+    include_directories(${OpenJPEG_INCLUDE_DIRS})
+    add_definitions(-DBUILDING_LIBOpenJPEG)
 
-        add_dependencies(${libTools_LIBRARIES} OpenJPEG)
-        target_link_libraries(${libTools_LIBRARIES} ${OpenJPEG_LIBRARIES})
-#    ENDIF (OpenJPEG_FOUND)
+    add_dependencies(${libTools_LIBRARIES} OpenJPEG)
+    target_link_libraries(${libTools_LIBRARIES} ${OpenJPEG_LIBRARIES})
+    #    ENDIF (OpenJPEG_FOUND)
     if (OpenJPEG_FOUND)
         if ("${Tools_Other_Project}" STREQUAL "ON")
             message(STATUS "OpenJPEG library status:")
