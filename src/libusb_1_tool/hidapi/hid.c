@@ -44,7 +44,7 @@
 #include <wchar.h>
 
 /* GNU / LibUSB */
-#include <libusb.h>
+#include <libusb-1.0/libusb.h>
 #if !defined(__ANDROID__) && !defined(NO_ICONV)
 #include <iconv.h>
 #endif
@@ -166,7 +166,9 @@ struct hid_device_ {
 	pthread_t thread;
 	pthread_mutex_t mutex; /* Protects input_reports */
 	pthread_cond_t condition;
+#ifndef __APPLE__
 	pthread_barrier_t barrier; /* Ensures correct startup sequence */
+#endif
 	int shutdown_thread;
 	int cancelled;
 	struct libusb_transfer *transfer;
@@ -192,7 +194,9 @@ static hid_device *new_hid_device(void)
 
 	pthread_mutex_init(&dev->mutex, NULL);
 	pthread_cond_init(&dev->condition, NULL);
+#ifndef __APPLE__
 	pthread_barrier_init(&dev->barrier, NULL, 2);
+#endif
 
 	return dev;
 }
@@ -200,7 +204,9 @@ static hid_device *new_hid_device(void)
 static void free_hid_device(hid_device *dev)
 {
 	/* Clean up the thread objects */
+#ifndef __APPLE__
 	pthread_barrier_destroy(&dev->barrier);
+#endif
 	pthread_cond_destroy(&dev->condition);
 	pthread_mutex_destroy(&dev->mutex);
 
@@ -819,8 +825,10 @@ static void *read_thread(void *param)
 	   from inside read_callback() */
 	libusb_submit_transfer(dev->transfer);
 
+#ifndef __APPLE__
 	/* Notify the main thread that the read thread is up and running. */
 	pthread_barrier_wait(&dev->barrier);
+#endif
 
 	/* Handle all the events. */
 	while (!dev->shutdown_thread) {
@@ -980,8 +988,10 @@ hid_device * HID_API_EXPORT hid_open_path(const char *path)
 
 						pthread_create(&dev->thread, NULL, read_thread, dev);
 
+#ifndef __APPLE__
 						/* Wait here for the read thread to be initialized. */
 						pthread_barrier_wait(&dev->barrier);
+#endif
 
 					}
 					free(dev_path);

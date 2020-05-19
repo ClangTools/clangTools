@@ -12,7 +12,9 @@
 #endif
 
 #ifdef ENABLE_ICONV
+
 #include <iconv.h>
+
 #endif
 
 using namespace std;
@@ -354,6 +356,11 @@ void logger::d(const char *TAG, size_t line, const char *format, ...) {
     va_start(args, format);
     puts_info(log_rank_DEBUG, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
     va_end(args);
+}
+
+void logger::d(const char *TAG, size_t line, const char *tag_by_data, unsigned char *data, size_t data_len) {
+    if (min_level < log_rank_DEBUG)return;
+    puts_info((string(TAG) + ":" + to_string(line)).c_str(), tag_by_data, data, data_len, log_rank_DEBUG);
 }
 
 void logger::w(const char *TAG, size_t line, const char *format, ...) {
@@ -726,8 +733,9 @@ string &logger::replace_all_distinct(string &str, const string &old_value, const
 
 #ifndef WIN32
 #ifdef ENABLE_ICONV
+
 int logger::code_convert(char *from_charset, char *to_charset,
-                          char *inBuff, size_t inlen, char *outbuf, size_t outlen) {
+                         char *inBuff, size_t inlen, char *outbuf, size_t outlen) {
     iconv_t cd;
     char **pin = &inBuff;
     char **pout = &outbuf;
@@ -779,6 +787,7 @@ int logger::code_convert(char *from_charset, char *to_charset,
 #endif
     return 0;
 }
+
 #endif
 #endif
 
