@@ -1,5 +1,6 @@
 
 set(libTools_LIBRARIES Tools)
+set(libTools_LIBRARIES_CMAKE ON)
 
 find_path(libTools_DIR "libTools.cmake" DOC "Root directory of libTools")
 if (EXISTS "${libTools_DIR}/libTools.cmake")

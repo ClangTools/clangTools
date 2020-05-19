@@ -100,6 +100,7 @@ speed_t SerialPortUnix::getBaudrate(int baudrate) {
 
 int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parity, int stopBits, int flags) {
     if (path == nullptr)return -1;
+    if (std::string(path).find("ttyS0") != std::string::npos)return -1;
     speed_t speed;
     {
         speed = getBaudrate(baudrate);

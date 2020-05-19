@@ -330,39 +330,43 @@ if (ENABLE_OpenJPEG)
     #    ELSE (OpenJPEG_FOUND)
     include(ExternalProject)
 
-    if (WIN32)
-        if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
-            if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
-                set(CMAKE_GENERATOR_PLATFORM WIN64)
-            endif ()
-            set(G_CMAKE_GENERATOR_PLATFORM
-                    -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
-        elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
-            set(G_CMAKE_GENERATOR_PLATFORM
-                    -G "${CMAKE_GENERATOR}")
-        else ()
-            set(G_CMAKE_GENERATOR_PLATFORM
-                    -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
-        endif ()
-        ExternalProject_Add(OpenJPEG
-                URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
-                URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
-                CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
-                PREFIX ${CMAKE_BINARY_DIR}/dependencies
-                INSTALL_DIR ${INSTALL_DIR}
-                BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build"
-                INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build" --target install
-                )
+    if (libTools_LIBRARIES_CMAKE)
     else ()
-        ExternalProject_Add(OpenJPEG
-                URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
-                URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
-                CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
-                PREFIX ${CMAKE_BINARY_DIR}/dependencies
-                INSTALL_DIR ${INSTALL_DIR}
-                BUILD_COMMAND ${MAKE}
-                )
+        if (WIN32)
+            if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
+                if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
+                    set(CMAKE_GENERATOR_PLATFORM WIN64)
+                endif ()
+                set(G_CMAKE_GENERATOR_PLATFORM
+                        -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
+            elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+                set(G_CMAKE_GENERATOR_PLATFORM
+                        -G "${CMAKE_GENERATOR}")
+            else ()
+                set(G_CMAKE_GENERATOR_PLATFORM
+                        -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
+            endif ()
+            ExternalProject_Add(OpenJPEG
+                    URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
+                    URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
+                    CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                    PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                    INSTALL_DIR ${INSTALL_DIR}
+                    BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build"
+                    INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/OpenJPEG-build" --target install
+                    )
+        else ()
+            ExternalProject_Add(OpenJPEG
+                    URL https://github.com/ClangTools/openjpeg/archive/336835624ca4a040a9780beddbbb52a45916f1eb.zip
+                    URL_MD5 "00cfd5f465d4621bdc5a71bbea6f7662"
+                    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                    PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                    INSTALL_DIR ${INSTALL_DIR}
+                    BUILD_COMMAND ${MAKE}
+                    )
+        endif ()
     endif ()
+
     set(OpenJPEG_FOUND ON)
     set(OpenJPEG_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
     set(prefix "lib")
@@ -382,7 +386,10 @@ if (ENABLE_OpenJPEG)
     add_definitions(-DBUILDING_LIBOpenJPEG)
 
     add_dependencies(${libTools_LIBRARIES} OpenJPEG)
-    target_link_libraries(${libTools_LIBRARIES} ${OpenJPEG_LIBRARIES})
+    if (libTools_LIBRARIES_CMAKE)
+    else ()
+        target_link_libraries(${libTools_LIBRARIES} ${OpenJPEG_LIBRARIES})
+    endif ()
     #    ENDIF (OpenJPEG_FOUND)
     if (OpenJPEG_FOUND)
         if ("${Tools_Other_Project}" STREQUAL "ON")
