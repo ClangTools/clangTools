@@ -120,7 +120,7 @@ class BMP
     /**
      * 写入到流
      */
-    bool WriteBmp(unsigned char *BmpPath);
+    int WriteBmp(unsigned char *BmpPath);
 };
 } // namespace clangTools
 

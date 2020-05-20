@@ -449,7 +449,7 @@ namespace clangTools {
 /**
  * 写入到文件
  */
-    bool BMP::WriteBmp(unsigned char *BmpPath) {
+    int BMP::WriteBmp(unsigned char *BmpPath) {
         if (Data == NULL) {
             return false;
         }
@@ -505,8 +505,8 @@ namespace clangTools {
         unsigned long size = GetDataSize();
 
         memcpy(&BmpPath[offset], Data, size);
-        offset += size;
-        return true;
+        // offset += size;
+        return offset += size;
     }
 
 } // namespace clangTools
