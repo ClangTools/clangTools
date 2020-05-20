@@ -157,6 +157,9 @@ if (ENABLE_FILENAME)
     include(cmake/redefine_filename.cmake)
 endif ()
 
+include_directories(
+        ${OpenJPEG_INCLUDE_DIRS}
+)
 
 target_compile_definitions(
         ${libTools_LIBRARIES}
