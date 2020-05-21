@@ -30,24 +30,16 @@
 #include <dlib/opencv.h>
 #include <opencv2/opencv.hpp>
 #include <dlib/image_processing/frontal_face_detector.h>
-#include <dlib/image_processing/render_face_detections.h>
 #include <dlib/image_processing.h>
-#include <dlib/gui_widgets.h>
 #include <src/logger/logger.h>
 #include <opencv_tool.h>
 
 using namespace dlib;
+using namespace cv;
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
     try {
-        cv::VideoCapture cap(0);
-        if (!cap.isOpened()) {
-            cerr << "Unable to connect to camera" << endl;
-            return 1;
-        }
-
-        image_window win;
         logger::instance()->init_default();
 
         // Load face detection and pose estimation models.
@@ -57,38 +49,33 @@ int main() {
         deserialize("shape_predictor_5_face_landmarks.dat") >> pose_model;
 
         // Grab and process frames until the main window is closed by the user.
-        while (!win.is_closed()) {
-            // Grab a frame
-            cv::Mat temp;
-            if (!cap.read(temp)) {
-                break;
-            }
-            auto start = logger::get_time_tick();
-            resize(temp, temp, cv::Size(320, 180));
-            // opencv_tool::rotate180(temp);
-            // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
-            // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
-            // long as temp is valid.  Also don't do anything to temp that would cause it
-            // to reallocate the memory which stores the image as that will make cimg
-            // contain dangling pointers.  This basically means you shouldn't modify temp
-            // while using cimg.
-            cv_image<bgr_pixel> cimg(temp);
-            logger::instance()->i(__FILENAME__, __LINE__, "%lld", logger::get_time_tick() - start);
-            // Detect faces
-            std::vector<rectangle> faces = detector(cimg);
-            logger::instance()->d(__FILENAME__, __LINE__, "%lld : faces.size() : %lu", logger::get_time_tick() - start,
-                                  faces.size());
-            // Find the pose of each face.
-            std::vector<full_object_detection> shapes;
-            for (unsigned long i = 0; i < faces.size(); ++i)
-                shapes.push_back(pose_model(cimg, faces[i]));
-            logger::instance()->d(__FILENAME__, __LINE__, "%lld", logger::get_time_tick() - start);
+        // Grab a frame
+        cv::Mat temp = imread(argc == 2 ? argv[1] : "headPose.jpg", IMREAD_ANYCOLOR);
 
-            // Display it all on the screen
-            win.clear_overlay();
-            win.set_image(cimg);
-            win.add_overlay(render_face_detections(shapes));
-        }
+        auto start = logger::get_time_tick();
+        resize(temp, temp, cv::Size(320, 180));
+        // opencv_tool::rotate180(temp);
+
+        // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
+        // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
+        // long as temp is valid.  Also don't do anything to temp that would cause it
+        // to reallocate the memory which stores the image as that will make cimg
+        // contain dangling pointers.  This basically means you shouldn't modify temp
+        // while using cimg.
+        cv_image<bgr_pixel> cimg(temp);
+
+        logger::instance()->i(__FILENAME__, __LINE__, "%lld", logger::get_time_tick() - start);
+        // Detect faces
+        std::vector<dlib::rectangle> faces = detector(cimg, 0);
+        logger::instance()->d(__FILENAME__, __LINE__, "%lld : faces.size() : %lu", logger::get_time_tick() - start,
+                              faces.size());
+        // Find the pose of each face.
+        std::vector<full_object_detection> shapes;
+        for (unsigned long i = 0; i < faces.size(); ++i)
+            shapes.push_back(pose_model(cimg, faces[i]));
+        logger::instance()->d(__FILENAME__, __LINE__, "%lld", logger::get_time_tick() - start);
+
+        // Display it all on the screen
     }
     catch (serialization_error &e) {
         cout << "You need dlib's default face landmarking model file to run this example." << endl;

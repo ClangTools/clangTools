@@ -100,9 +100,9 @@ if (ENABLE_DLIB)
     option(ENABLE_DLIB_5_FACE_LANDMARKS "option for dlib Shape_predictor_5_face_landmarks" ON)
     if (ENABLE_DLIB_5_FACE_LANDMARKS)
         file(DOWNLOAD
-                https://github.com/ClangTools/clangTools/releases/download/shape_predictor_5_face_landmarks/shape_predictor_5_face_landmarks.dat.tar.gz
-                ${CMAKE_BINARY_DIR}/Shape_predictor_5_face_landmarks.dat.tar.gz
-                TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "d41d8cd98f00b204e9800998ecf8427e"
+                https://github.com/ClangTools/clangTools/releases/download/Shape_predictor_5_face_landmarks/shape_predictor_5_face_landmarks.dat.tar.gz
+                ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
+                TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "012111443d6c4430af2e44f67604bbc1"
                 )
         add_custom_target(UnpackingShape_predictor_5_face_landmarks ALL)
         add_custom_command(TARGET UnpackingShape_predictor_5_face_landmarks PRE_BUILD
