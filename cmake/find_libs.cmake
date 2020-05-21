@@ -406,3 +406,117 @@ if (ENABLE_OpenJPEG)
     endif ()
 ENDIF (ENABLE_OpenJPEG)
 
+option(ENABLE_DLIB "option for dlib" OFF)
+if (ENABLE_DLIB)
+    find_package(dlib QUIET)
+    IF (dlib_FOUND)
+        INCLUDE_DIRECTORIES(${dlib_INCLUDE_DIR})
+    ELSE (dlib_FOUND)
+        include(ExternalProject)
+
+        if (libTools_LIBRARIES_CMAKE)
+        else ()
+            if (WIN32)
+                if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 16 2019")
+                    if (${CMAKE_GENERATOR_PLATFORM} STREQUAL "")
+                        set(CMAKE_GENERATOR_PLATFORM WIN64)
+                    endif ()
+                    set(G_CMAKE_GENERATOR_PLATFORM
+                            -G "${CMAKE_GENERATOR}" -A "${CMAKE_GENERATOR_PLATFORM}")
+                elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+                    set(G_CMAKE_GENERATOR_PLATFORM
+                            -G "${CMAKE_GENERATOR}")
+                else ()
+                    set(G_CMAKE_GENERATOR_PLATFORM
+                            -G "${CMAKE_GENERATOR} ${CMAKE_GENERATOR_PLATFORM}")
+                endif ()
+                ExternalProject_Add(dlib
+                        URL https://github.com/davisking/dlib/archive/v19.19.tar.gz
+                        URL_MD5 "94ec18c4f31c6c3b9af15306af1867ee"
+                        CONFIGURE_COMMAND cmake -DCMAKE_BUILD_TYPE=RELEASE ${G_CMAKE_GENERATOR_PLATFORM} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${ToolsCmakePath}/MSVC.cmake -DDLIB_USE_BLAS=OFF -DDLIB_USE_LAPACK=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                        PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                        INSTALL_DIR ${INSTALL_DIR}
+                        BUILD_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/dlib-build"
+                        INSTALL_COMMAND cmake --build "${CMAKE_BINARY_DIR}/dependencies/src/dlib-build" --target install
+                        )
+            else ()
+                ExternalProject_Add(dlib
+                        URL https://github.com/davisking/dlib/archive/v19.19.tar.gz
+                        URL_MD5 "94ec18c4f31c6c3b9af15306af1867ee"
+                        CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} cmake -DCMAKE_BUILD_TYPE=RELEASE -DDLIB_USE_BLAS=OFF -DDLIB_USE_LAPACK=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/dependencies -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} <SOURCE_DIR>
+                        PREFIX ${CMAKE_BINARY_DIR}/dependencies
+                        INSTALL_DIR ${INSTALL_DIR}
+                        BUILD_COMMAND ${MAKE}
+                        )
+            endif ()
+        endif ()
+
+        set(dlib_FOUND ON)
+        set(dlib_LIB_DIR "${CMAKE_BINARY_DIR}/dependencies/lib")
+        set(prefix "lib")
+        if (WIN32)
+            #            set(suffix "-d.lib")
+            set(suffix ".lib")
+            set(dlib_LIBRARIES
+                    "${dlib_LIB_DIR}/${prefix}dlib${suffix}")
+        else ()
+            set(suffix ".a")
+            set(dlib_LIBRARIES "${dlib_LIB_DIR}/${prefix}dlib${suffix}")
+
+
+
+
+
+        endif ()
+        find_package(GIF QUIET)
+        if (GIF_FOUND)
+            set (dlib_needed_includes ${dlib_needed_includes} ${GIF_INCLUDE_DIR})
+            set (dlib_needed_libraries ${dlib_needed_libraries} ${GIF_LIBRARY})
+        endif()
+        find_package(PNG QUIET)
+        if(PNG_FOUND)
+            set (dlib_needed_includes ${dlib_needed_includes} ${PNG_INCLUDE_DIR})
+            set (dlib_needed_libraries ${dlib_needed_libraries} ${PNG_LIBRARY})
+        endif()
+        find_package(JPEG QUIET)
+        if(JPEG_FOUND)
+            set (dlib_needed_includes ${dlib_needed_includes} ${JPEG_INCLUDE_DIR})
+            set (dlib_needed_libraries ${dlib_needed_libraries} ${JPEG_LIBRARY})
+        endif()
+        find_package(OpenMP)
+        if (OPENMP_FOUND)
+            set(openmp_libraries ${OpenMP_CXX_FLAGS})
+            set (dlib_needed_libraries ${dlib_needed_libraries} ${openmp_libraries})
+        endif()
+
+
+        set(dlib_LIBS ${dlib_LIBRARIES} ${dlib_needed_libraries})
+
+
+        link_directories(${dlib_LIB_DIR})
+        set(dlib_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/dependencies/include/)
+        include_directories(${dlib_INCLUDE_DIRS})
+        add_definitions(-DBUILDING_LIBDLIB)
+
+        add_dependencies(${libTools_LIBRARIES} dlib)
+        if (libTools_LIBRARIES_CMAKE)
+        else ()
+            target_link_libraries(${libTools_LIBRARIES} ${dlib_LIBRARIES})
+        endif ()
+        #    ENDIF (dlib_FOUND)
+        if (dlib_FOUND)
+            if ("${Tools_Other_Project}" STREQUAL "ON")
+                message(STATUS "dlib library status:")
+                message(STATUS "    version: ${dlib_VERSION}")
+                message(STATUS "    libraries: ${dlib_LIBS}")
+                message(STATUS "    libraries: ${dlib_LIBRARIES}")
+                message(STATUS "    lib_dir: ${dlib_LIB_DIR}")
+                message(STATUS "    include path: ${dlib_INCLUDE_DIRS}")
+            endif ()
+            add_definitions(-DENABLE_DLIB=ON)
+        else ()
+            set(${dlib_LIBRARIES} "")
+        endif ()
+    endif ()
+ENDIF (ENABLE_DLIB)
+

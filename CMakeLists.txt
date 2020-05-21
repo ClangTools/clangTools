@@ -82,6 +82,7 @@ else ()
 endif ()
 option(ENABLE_OPENCV "option for OpenCV" OFF)
 if (ENABLE_OPENCV)
+    add_definitions(-DCV__ENABLE_C_API_CTORS)
 else ()
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*CameraTool")
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*freetype_tool")
@@ -172,7 +173,7 @@ endif ()
 target_link_libraries(${libTools_LIBRARIES}
         ${OpenCV_LIBS} ${FREETYPE_LIBRARIES} ${LIBUSB_1_LIBRARIES}
         ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${X11_LIBRARIES} ${GTK3_LIBRARIES} ${NCURSES_LIBRARIES}
-        ${OpenJPEG_LIBRARIES}
+        ${OpenJPEG_LIBRARIES} ${dlib_LIBRARIES}
         )
 target_link_libraries(${libTools_LIBRARIES} ${Iconv_LIBRARIES})
 

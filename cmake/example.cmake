@@ -14,6 +14,12 @@ if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
         list(FILTER ExampleSourceSrc EXCLUDE REGEX ".*i2c\\.cpp")
     endif ()
 
+    option(ENABLE_DLIB "option for dlib" OFF)
+    if (ENABLE_DLIB)
+    else ()
+        list(FILTER ExampleSourceSrc EXCLUDE REGEX ".*dlib\\.cpp")
+    endif ()
+
     option(ENABLE_OpenJPEG "option for OpenJPEG" OFF)
     if (ENABLE_OpenJPEG)
     else ()

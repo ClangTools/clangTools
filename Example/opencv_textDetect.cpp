@@ -15,7 +15,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
     logger::instance()->init_default();
 
-    string faceXml = logger::get_local_path() + "/../data/haarcascades/haarcascade_frontalface_alt2.xml";
+    string faceXml = logger::get_local_path() + "/data/haarcascades/haarcascade_frontalface_alt2.xml";
     opencv_tool::instance()->init(faceXml);
     logger::instance()->d(__FILENAME__, __LINE__, "CascadeClassifier load : %s",
                           (opencv_tool::instance()->isLoad() ? "true" : "false"));
