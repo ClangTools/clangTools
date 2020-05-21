@@ -106,15 +106,15 @@ if (ENABLE_DLIB)
                 )
         add_custom_target(UnpackingShape_predictor_5_face_landmarks ALL)
         add_custom_command(TARGET UnpackingShape_predictor_5_face_landmarks PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/Shape_predictor_5_face_landmarks.dat
-                COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_BINARY_DIR}/Shape_predictor_5_face_landmarks.dat.tar.gz
+                COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat
+                COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                DEPENDS ${CMAKE_BINARY_DIR}/Shape_predictor_5_face_landmarks.dat.tar.gz
-                COMMENT "Unpacking Shape_predictor_5_face_landmarks.dat"
+                DEPENDS ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
+                COMMENT "Unpacking shape_predictor_5_face_landmarks.dat"
                 VERBATIM)
 
         install(FILES
-                ${CMAKE_BINARY_DIR}/Shape_predictor_5_face_landmarks.dat
+                ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat
                 DESTINATION bin
                 )
     else ()
