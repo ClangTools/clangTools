@@ -97,47 +97,50 @@ endif (ENABLE_HZK)
 
 option(ENABLE_DLIB "option for dlib" OFF)
 if (ENABLE_DLIB)
-    option(ENABLE_DLIB_5_FACE_LANDMARKS "option for dlib Shape_predictor_5_face_landmarks" ON)
-    if (ENABLE_DLIB_5_FACE_LANDMARKS)
-        file(DOWNLOAD
-                https://github.com/ClangTools/clangTools/releases/download/Shape_predictor_5_face_landmarks/shape_predictor_5_face_landmarks.dat.tar.gz
-                ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
-                TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "012111443d6c4430af2e44f67604bbc1"
-                )
-        add_custom_target(UnpackingShape_predictor_5_face_landmarks ALL)
-        add_custom_command(TARGET UnpackingShape_predictor_5_face_landmarks PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat
-                COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                DEPENDS ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
-                COMMENT "Unpacking shape_predictor_5_face_landmarks.dat"
-                VERBATIM)
+    option(ENABLE_DLIB_FACE_LANDMARKS "option for ENABLE_DLIB_FACE_LANDMARKS" OFF)
+    if (ENABLE_DLIB_FACE_LANDMARKS)
+        option(ENABLE_DLIB_5_FACE_LANDMARKS "option for dlib Shape_predictor_5_face_landmarks" ON)
+        if (ENABLE_DLIB_5_FACE_LANDMARKS)
+            file(DOWNLOAD
+                    https://github.com/ClangTools/clangTools/releases/download/Shape_predictor_5_face_landmarks/shape_predictor_5_face_landmarks.dat.tar.gz
+                    ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
+                    TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "012111443d6c4430af2e44f67604bbc1"
+                    )
+            add_custom_target(UnpackingShape_predictor_5_face_landmarks ALL)
+            add_custom_command(TARGET UnpackingShape_predictor_5_face_landmarks PRE_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat
+                    COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                    DEPENDS ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat.tar.gz
+                    COMMENT "Unpacking shape_predictor_5_face_landmarks.dat"
+                    VERBATIM)
 
-        install(FILES
-                ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat
-                DESTINATION bin
-                )
-    else ()
-        file(DOWNLOAD
-                https://github.com/ClangTools/clangTools/releases/download/shape_predictor_68_face_landmarks/shape_predictor_68_face_landmarks.dat.tar.gz
-                ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat.tar.gz
-                TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "4ea78ffbb6b0c4d2e5fba9be71d93e9a"
-                )
-        add_custom_target(UnpackingShape_predictor_68_face_landmarks ALL)
-        add_custom_command(TARGET UnpackingShape_predictor_68_face_landmarks PRE_BUILD
-                COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat
-                COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat.tar.gz
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                DEPENDS ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat.tar.gz
-                COMMENT "Unpacking shape_predictor_68_face_landmarks.dat"
-                VERBATIM)
+            install(FILES
+                    ${CMAKE_BINARY_DIR}/shape_predictor_5_face_landmarks.dat
+                    DESTINATION bin
+                    )
+        else ()
+            file(DOWNLOAD
+                    https://github.com/ClangTools/clangTools/releases/download/shape_predictor_68_face_landmarks/shape_predictor_68_face_landmarks.dat.tar.gz
+                    ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat.tar.gz
+                    TIMEOUT 120 INACTIVITY_TIMEOUT 120 SHOW_PROGRESS EXPECTED_MD5 "4ea78ffbb6b0c4d2e5fba9be71d93e9a"
+                    )
+            add_custom_target(UnpackingShape_predictor_68_face_landmarks ALL)
+            add_custom_command(TARGET UnpackingShape_predictor_68_face_landmarks PRE_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat
+                    COMMAND ${CMAKE_COMMAND} -E tar xjf ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat.tar.gz
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                    DEPENDS ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat.tar.gz
+                    COMMENT "Unpacking shape_predictor_68_face_landmarks.dat"
+                    VERBATIM)
 
-        install(FILES
-                ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat
-                DESTINATION bin
-                )
+            install(FILES
+                    ${CMAKE_BINARY_DIR}/shape_predictor_68_face_landmarks.dat
+                    DESTINATION bin
+                    )
 
-    endif ()
+        endif ()
+    endif (ENABLE_DLIB_FACE_LANDMARKS)
 endif (ENABLE_DLIB)
 
 

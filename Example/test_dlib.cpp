@@ -62,7 +62,9 @@ int main(int argc, char *argv[]) {
         // to reallocate the memory which stores the image as that will make cimg
         // contain dangling pointers.  This basically means you shouldn't modify temp
         // while using cimg.
-        cv_image<bgr_pixel> cimg(temp);
+        // cv_image<bgr_pixel> cimg(temp);
+        IplImage ipl_img = cvIplImage(temp);
+        dlib::cv_image<dlib::bgr_pixel> cimg(&ipl_img);
 
         logger::instance()->i(__FILENAME__, __LINE__, "%lld", logger::get_time_tick() - start);
         // Detect faces
