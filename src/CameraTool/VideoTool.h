@@ -4,13 +4,8 @@
 
 #ifndef ELECTRONICDEVICE_VIDEOTOOL_H
 #define ELECTRONICDEVICE_VIDEOTOOL_H
-
-#include <opencv2/opencv.hpp>
-#include <v4l2Tool.h>
-
 #include <string>
 #include <vector>
-#include <logger.h>
 struct VideoInfo {
     /**
      * 摄像头名
@@ -33,6 +28,12 @@ struct VideoInfo {
      */
     int index;
 };
+#ifdef ENABLE_OPENCV
+
+#include <opencv2/opencv.hpp>
+#include <v4l2Tool.h>
+
+#include <logger.h>
 
 class VideoTool {
 public:
@@ -79,4 +80,10 @@ private:
 };
 
 
+#else
+
+class VideoTool {
+
+};
+#endif
 #endif //ELECTRONICDEVICE_VIDEOTOOL_H

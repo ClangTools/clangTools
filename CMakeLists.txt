@@ -84,7 +84,6 @@ option(ENABLE_OPENCV "option for OpenCV" OFF)
 if (ENABLE_OPENCV)
     add_definitions(-DCV__ENABLE_C_API_CTORS)
 else ()
-    list(FILTER srcSourceHeader EXCLUDE REGEX ".*CameraTool")
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*freetype_tool")
 endif ()
 option(ENABLE_FREETYPE "option for FREETYPE" OFF)
@@ -103,7 +102,7 @@ else ()
 endif ()
 
 include_directories(
-        .
+#        .
         ./src
         ${srcSourceHeader}
 )
