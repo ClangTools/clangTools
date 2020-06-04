@@ -9,13 +9,14 @@
 #include <Hzk_Font.h>
 #include <opencv_tool.h>
 #include <thread_pool.h>
+#include <ConfigTool.h>
 
 using namespace std;
 using namespace cv;
 
 
-const char *_province = "广东";
-const char *_cityName = "深圳";
+string _province = "广东";
+string _cityName = "深圳";
 json11::Json weather_data;
 
 /**
@@ -123,11 +124,11 @@ void OledShowNew(Mat *srcImg) {
                 last_get_weather_time = logger::get_time_tick() + 5 * 60 * 1000;
 
                 get_weather_task.commit([]() -> void {
-                    auto _weather_data = getWeather(_province, _cityName);
+                    auto _weather_data = getWeather(_province.c_str(), _cityName.c_str());
                     if (weather_data["observe"].is_object()) {
                         logger::instance()->i(__FILENAME__, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
-                                              _province,
-                                              _cityName,
+                                              _province.c_str(),
+                                              _cityName.c_str(),
                                               weather_data["observe"]["degree"].string_value().c_str(),
                                               weather_data["observe"]["humidity"].string_value().c_str(),
                                               weather_data["observe"]["weather"].string_value().c_str()
@@ -250,12 +251,17 @@ int main() {
     logger::instance()->i(__FILENAME__, __LINE__, "start");
     cv::Mat srcImg(64, 128, CV_8UC3, cv::Scalar(255, 255, 255)); // create a black background
 
-    weather_data = getWeather(_province, _cityName);
+    ConfigTool configTool((logger::get_local_path() + logger::path_split + "oled.ini").c_str());
+
+    _province = configTool.Get("main", "province", _province);
+    _province = configTool.Get("main", "cityName", _cityName);
+
+    weather_data = getWeather(_province.c_str(), _cityName.c_str());
 
     if (weather_data["observe"].is_object())
         logger::instance()->i(__FILENAME__, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
-                              _province,
-                              _cityName,
+                              _province.c_str(),
+                              _cityName.c_str(),
                               weather_data["observe"]["degree"].string_value().c_str(),
                               weather_data["observe"]["humidity"].string_value().c_str(),
                               weather_data["observe"]["weather"].string_value().c_str()

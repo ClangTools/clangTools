@@ -2,6 +2,7 @@
 // Created by k on 2019/10/22.
 //
 
+#ifdef ENABLE_OPENCV
 #include "VideoTool.h"
 
 using namespace cv;
@@ -103,3 +104,4 @@ bool VideoTool::Close() {
 cv::VideoCapture VideoTool::GetCap() {
     return cap;
 }
+#endif

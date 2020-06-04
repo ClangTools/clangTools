@@ -2,6 +2,7 @@
 // Created by caesar kekxv on 2020/4/16.
 //
 
+#include <SerialPort.h>
 #include <SerialPortUnix.h>
 #include <logger.h>
 
@@ -14,14 +15,13 @@ int main(int argc, char *argv[]) {
     SerialPortUnix serialPortUnix;
     serialPortUnix.open(argv[1], 115200, 8, 'n', 1, 0);
     if (serialPortUnix.is_open()) {
-        serialPortUnix.write({0x1a, 0x25, 0xc1, 0x11});
+        serialPortUnix.write({0xA1, 0x4D, 0x21, 0x11, 0x00, 0xED});
         std::vector<unsigned char> data;
         auto start = logger::get_time_tick();
-        int ret = serialPortUnix.read(data);
+        int ret = serialPortUnix.read(data,500);
         auto end = logger::get_time_tick();
-        data.erase(data.end() - 1);
-        data.push_back(0);
-        logger::instance()->i(__FILENAME__, __LINE__, "read size : %d ; %s ; %lld", ret, data.data(), end - start);
+        logger::instance()->d(__FILENAME__, __LINE__, "read", data.data(), data.size());
+        logger::instance()->i(__FILENAME__, __LINE__, "read size : %d ; %lld", ret, end - start);
     }
     serialPortUnix.close();
     return 0;

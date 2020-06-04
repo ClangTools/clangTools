@@ -113,15 +113,15 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
 
     /* Opening device */
     {
-        logger::instance()->d(__FILENAME__, __LINE__, "Opening serial port %s with flags 0x%x", path,
-                              O_RDWR | O_NOCTTY | O_NONBLOCK | flags);
-        fd = ::open(path, O_RDWR | flags);
+        fd = ::open(path, O_RDWR | O_NOCTTY | O_NONBLOCK | flags);
         if (fd == -1) {
             /* Throw an exception */
             logger::instance()->e(__FILENAME__, __LINE__, "Cannot open port");
             /* TODO: throw an exception */
             return -1;
         }
+        logger::instance()->d(__FILENAME__, __LINE__, "Opening serial port %s with flags 0x%x", path,
+                              O_RDWR | O_NOCTTY | O_NONBLOCK | flags);
     }
 
     /* Configure device */
@@ -151,8 +151,6 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
                 cfg.c_cflag |= CS7;    //使用7位数据位
                 break;
             case 8:
-                cfg.c_cflag |= CS8;    //使用8位数据位
-                break;
             default:
                 cfg.c_cflag |= CS8;
                 break;
@@ -160,15 +158,18 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
 
         switch (parity) {
             case 'O':
+            case 'o':
                 cfg.c_cflag |= (PARODD | PARENB);   //奇校验
                 break;
             case 'E':
+            case 'e':
                 cfg.c_iflag &= ~(IGNPAR | PARMRK); // 偶校验
                 cfg.c_iflag |= INPCK;
                 cfg.c_cflag |= PARENB;
                 cfg.c_cflag &= ~PARODD;
                 break;
             case 'N':
+            case 'n':
             default:
                 cfg.c_cflag &= ~PARENB;
                 break;
