@@ -11,12 +11,14 @@
 #include <cstdio>
 
 #ifdef _WIN32
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
 #include <getopt.h>
 #include <io.h>
 #include <fcntl.h>
+
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
 #endif
@@ -39,11 +41,10 @@ string web_root;
 
 int init_win_socket() {
 #ifdef WIN32
+    WORD wVersionRequested;
     WSADATA wsaData;
-    if(WSAStartup(MAKEWORD(2,2) , &wsaData) != 0)
-    {
-        return -1;
-    }
+    wVersionRequested = MAKEWORD(2, 2);
+    WSAStartup(wVersionRequested, &wsaData);
 #endif
     return 0;
 }
@@ -137,6 +138,9 @@ guess_content_type(const char *path) {
 
 //指定generic callback
 void generic_handler(evhttp_request *req, void *) {
+#ifdef WIN32
+    return ;
+#endif
     struct evbuffer *buf = evbuffer_new();
     if (!buf) {
         puts("failed to create response buffer \n");
@@ -155,7 +159,6 @@ void generic_handler(evhttp_request *req, void *) {
         evhttp_send_error(req, HTTP_BADREQUEST, 0);
         return;
     }
-
     /* Let's see what path the user asked for. */
     path = evhttp_uri_get_path(decoded);
     if (!path) path = "/";
@@ -180,7 +183,7 @@ void generic_handler(evhttp_request *req, void *) {
 		 * sent via sendfile */
         const char *type = guess_content_type(decoded_path);
         int fd;
-        if ((fd = open(whole_path, O_RDONLY)) < 0) {
+        if ((fd = open(whole_path, O_RDONLY | O_BINARY)) < 0) {
             perror("open");
             goto err;
         }
@@ -193,7 +196,10 @@ void generic_handler(evhttp_request *req, void *) {
         }
         evhttp_add_header(evhttp_request_get_output_headers(req),
                           "Content-Type", type);
+
+        printf("%s:%d %d\n", __FILE__, __LINE__,st.st_size);
         evbuffer_add_file(buf, fd, 0, st.st_size);
+        printf("%s:%d\n", __FILE__, __LINE__);
     }
     goto done;
     err:
