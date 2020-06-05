@@ -6,6 +6,10 @@
 #define KPROXYCPP_KPROXY_H
 
 #ifdef WIN32
+#include <WinSock2.h>
+#endif
+
+#ifdef WIN32
 #ifdef _Tools_HEADER_
 #define _Tools_HEADER_Export  __declspec(dllexport)
 #else

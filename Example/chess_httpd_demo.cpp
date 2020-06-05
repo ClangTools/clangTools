@@ -1,8 +1,8 @@
 //
 // Created by caesar kekxv on 2020/6/5.
 //
-#include <logger.h>
 #include <kHttpd.h>
+#include <logger.h>
 #include <kHttpdClient.h>
 #include <opencv2/opencv.hpp>
 #include <json11/json11.hpp>
@@ -15,8 +15,8 @@ using namespace cv;
 vector<Vec2f> FindChess(const Mat &srcImage, Mat &image_copy) {
     Mat midImage, dstImage;//临时变量和目标图的定义
 
-    Rect rect(250, 0, 1205, 1080);   //创建一个Rect框，属于cv中的类，四个参数代表x,y,width,height
-    Mat image_cut = Mat(srcImage, rect);      //从img中按照rect进行切割，此时修改image_cut时image中对应部分也会修改，因此需要copy
+    // Rect rect(250, 0, 1205, 1080);   //创建一个Rect框，属于cv中的类，四个参数代表x,y,width,height
+    Mat image_cut = srcImage.clone();      //从img中按照rect进行切割，此时修改image_cut时image中对应部分也会修改，因此需要copy
     image_copy = image_cut.clone();   //clone函数创建新的图片
     Mat midImage2;
     Mat image_copy2;
@@ -40,15 +40,14 @@ vector<Vec2f> FindChess(const Mat &srcImage, Mat &image_copy) {
 
     vector<Vec2f> xys;
     //【5】依次在图中绘制出圆
-    for (auto & i : circles)
-    {
+    for (auto &i : circles) {
         Point center(cvRound(i[0]), cvRound(i[1]));
         int radius = cvRound(i[2]);
         int x = round((center.x - 64.4) / 122.5);
         int y = round((center.y - 94.16) / 114.4);
         //int newx=x*rotMat
         // cout << "矩阵坐标  " << x+4 << "," << y+4 << ";\n" << endl;
-        xys.emplace_back(x+4, y+4);
+        xys.emplace_back(x + 4, y + 4);
         //绘制圆心
         circle(midImage, center, 3, Scalar(0, 255, 0), -1, 8, 0);
         //绘制圆轮廓
@@ -69,8 +68,13 @@ int main(int argc, char *argv[]) {
     kHttpd::Init();
     int thread_num = 20;
     auto web_root =
-            logger::get_local_path() + logger::path_split + ".." + logger::path_split + "Example" + logger::path_split +
-            "WebRoot";
+            logger::get_local_path() + logger::path_split + "WebRoot";
+    if (!logger::exists(web_root)) {
+        web_root =
+                logger::get_local_path() + logger::path_split + ".." + logger::path_split + "Example" +
+                logger::path_split +
+                "WebRoot";
+    }
     kHttpd kChess(web_root.c_str(), thread_num);
 
     kChess.set_cb("POST", "/FindChess",

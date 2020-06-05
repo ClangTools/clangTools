@@ -234,8 +234,10 @@ long int kekxv::socket::read(std::vector<unsigned char> &data, int flags, bool i
 #else
         ret = ::recv(fd, buf, 512, flags);
 #endif
-        if (ret <= 0)
+        if (ret <= 0) {
+            logger::instance()->e(TAG, __LINE__, "%d", ret);
             return 0;
+        }
         data.insert(data.end(), &buf[0], &buf[ret]);
         if (ret != 512) {
             break;
