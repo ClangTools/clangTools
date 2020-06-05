@@ -12,12 +12,17 @@
 using namespace std;
 using namespace cv;
 
-vector<Vec3f> FindChess(const Mat &srcImage, Mat &image_copy) {
-    //【1】载入原始图和Mat变量定义
+vector<Vec2f> FindChess(const Mat &srcImage, Mat &image_copy) {
     Mat midImage, dstImage;//临时变量和目标图的定义
-    //【2】显示原始图
-    Mat image_cut = Mat(srcImage);      //从img中按照rect进行切割，此时修改image_cut时image中对应部分也会修改，因此需要copy
+
+    Rect rect(250, 0, 1205, 1080);   //创建一个Rect框，属于cv中的类，四个参数代表x,y,width,height
+    Mat image_cut = Mat(srcImage, rect);      //从img中按照rect进行切割，此时修改image_cut时image中对应部分也会修改，因此需要copy
     image_copy = image_cut.clone();   //clone函数创建新的图片
+    Mat midImage2;
+    Mat image_copy2;
+    cv::transpose(image_copy, image_copy2);
+    cv::flip(image_copy2, image_copy2, 1);
+    //flip(image_copy2, image_copy,-1);
     //【3】转为灰度图，进行图像平滑
     cvtColor(image_copy, midImage, COLOR_BGR2GRAY);//灰度化
     //二值化
@@ -25,26 +30,35 @@ vector<Vec3f> FindChess(const Mat &srcImage, Mat &image_copy) {
     //使用3*3内核来降噪
     blur(midImage, midImage, Size(3, 3));//进行模糊
     //GaussianBlur(midImage, midImage, Size(9, 9), 2, 2);
+    cv::transpose(midImage, midImage2);
+    cv::flip(midImage2, midImage2, 1);
     //【4】进行霍夫圆变换
     vector<Vec3f> circles;
     //  HoughCircles(midImage, circles, CV_HOUGH_GRADIENT, 1.5, 10, 200, 100, 0, 0);
     //      第五个参数   圆的圆心之间的最小距离
-    HoughCircles(midImage, circles, HOUGH_GRADIENT, 1.5, 35, 100, 25, 36, 43);
+    HoughCircles(midImage2, circles, HOUGH_GRADIENT, 1.5, 70, 100, 25, 36, 43);
 
+    vector<Vec2f> xys;
     //【5】依次在图中绘制出圆
-    for (auto &i : circles) {
+    for (auto & i : circles)
+    {
         Point center(cvRound(i[0]), cvRound(i[1]));
         int radius = cvRound(i[2]);
+        int x = round((center.x - 64.4) / 122.5);
+        int y = round((center.y - 94.16) / 114.4);
+        //int newx=x*rotMat
+        // cout << "矩阵坐标  " << x+4 << "," << y+4 << ";\n" << endl;
+        xys.emplace_back(x+4, y+4);
         //绘制圆心
         circle(midImage, center, 3, Scalar(0, 255, 0), -1, 8, 0);
         //绘制圆轮廓
         circle(midImage, center, radius, Scalar(155, 50, 255), 3, 8, 0);
         //绘制圆心
-        circle(image_copy, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+        circle(image_copy2, center, 3, Scalar(0, 255, 0), -1, 8, 0);
         //绘制圆轮廓
-        circle(image_copy, center, radius, Scalar(155, 50, 255), 3, 8, 0);
+        circle(image_copy2, center, radius, Scalar(155, 50, 255), 3, 8, 0);
     }
-    return circles;
+    return xys;
 }
 
 int main(int argc, char *argv[]) {
@@ -95,7 +109,7 @@ int main(int argc, char *argv[]) {
                           outJson.push_back({
                                                     {"x", i[0]},
                                                     {"y", i[1]},
-                                                    {"r", i[2]},
+                                                    // {"r", i[2]},
                                             });
                       }
                       Json["data"] = outJson;
