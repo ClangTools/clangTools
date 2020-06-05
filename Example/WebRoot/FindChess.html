@@ -33,6 +33,8 @@
         }
 
         function FindChess(e) {
+            document.querySelector(".img").src = "";
+            document.querySelector(".log").innerHTML = "";
             if (e.files.length !== 1) return;
             getBase64(e.files[0], function (code, data) {
                 // console.log(code, data);
@@ -54,6 +56,7 @@
 FindChess:
 <div>
     <input type="file" onchange="FindChess(this)">
+    <button onclick="FindChess(document.querySelector('input'))"> 执行 </button>
     <hr/>
     输出：
     <br/>

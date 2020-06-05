@@ -174,7 +174,7 @@ endif ()
 target_link_libraries(${libTools_LIBRARIES}
         ${OpenCV_LIBS} ${FREETYPE_LIBRARIES} ${LIBUSB_1_LIBRARIES}
         ${dl_LIBRARIES} ${OPENSSL_LIBRARIES} ${X11_LIBRARIES} ${GTK3_LIBRARIES} ${NCURSES_LIBRARIES}
-        ${OpenJPEG_LIBRARIES} ${dlib_LIBRARIES}
+        ${OpenJPEG_LIBRARIES} ${dlib_LIBRARIES} ${libevent_LIBRARIES} ${LIBEVENT_LIBRARIES}
         )
 target_link_libraries(${libTools_LIBRARIES} ${Iconv_LIBRARIES})
 
