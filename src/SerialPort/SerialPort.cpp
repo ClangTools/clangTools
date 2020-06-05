@@ -133,12 +133,10 @@ void SerialPort::Free() {
     CloseHandle(hCom);
     hCom = nullptr;
 #else
-    logger::instance()->d(__FILENAME__, __LINE__, "old_flag");
     if (old_flag)
         if ((tcsetattr(hCom, TCSAFLUSH, &oldtio)) != 0) {
             logger::instance()->e(__FILENAME__, __LINE__, "SetupSerial com set error %s", strerror(errno));
         }
-    logger::instance()->d(__FILENAME__, __LINE__, "old_flag");
     ::close(hCom);
     _is_open = false;
 #endif

@@ -10,7 +10,9 @@
 
 class net_tool {
 public:
-    static int GetIP(std::vector<std::string> &ip,bool hasIpv6 = false);
+    static const char *TAG;
+
+    static int GetIP(std::vector<std::string> &ip, bool hasIpv6 = false);
 };
 
 

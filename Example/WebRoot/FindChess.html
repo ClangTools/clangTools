@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>FindChess</title>
+    <script src="./MiniAjax.js"></script>
+    <script>
+        function getBase64(file, cb) {
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                cb && cb(0, reader.result);
+            };
+            reader.onerror = function (error) {
+                cb && cb(-1, 'Error: ', error);
+            };
+        }
+
+        function FindChessEnd(data, code) {
+            if (code !== 200) return;
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+
+            }
+            if (data.error !== 0) {
+                alert("操作失败：" + data.error);
+                return;
+            }
+            document.querySelector(".img").src = data.image;
+            delete data.image;
+            document.querySelector(".log").innerHTML = JSON.stringify(data);
+        }
+
+        function FindChess(e) {
+            if (e.files.length !== 1) return;
+            getBase64(e.files[0], function (code, data) {
+                // console.log(code, data);
+                if (0 === code) {
+                    new MiniAjax({
+                        url: "/FindChess",
+                        type: "POST",
+                        contentType: "text/json",
+                        data: JSON.stringify({image: data}),
+                        success: FindChessEnd,
+                        error: console.log,
+                    }).Send();
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+FindChess:
+<div>
+    <input type="file" onchange="FindChess(this)">
+    <hr/>
+    输出：
+    <br/>
+    <div class="log" style="padding: 1em;"></div>
+
+    <hr/>
+    <img class="img"/>
+</div>
+</body>
+</html>

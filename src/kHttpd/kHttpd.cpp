@@ -126,14 +126,14 @@ int kHttpd::listen(int listen_count, unsigned short port, const char *ip) {
         return fd;
     }
 
-    _logger->d(__FILENAME__, __LINE__, " root : %s", web_root_path.c_str());
+    _logger->d(TAG, __LINE__, " root : %s", web_root_path.c_str());
     if (ip == std::string("0.0.0.0")) {
         std::vector<std::string> ips;
         net_tool::GetIP(ips);
         for (auto _ip:ips)
-            _logger->i(__FILENAME__, __LINE__, " http://%s:%d", _ip.c_str(), port);
+            _logger->i(TAG, __LINE__, " http://%s:%d", _ip.c_str(), port);
     }
-    _logger->i(__FILENAME__, __LINE__, " http://%s:%d", ip, port);
+    _logger->i(TAG, __LINE__, " http://%s:%d", ip, port);
     //    std::thread _poll_check_run(poll_check_run, this);
 
     do {

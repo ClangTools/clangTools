@@ -2,6 +2,12 @@
 #include <logger.h>
 
 namespace clangTools {
+
+#ifdef __FILENAME__
+    const char *BMP::TAG = __FILENAME__;
+#else
+    const char *BMP::TAG = "BMP";
+#endif
 /**
  * 初始化
  */
@@ -69,7 +75,7 @@ namespace clangTools {
         unsigned long size = ((width * GetBitPerPixel() / 8 + 3) / 4 * 4 * height);
         colors = (unsigned char *) malloc(size);
         if (colors == nullptr) {
-            logger::instance()->d(__FILENAME__,__LINE__, "开辟内存失败.");
+            logger::instance()->d(TAG,__LINE__, "开辟内存失败.");
             return false;
         }
         int _index = (GetBitPerPixel() / 8);
@@ -141,7 +147,7 @@ namespace clangTools {
         int size = ((width * BitPerPixel / 8 + 3) / 4 * 4 * height);
         Data = (unsigned char *) malloc(size * sizeof(unsigned char));
         if (Data == nullptr) {
-            logger::instance()->d(__FILENAME__,__LINE__, "开辟内存失败.");
+            logger::instance()->d(TAG,__LINE__, "开辟内存失败.");
             return false;
         }
         memcpy(Data, data, size * sizeof(unsigned char));
@@ -155,93 +161,93 @@ namespace clangTools {
         FILE *fp_bmp = nullptr;
         fp_bmp = fopen(BmpPath, "rb");
         if (fp_bmp == nullptr) {
-            logger::instance()->d(__FILENAME__,__LINE__, "文件打开失败.");
+            logger::instance()->d(TAG,__LINE__, "文件打开失败.");
             return false;
         }
         if (fread(&Head.identity, sizeof(Head.identity), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (Head.identity != 0x4d42) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fread(&Head.file_size, sizeof(Head.file_size), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fread(&Head.reserved1, sizeof(Head.reserved1), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fread(&Head.reserved2, sizeof(Head.reserved2), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fread(&Head.data_offset, sizeof(Head.data_offset), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
 
         if (fread(&Info.header_size, sizeof(Info.header_size), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.width, sizeof(Info.width), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.height, sizeof(Info.height), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.planes, sizeof(Info.planes), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.bit_per_pixel, sizeof(Info.bit_per_pixel), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.compression, sizeof(Info.compression), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.data_size, sizeof(Info.data_size), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.hresolution, sizeof(Info.hresolution), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.vresolution, sizeof(Info.vresolution), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.used_colors, sizeof(Info.used_colors), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fread(&Info.important_colors, sizeof(Info.important_colors), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
 
@@ -253,14 +259,14 @@ namespace clangTools {
         Data = (unsigned char *) malloc(size);
         if (Data == NULL) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "开辟内存失败.");
+            logger::instance()->d(TAG,__LINE__, "开辟内存失败.");
             return false;
         }
         if (fread(Data, sizeof(unsigned char), size, fp_bmp) < size) {
             fclose(fp_bmp);
             free(Data);
             Data = NULL;
-            logger::instance()->d(__FILENAME__,__LINE__, "像素读取失败.");
+            logger::instance()->d(TAG,__LINE__, "像素读取失败.");
             return false;
         }
         fclose(fp_bmp);
@@ -276,7 +282,7 @@ namespace clangTools {
         offset += sizeof(Head.identity);
 
         if (Head.identity != 0x4d42) {
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         memcpy(&Head.file_size, &BmpPath[offset], sizeof(Head.file_size));
@@ -331,7 +337,7 @@ namespace clangTools {
         unsigned long size = GetDataSize();
         Data = (unsigned char *) malloc(size);
         if (Data == NULL) {
-            logger::instance()->d(__FILENAME__,__LINE__, "开辟内存失败.");
+            logger::instance()->d(TAG,__LINE__, "开辟内存失败.");
             return false;
         }
 
@@ -350,96 +356,96 @@ namespace clangTools {
         FILE *fp_bmp = NULL;
         fp_bmp = fopen(BmpPath, "wb");
         if (fp_bmp == NULL) {
-            logger::instance()->d(__FILENAME__,__LINE__, "文件打开失败.");
+            logger::instance()->d(TAG,__LINE__, "文件打开失败.");
             return false;
         }
 
         if (fwrite(&Head.identity, sizeof(Head.identity), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fwrite(&Head.file_size, sizeof(Head.file_size), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fwrite(&Head.reserved1, sizeof(Head.reserved1), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fwrite(&Head.reserved2, sizeof(Head.reserved2), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
         if (fwrite(&Head.data_offset, sizeof(Head.data_offset), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP文件头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP文件头失败.");
             return false;
         }
 
         if (fwrite(&Info.header_size, sizeof(Info.header_size), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.width, sizeof(Info.width), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.height, sizeof(Info.height), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.planes, sizeof(Info.planes), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.bit_per_pixel, sizeof(Info.bit_per_pixel), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.compression, sizeof(Info.compression), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.data_size, sizeof(Info.data_size), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.hresolution, sizeof(Info.hresolution), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.vresolution, sizeof(Info.vresolution), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.used_colors, sizeof(Info.used_colors), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
         if (fwrite(&Info.important_colors, sizeof(Info.important_colors), 1, fp_bmp) < 1) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "读取BMP信息头失败.");
+            logger::instance()->d(TAG,__LINE__, "读取BMP信息头失败.");
             return false;
         }
 
         unsigned long size = GetDataSize();
         if (fwrite(Data, sizeof(unsigned char), size, fp_bmp) < size) {
             fclose(fp_bmp);
-            logger::instance()->d(__FILENAME__,__LINE__, "像素写入失败.");
+            logger::instance()->d(TAG,__LINE__, "像素写入失败.");
             return false;
         }
         fclose(fp_bmp);

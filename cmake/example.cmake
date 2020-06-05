@@ -6,7 +6,7 @@ if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
     )
 
 
-    FILE(GLOB ExampleSourceSrc "${CMAKE_CURRENT_LIST_DIR}/../Example/*")
+    FILE(GLOB ExampleSourceSrc "${CMAKE_CURRENT_LIST_DIR}/../Example/*.c*")
 
     option(ENABLE_I2C "option for I2C tool" OFF)
     if (ENABLE_I2C)
@@ -43,6 +43,7 @@ if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
     else ()
         list(FILTER ExampleSourceSrc EXCLUDE REGEX ".*opencv.*\\.cpp")
         list(FILTER ExampleSourceSrc EXCLUDE REGEX ".*gtk3\\.cpp")
+        list(FILTER ExampleSourceSrc EXCLUDE REGEX "chess_httpd_demo\\.cpp")
     endif ()
     option(ENABLE_LIBUSB1 "option for libusb-1.0 tool" OFF)
     if (ENABLE_LIBUSB1)
