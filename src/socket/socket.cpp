@@ -95,7 +95,7 @@ int socket::listen(short port, const char *ip, int listen_count) {
     ::listen(fd, listen_count);
 #endif
 
-    _logger->d(__FILENAME__, __LINE__, " tcp://%s:%d", ip, port);
+    _logger->d(TAG, __LINE__, " tcp://%s:%d", ip, port);
 
     return fd;
 }

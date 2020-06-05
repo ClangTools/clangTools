@@ -29,6 +29,11 @@
 
 #include <logger.h>
 
+#ifdef __FILENAME__
+const char *net_tool::TAG = __FILENAME__;
+#else
+const char *net_tool::TAG = "net_tool";
+#endif
 int net_tool::GetIP(std::vector<std::string> &ips, bool hasIpv6) {
 #ifdef __unix__
     int domains[] = {AF_INET, AF_INET6};
@@ -42,25 +47,25 @@ int net_tool::GetIP(std::vector<std::string> &ips, bool hasIpv6) {
         int j;
         s = socket(domain, SOCK_STREAM, 0);
         if (s < 0) {
-            logger::instance()->e(__FILENAME__, __LINE__, "socket : %s", strerror(errno));
+            logger::instance()->e(TAG, __LINE__, "socket : %s", strerror(errno));
             return 0;
         }
         ifconf.ifc_buf = (char *) ifr;
         ifconf.ifc_len = sizeof ifr;
         if (ioctl(s, SIOCGIFCONF, &ifconf) == -1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "ioctl : %s", strerror(errno));
+            logger::instance()->e(TAG, __LINE__, "ioctl : %s", strerror(errno));
             return 0;
         }
         ifs = ifconf.ifc_len / sizeof(ifr[0]);
-        // logger::instance()->d(__FILENAME__, __LINE__, "interfaces = %d ", ifs);
+        // logger::instance()->d(TAG, __LINE__, "interfaces = %d ", ifs);
         for (j = 0; j < ifs; j++) {
             char ip[INET_ADDRSTRLEN];
             auto *s_in = (struct sockaddr_in *) &ifr[j].ifr_addr;
             if (!inet_ntop(domain, &s_in->sin_addr, ip, sizeof(ip))) {
-                // logger::instance()->e(__FILENAME__, __LINE__, "inet_ntop : %s", strerror(errno));
+                // logger::instance()->e(TAG, __LINE__, "inet_ntop : %s", strerror(errno));
                 continue;
             }
-            // logger::instance()->d(__FILENAME__, __LINE__, "%s : %s", ifr[j].ifr_name, ip);
+            // logger::instance()->d(TAG, __LINE__, "%s : %s", ifr[j].ifr_name, ip);
             ips.emplace_back(ip);
         }
         close(s);

@@ -59,7 +59,7 @@ void logger::open(const char *path) {
     Free();
     if (path != nullptr) {
         mk_dir(get_path_by_filepath(path, false));
-        d(__FILENAME__, __LINE__, "log save to %s", path);
+        d(L_TAG, __LINE__, "log save to %s", path);
         logger_file = fopen(path, "ab+");;
         need_free = true;
         // logger_file->open(path, ios::app);
@@ -101,7 +101,7 @@ void logger::Free() {
 void logger::WriteToFile(const std::string &data) {
     std::lock_guard<std::mutex> guard(logger_file_mutex);
     if (!is_open()) {
-        //printf("%s:%d\n", __FILENAME__, __LINE__);
+        //printf("%s:%d\n", L_TAG, __LINE__);
         return;
     }
     fwrite(data.c_str(), data.size(), 1, logger_file);
@@ -749,13 +749,13 @@ int logger::code_convert(char *from_charset, char *to_charset,
     (*iconv)(iconv_t __cd, char **__restrict __inbuf, size_t *__restrict __inbytesleft, char **__restrict __outbuf,
              size_t *__restrict __outbytesleft);
     if (!libm_handle) {
-        logger::instance()->d(__FILENAME__, __LINE__, "Open Error: %s.", dlerror());
+        logger::instance()->d(L_TAG, __LINE__, "Open Error: %s.", dlerror());
         return -1;
     }
     iconv_open = (iconv_t(*)(const char *__tocode, const char *__fromcode)) dlsym(libm_handle, "iconv_open");
     errorInfo = dlerror();
     if (errorInfo != nullptr) {
-        logger::instance()->d(__FILENAME__, __LINE__, "Dlsym Error:%s.", errorInfo);
+        logger::instance()->d(L_TAG, __LINE__, "Dlsym Error:%s.", errorInfo);
         return -2;
     }
     iconv = (size_t(*)(iconv_t __cd, char **__restrict __inbuf, size_t *__restrict __inbytesleft,
@@ -765,7 +765,7 @@ int logger::code_convert(char *from_charset, char *to_charset,
 #endif
     cd = iconv_open(to_charset, from_charset);
     if (cd == (iconv_t) -1) {
-        logger::instance()->d(__FILENAME__, __LINE__, "iconv failed:%s", dlerror());
+        logger::instance()->d(L_TAG, __LINE__, "iconv failed:%s", dlerror());
 #ifdef ARM64
         dlclose(libm_handle);
 #endif
@@ -773,8 +773,8 @@ int logger::code_convert(char *from_charset, char *to_charset,
     }
     memset(outbuf, 0, outlen);
     if (iconv(cd, pin, &inlen, pout, &outlen) == -1) {
-        logger::instance()->d(__FILENAME__, __LINE__, "errno=%d", errno);
-        logger::instance()->d(__FILENAME__, __LINE__, "iconv failed:%s", dlerror());
+        logger::instance()->d(L_TAG, __LINE__, "errno=%d", errno);
+        logger::instance()->d(L_TAG, __LINE__, "iconv failed:%s", dlerror());
         iconv_close(cd);
 #ifdef ARM64
         dlclose(libm_handle);

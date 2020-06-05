@@ -61,6 +61,7 @@ class BMP
     unsigned char *Data;
 
   public:
+    static const char *TAG;
     /**
      * 初始化
      */
