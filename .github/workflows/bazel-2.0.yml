@@ -16,4 +16,4 @@ jobs:
 
       - name: run
         uses: ngalaiko/bazel-action@2.0.0
-          run: cmake --build build-ubuntu
+          run: bazel build //...
