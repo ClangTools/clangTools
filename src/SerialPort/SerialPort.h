@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#pragma region 宏定义
+#pragma region define_value
 #ifndef DTR_CONTROL_HANDSHAKE
 #define DTR_CONTROL_HANDSHAKE 0x02
 #endif // !DTR_CONTROL_HANDSHAKE
@@ -61,7 +61,7 @@ public:
     static int GetList(int sList[], int len);
 
     /// <summary>
-    /// 初始化
+    /// init
     /// </summary>
     int InitNum(int PortNum) {
         string com = R"(\\.\COM)" + to_string(PortNum);
@@ -221,19 +221,19 @@ private:
     bool _is_open{};
 #endif
 
-    int EvtChar = -1;           //每个字节有8位
-    int EofChar = -1;           //每个字节有8位
+    int EvtChar = -1;           //every one byte is 8
+    int EofChar = -1;           //every one byte is 8
 
-    unsigned char fRtsControl = RTS_CONTROL_HANDSHAKE;           //每个字节有8位
-    unsigned char fDtrControl = DTR_CONTROL_HANDSHAKE;           //每个字节有8位
+    unsigned char fRtsControl = RTS_CONTROL_HANDSHAKE;           //every one byte is 8
+    unsigned char fDtrControl = DTR_CONTROL_HANDSHAKE;           //every one byte is 8
 #ifdef WIN32
     unsigned long baudtate = 115200;
-    unsigned char byteSize = 8;           //每个字节有8位
-    unsigned char parity = NOPARITY;// NOPARITY;	 //无校验位
-    unsigned char stopBits = ONESTOPBIT;// ONESTOPBIT; //1个停止位
+    unsigned char byteSize = 8;           //every one byte is 8
+    unsigned char parity = NOPARITY;// NOPARITY;	 // no parity
+    unsigned char stopBits = ONESTOPBIT;// ONESTOPBIT; //1 stop
 #else
     SerialPort::BaudRate baudtate = SerialPort::BaudRate::BR115200;
-    SerialPort::DataBits byteSize = SerialPort::DataBits::DataBits8;           //每个字节有8位
+    SerialPort::DataBits byteSize = SerialPort::DataBits::DataBits8;           //every one byte is 8
     SerialPort::Parity parity = SerialPort::Parity::ParityNone;
     SerialPort::StopBits stopBits = SerialPort::StopBits::StopBits1;
 #endif
