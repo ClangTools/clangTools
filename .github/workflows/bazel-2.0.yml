@@ -1,0 +1,20 @@
+name: bazel-build CI
+
+on:
+  push:
+    branches: [ master,dev ]
+  pull_request:
+    branches: [ master,dev ]
+
+jobs:
+
+  ubuntu-build:
+    name: run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: run
+        uses: ngalaiko/bazel-action@2.0.0
+        with:
+          args: build //...
