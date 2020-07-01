@@ -12,9 +12,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: configure
-      run: mkdir build && cd build && cmake -DCMAKE_CXX_FLAGS="-Werror" ..
-    - name: build
-      run: cmake --build build
-      
+      - uses: actions/checkout@v1
+      - name: configure
+        run: mkdir build && cd build && cmake -DCMAKE_CXX_FLAGS="-Werror" ..
+      - name: build
+        run: cmake --build build
+
+
+  win-build:
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: configure
+        run: mkdir build && cd build && cmake -DCMAKE_CXX_FLAGS="-Werror" ..
+      - name: build
+        run: cmake --build build
+
+
+  macOS-build:
+
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: configure
+        run: mkdir build && cd build && cmake -DCMAKE_CXX_FLAGS="-Werror" ..
+      - name: build
+        run: cmake --build build
+
