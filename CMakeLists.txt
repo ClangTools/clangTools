@@ -168,6 +168,13 @@ target_compile_definitions(
         PUBLIC -D_${libTools_LIBRARIES}_HEADER_ #-D_LOGGER_USE_THREAD_POOL_
 )
 
+# Mark these variables above as deprecated.
+function(__deprecated_var var access)
+    if(access STREQUAL "READ_ACCESS")
+        message(STATUS "The variable '${var}' is deprecated!  Instead, simply use target_link_libraries(your_app dlib::dlib).  See http://dlib.net/examples/CMakeLists.txt.html for an example.")
+    endif()
+endfunction()
+
 if (CURL_FOUND)
     target_link_libraries(${libTools_LIBRARIES} ${CURL_LIBRARIES})
 endif ()
