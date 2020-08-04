@@ -130,7 +130,7 @@ bool usb_tool::Open() {
                 result = libusb_detach_kernel_driver(deviceHandle, INTERFACE);
                 if (result < 0/* && result != LIBUSB_ERROR_NOT_FOUND && result != LIBUSB_ERROR_NOT_SUPPORTED*/)
                 {
-                    logger::instance()->e(TAG, __LINE__, "Failed to detach kernel driver for BT passthrough: %s",
+                    logger::instance()->w(TAG, __LINE__, "Failed to detach kernel driver for BT passthrough: %s",
                                 libusb_error_name(result));
                     // return false;
                 }

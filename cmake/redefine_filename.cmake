@@ -14,6 +14,9 @@ function(redefine_file_macro targetname)
         # message("_SOURCE_DIR ${_SOURCE_DIR}")
         #将绝对路径中的项目路径替换成空,得到源文件相对于项目路径的相对路径
         string(REPLACE ${CMAKE_SOURCE_DIR}/ "" relpath ${filepath})
+        if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+            string(REPLACE src/ "" relpath ${relpath})
+        endif ()
         #将我们要加的编译参数( __FILENAME__ 定义)添加到原来的编译参数里面
         list(APPEND defs "__FILENAME__=\"${relpath}\"")
         #重新设置源文件的编译参数

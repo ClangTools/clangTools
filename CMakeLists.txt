@@ -104,7 +104,7 @@ else ()
 endif ()
 
 include_directories(
-#        .
+        #        .
         ./src
         ${srcSourceHeader}
 )
@@ -170,9 +170,9 @@ target_compile_definitions(
 
 # Mark these variables above as deprecated.
 function(__deprecated_var var access)
-    if(access STREQUAL "READ_ACCESS")
+    if (access STREQUAL "READ_ACCESS")
         message(STATUS "The variable '${var}' is deprecated!  Instead, simply use target_link_libraries(your_app dlib::dlib).  See http://dlib.net/examples/CMakeLists.txt.html for an example.")
-    endif()
+    endif ()
 endfunction()
 
 if (CURL_FOUND)
