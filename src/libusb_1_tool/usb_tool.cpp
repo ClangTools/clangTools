@@ -43,7 +43,7 @@ void usb_tool::list_print() {
             logger::instance()->e(TAG, __LINE__, "failed to get device descriptor");
             return;
         }
-        logger::instance()->i(TAG, __LINE__, "%04x:%04x (bus %d, device %d)",
+        logger::instance()->i(TAG, __LINE__, "%04x:%04x (bus %03d, device %03d)",
                               desc.idVendor, desc.idProduct,
                               libusb_get_bus_number(dev), libusb_get_device_address(dev));
     }
@@ -96,23 +96,23 @@ bool usb_tool::Open() {
                 break;
             }
 #if 0
-//#ifndef WIN32
+            //#ifndef WIN32
             ret = libusb_kernel_driver_active(deviceHandle, 0);
             if (ret < 0) {
                 logger::instance()->d(TAG, __LINE__, "Failed libusb_kernel_driver_active: %d (%s)", ret,
                                       libusb_error_name(ret));
             }
-            // ret = libusb_set_auto_detach_kernel_driver(deviceHandle, 1);
-            // if (ret < 0) {
-            //     logger::instance()->d(TAG, __LINE__, "Failed libusb_set_auto_detach_kernel_driver: %d (%s)", ret,
-            //                           libusb_error_name(ret));
-            // }
+            ret = libusb_set_auto_detach_kernel_driver(deviceHandle, 1);
+            if (ret < 0) {
+                logger::instance()->d(TAG, __LINE__, "Failed libusb_set_auto_detach_kernel_driver: %d (%s)", ret,
+                                      libusb_error_name(ret));
+            }
             ret = libusb_detach_kernel_driver(deviceHandle, 0);
             if (ret < 0) {
                 logger::instance()->d(TAG, __LINE__, "Failed libusb_detach_kernel_driver: %d (%s)", ret,
                                       libusb_error_name(ret));
             }
-//#endif
+            //#endif
 
             ret = libusb_set_configuration(deviceHandle, 0);
             if (ret < 0) {
@@ -125,13 +125,11 @@ bool usb_tool::Open() {
 // https://lists.freebsd.org/pipermail/freebsd-usb/2016-March/014161.html
 #ifndef __FreeBSD__
             int result = libusb_set_auto_detach_kernel_driver(deviceHandle, 1);
-            if (result != 0)
-            {
+            if (result != 0) {
                 result = libusb_detach_kernel_driver(deviceHandle, INTERFACE);
-                if (result < 0/* && result != LIBUSB_ERROR_NOT_FOUND && result != LIBUSB_ERROR_NOT_SUPPORTED*/)
-                {
+                if (result < 0/* && result != LIBUSB_ERROR_NOT_FOUND && result != LIBUSB_ERROR_NOT_SUPPORTED*/) {
                     logger::instance()->w(TAG, __LINE__, "Failed to detach kernel driver for BT passthrough: %s",
-                                libusb_error_name(result));
+                                          libusb_error_name(result));
                     // return false;
                 }
             }
@@ -164,6 +162,13 @@ bool usb_tool::Open() {
                         logger::instance()->d(TAG, __LINE__, "bEndpointAddress: 0x%02X",
                                               conf->interface->altsetting->endpoint->bEndpointAddress);
                     }
+
+                    ret = libusb_set_configuration(deviceHandle, conf->bConfigurationValue);
+                    if (ret < 0) {
+                        logger::instance()->d(__FILENAME__, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
+                                              libusb_error_name(ret));
+                    }
+
                     libusb_free_config_descriptor(conf);
                 }
             }
@@ -223,7 +228,7 @@ int usb_tool::send(std::vector<unsigned char> sData, int timeout) {
         logger::instance()->d(TAG, __LINE__, "Failed libusb_interrupt_transfer: %d (%s);%d", ret,
                               libusb_error_name(ret), actual_length);
     // logger::instance()->i(TAG, __LINE__, "LIBUSB_ENDPOINT_OUT:ret = %d ; actual_length=%d", ret, actual_length);
-    return ret;
+    return ret < 0 ? ret : actual_length;
 }
 
 
@@ -259,7 +264,7 @@ int usb_tool::read(std::vector<unsigned char> &data, int max_size, int timeout) 
     }
     data.insert(data.end(), &rData[0], &rData[actual_length]);
     delete[]rData;
-    return ret;
+    return actual_length;
 }
 
 

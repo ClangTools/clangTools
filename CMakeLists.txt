@@ -167,6 +167,20 @@ target_compile_definitions(
         ${libTools_LIBRARIES}
         PUBLIC -D_${libTools_LIBRARIES}_HEADER_ #-D_LOGGER_USE_THREAD_POOL_
 )
+if (UINX)
+    add_definitions(
+            -D_DLL_ClangTools_Export=__declspec\(dllimport\)
+    )
+    target_compile_definitions(
+            ${libTools_LIBRARIES}
+            PUBLIC -D_DLL_ClangTools_Export=__declspec\(dllexport\)
+    )
+else ()
+    target_compile_definitions(
+            ${libTools_LIBRARIES}
+            PUBLIC -D_DLL_ClangTools_Export=
+    )
+endif ()
 
 # Mark these variables above as deprecated.
 function(__deprecated_var var access)
