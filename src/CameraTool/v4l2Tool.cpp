@@ -807,6 +807,11 @@ namespace clangTools {
         return s;
     }
 
+#ifdef __FILENAME__
+const char *v4l2Tool::TAG = __FILENAME__;
+#else
+const char * v4l2Tool::TAG = "v4l2Tool";
+#endif
     /**
      * @brief 获取摄像头列表
      *

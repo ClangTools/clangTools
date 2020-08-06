@@ -237,6 +237,7 @@ class VideoDevice
 class v4l2Tool
 {
   public:
+    static const char* TAG;
 	v4l2Tool();
 	~v4l2Tool();
 
