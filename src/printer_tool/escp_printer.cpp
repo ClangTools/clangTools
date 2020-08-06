@@ -3,8 +3,6 @@
 //
 
 #include "escp_printer.h"
-#include <string>
-#include <logger.h>
 
 #ifdef ENABLE_OPENCV
 
@@ -301,8 +299,8 @@ int escp_printer::setPageSize(int width, int height) {
 
 int escp_printer::print_image(cv::Mat *img) {
     if (!isAgentReady())return Error_AgentNotReady;
-    if (img->empty())return Error_ParamFail;
 #ifdef ENABLE_OPENCV
+    if (img->empty())return Error_ParamFail;
     Mat image;
     resize(*img, image, Size(page.width, page.height));
     BMP bmp;
@@ -319,8 +317,8 @@ int escp_printer::print_image(cv::Mat *img) {
 
 int escp_printer::print_mat(cv::Mat *img) {
     if (!isAgentReady())return Error_AgentNotReady;
-    if (img->empty())return Error_ParamFail;
 #ifdef ENABLE_OPENCV
+    if (img->empty())return Error_ParamFail;
     Mat image;
     resize(*img, image, Size(page.width, page.height));
 #define IsShowImage FALSE

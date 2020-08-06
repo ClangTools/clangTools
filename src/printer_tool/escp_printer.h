@@ -6,6 +6,8 @@
 #define TOOLS_ESCP_PRINTER_H
 
 
+#include <string>
+#include <logger.h>
 #include "PrinterToolReadWriteAgent.h"
 #include <BmpTool.h>
 
