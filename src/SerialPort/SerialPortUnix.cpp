@@ -27,6 +27,12 @@
 #include <poll.h>
 #include <poll_tool.h>
 
+#ifdef __FILENAME__
+const char *SerialPortUnix::TAG = __FILENAME__;
+#else
+const char * SerialPortUnix::TAG = "SerialPortUnix";
+#endif
+
 speed_t SerialPortUnix::getBaudrate(int baudrate) {
     switch (baudrate) {
         case 0:
@@ -68,30 +74,30 @@ speed_t SerialPortUnix::getBaudrate(int baudrate) {
         case 230400:
             return B230400;
 #ifndef __apple_build_version__
-        case 460800:
-            return B460800;
-        case 500000:
-            return B500000;
-        case 576000:
-            return B576000;
-        case 921600:
-            return B921600;
-        case 1000000:
-            return B1000000;
-        case 1152000:
-            return B1152000;
-        case 1500000:
-            return B1500000;
-        case 2000000:
-            return B2000000;
-        case 2500000:
-            return B2500000;
-        case 3000000:
-            return B3000000;
-        case 3500000:
-            return B3500000;
-        case 4000000:
-            return B4000000;
+            case 460800:
+                return B460800;
+            case 500000:
+                return B500000;
+            case 576000:
+                return B576000;
+            case 921600:
+                return B921600;
+            case 1000000:
+                return B1000000;
+            case 1152000:
+                return B1152000;
+            case 1500000:
+                return B1500000;
+            case 2000000:
+                return B2000000;
+            case 2500000:
+                return B2500000;
+            case 3000000:
+                return B3000000;
+            case 3500000:
+                return B3500000;
+            case 4000000:
+                return B4000000;
 #endif
         default:
             return -1;
@@ -106,7 +112,7 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
         speed = getBaudrate(baudrate);
         if (speed == -1) {
             /* TODO: throw an exception */
-            logger::instance()->e(__FILENAME__, __LINE__, "Invalid baudrate");
+            logger::instance()->e(TAG, __LINE__, "Invalid baudrate");
             return -1;
         }
     }
@@ -116,11 +122,11 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
         fd = ::open(path, O_RDWR | O_NOCTTY | O_NONBLOCK | flags);
         if (fd == -1) {
             /* Throw an exception */
-            logger::instance()->e(__FILENAME__, __LINE__, "Cannot open port");
+            logger::instance()->e(TAG, __LINE__, "Cannot open port");
             /* TODO: throw an exception */
             return -1;
         }
-        logger::instance()->d(__FILENAME__, __LINE__, "Opening serial port %s with flags 0x%x", path,
+        logger::instance()->d(TAG, __LINE__, "Opening serial port %s with flags 0x%x", path,
                               O_RDWR | O_NOCTTY | O_NONBLOCK | flags);
     }
 
@@ -128,7 +134,7 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
     {
         struct termios cfg;
         if (tcgetattr(fd, &cfg)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "tcgetattr() failed");
+            logger::instance()->e(TAG, __LINE__, "tcgetattr() failed");
             close();
             /* TODO: throw an exception */
             return -1;
@@ -188,7 +194,7 @@ int SerialPortUnix::open(const char *path, int baudrate, int dataBits, int parit
         }
 
         if (tcsetattr(fd, TCSANOW, &cfg)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "tcsetattr() failed");
+            logger::instance()->e(TAG, __LINE__, "tcsetattr() failed");
             close();
             return -1;
         }
@@ -243,7 +249,7 @@ ssize_t SerialPortUnix::read(unsigned char *data, ssize_t data_size, int timeout
         int ret = ::read(fd, str, sizeof(str) / sizeof(char));
         if (ret >= 0) {
             if (data_size < wCount + ret) {
-                logger::instance()->e(__FILENAME__, __LINE__, "data size error");
+                logger::instance()->e(TAG, __LINE__, "data size error");
                 return -1;
             }
             memcpy(&data[wCount], str, ret);

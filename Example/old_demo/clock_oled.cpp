@@ -126,7 +126,7 @@ void OledShowNew(Mat *srcImg) {
                 get_weather_task.commit([]() -> void {
                     auto _weather_data = getWeather(_province.c_str(), _cityName.c_str());
                     if (weather_data["observe"].is_object()) {
-                        logger::instance()->i(__FILENAME__, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
+                        logger::instance()->i(TAG, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
                                               _province.c_str(),
                                               _cityName.c_str(),
                                               weather_data["observe"]["degree"].string_value().c_str(),
@@ -248,7 +248,7 @@ void setDate(Mat *pMat) {
 
 int main() {
     logger::instance()->init_default();
-    logger::instance()->i(__FILENAME__, __LINE__, "start");
+    logger::instance()->i(TAG, __LINE__, "start");
     cv::Mat srcImg(64, 128, CV_8UC3, cv::Scalar(255, 255, 255)); // create a black background
 
     ConfigTool configTool((logger::get_local_path() + logger::path_split + "oled.ini").c_str());
@@ -259,7 +259,7 @@ int main() {
     weather_data = getWeather(_province.c_str(), _cityName.c_str());
 
     if (weather_data["observe"].is_object())
-        logger::instance()->i(__FILENAME__, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
+        logger::instance()->i(TAG, __LINE__, "%s %s 气温：%s℃；潮湿：%s；气象：%s",
                               _province.c_str(),
                               _cityName.c_str(),
                               weather_data["observe"]["degree"].string_value().c_str(),
@@ -270,7 +270,7 @@ int main() {
 
     OledShowNew(&srcImg);
 
-    logger::instance()->i(__FILENAME__, __LINE__, "end");
+    logger::instance()->i(TAG, __LINE__, "end");
     return 0;
 }
 

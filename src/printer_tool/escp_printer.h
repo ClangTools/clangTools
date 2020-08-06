@@ -16,6 +16,7 @@ namespace cv {
 namespace clangTools {
     class _DLL_ClangTools_Export escp_printer {
     public:
+        static const char *TAG;
         enum Error {
             Error_OK = 0,
             Error_FAIL = -1,

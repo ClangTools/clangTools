@@ -16,6 +16,12 @@ using namespace cv;
 using namespace clangTools;
 using namespace std;
 
+#ifdef __FILENAME__
+const char *TAG = __FILENAME__;
+#else
+const char *TAG = "test_printer_demo_libusb";
+#endif
+
 class Agent : public PrinterToolReadWriteAgent, public usb_tool {
 public:
     inline Agent(unsigned short vid, unsigned short pid) : usb_tool(vid, pid) {
@@ -26,9 +32,9 @@ public:
         std::vector<unsigned char> sData(&data[offset], data + offset + len);
         int ret = this->send(sData, len * 10);
         if (ret < 0) {
-            logger::instance()->w(__FILENAME__, __LINE__, "send size %d", ret);
+            logger::instance()->w(TAG, __LINE__, "send size %d", ret);
         } else {
-            // logger::instance()->d(__FILENAME__, __LINE__, "send size %d:%d", ret, len);
+            // logger::instance()->d(TAG, __LINE__, "send size %d:%d", ret, len);
         }
         return ret;
     }
@@ -39,7 +45,7 @@ public:
         if (ret > 0) {
             memcpy(&data[offset], rData.data(), rData.size());
         } else {
-            // logger::instance()->w(__FILENAME__, __LINE__, "read size %d", ret);
+            // logger::instance()->w(TAG, __LINE__, "read size %d", ret);
         }
         return ret;
     }
@@ -57,7 +63,7 @@ void print_info(escp_printer &escpPrinter) {
     };
     for (auto &item : info) {
         data = escpPrinter.Get(item.first);
-        logger::instance()->i(__FILENAME__, __LINE__, "%-8s \t : %s (%s)", item.second.c_str(), data.c_str(),
+        logger::instance()->i(TAG, __LINE__, "%-8s \t : %s (%s)", item.second.c_str(), data.c_str(),
                               escpPrinter.PrinterStatus(data).c_str());
     }
 }
@@ -80,7 +86,7 @@ int main(int argc, char **argv) {
     usb_tool::list_print();
     Agent agent(0x1343, 0x0005);
     if (!agent.IsOpen()) {
-        logger::instance()->w(__FILENAME__, __LINE__, "打印机没有找到");
+        logger::instance()->w(TAG, __LINE__, "打印机没有找到");
         return 1;
     }
 
@@ -100,7 +106,7 @@ int main(int argc, char **argv) {
     {
         data = escpPrinter.Get(escp_printer::ModelType::STATUS);
         if (!data.empty())
-            logger::instance()->i(__FILENAME__, __LINE__, "STATUS \t : %s (%s)", data.c_str(),
+            logger::instance()->i(TAG, __LINE__, "STATUS \t : %s (%s)", data.c_str(),
                                   escpPrinter.PrinterStatus(data).c_str());
     }
     return 0;

@@ -34,14 +34,14 @@ unsigned char i2c_tool::setAddr(unsigned char addr) {
 int i2c_tool::Open() {
     if ((i2c_handle = open(i2c_path.c_str(), O_RDWR)) < 0) {
         //ERROR HANDLING: you can check errno to see what went wrong
-        logger::instance()->e(__FILENAME__, __LINE__,
+        logger::instance()->e(TAG, __LINE__,
                               "Failed to open the i2c bus");
         return Type::FailOpen;
     }
     int addr = Addr;//<<<<<The I2C address of the slave
     if (ioctl(i2c_handle, I2C_SLAVE, addr) < 0) {
         //ERROR HANDLING; you can check errno to see what went wrong
-        logger::instance()->e(__FILENAME__, __LINE__,
+        logger::instance()->e(TAG, __LINE__,
                               "Failed to acquire bus access and/or talk to slave.");
         Close();
         return FailAddr;
@@ -73,7 +73,7 @@ int i2c_tool::Read(std::vector<unsigned char> &data, int read_len) {
     // (e.g. no response from the device)
     if (ret != length) {
         //ERROR HANDLING: i2c transaction failed
-        logger::instance()->e(__FILENAME__, __LINE__,
+        logger::instance()->e(TAG, __LINE__,
                               "failed to read from the i2c bus.return code : %d [ %s ]", ret, strerror(errno));
         delete[]buffer;
         return Type::FailRead;
@@ -95,7 +95,7 @@ int i2c_tool::Write(unsigned char *data, int data_len) {
     // (e.g. no response from the device)
     if (ret != data_len) {
         /* ERROR HANDLING: i2c transaction failed */
-        logger::instance()->e(__FILENAME__, __LINE__,
+        logger::instance()->e(TAG, __LINE__,
                               "failed to write to the i2c bus.return code : %d", ret);
     }
     return ret;
@@ -111,7 +111,7 @@ int i2c_tool::transfer(std::vector<unsigned char> wData, std::vector<unsigned ch
     i2c_data.nmsgs = (rData == nullptr || read_len <= 0) ? 1 : 2;
     i2c_data.msgs = (struct i2c_msg *) malloc(i2c_data.nmsgs * sizeof(struct i2c_msg));
     if (i2c_data.msgs == nullptr) {
-        logger::instance()->e(__FILENAME__, __LINE__,
+        logger::instance()->e(TAG, __LINE__,
                               "malloc error:%s", strerror(errno));
         delete[]buff;
         // free(i2c_data.msgs);
@@ -135,7 +135,7 @@ int i2c_tool::transfer(std::vector<unsigned char> wData, std::vector<unsigned ch
 
     ret = ioctl(i2c_handle, I2C_RDWR, (unsigned long) &i2c_data);
     if (ret < 0) {
-        logger::instance()->e(__FILENAME__, __LINE__,
+        logger::instance()->e(TAG, __LINE__,
                               "0x%02X transfer data error,ret:%d [ %s ]", device_addr, ret, strerror(errno));
         free(i2c_data.msgs);
         delete[]buff;

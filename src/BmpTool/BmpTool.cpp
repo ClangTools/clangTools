@@ -423,7 +423,7 @@ namespace clangTools {
 
     int BMP::split(BMP bmps[3]) {
         if (GetBitPerPixel() != 24 && GetBitPerPixel() != 32) {
-            logger::instance()->w(__FILENAME__, __LINE__, "只支持 24位 以及 32位 分割，当前 ： %d", GetBitPerPixel());
+            logger::instance()->w(TAG, __LINE__, "只支持 24位 以及 32位 分割，当前 ： %d", GetBitPerPixel());
             return -1;
         }
 
@@ -469,7 +469,7 @@ namespace clangTools {
             int size = bmps[i].GetDataSize();
             bmps[i].Data = (unsigned char *) malloc(size * sizeof(unsigned char));
             if (bmps[i].Data == nullptr) {
-                logger::instance()->d(__FILENAME__, __LINE__, "开辟内存失败.");
+                logger::instance()->d(TAG, __LINE__, "开辟内存失败.");
                 return -1;
             }
         }

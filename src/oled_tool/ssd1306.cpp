@@ -37,7 +37,7 @@ int ssd1306::WriteCommand(unsigned char ins) {
 #if defined(ENABLE_I2C) or defined (ENABLE_SPI)
 #ifdef ENABLE_I2C
     if (!i2CTool.IsOpen()) {
-        logger::instance()->e(__FILENAME__, __LINE__, "open fail");
+        logger::instance()->e(TAG, __LINE__, "open fail");
         return -1;
     }
     return i2CTool.Write(std::vector<unsigned char>{0x00, ins});
@@ -50,7 +50,7 @@ int ssd1306::WriteData(unsigned char dat) {
 #if defined(ENABLE_I2C) or defined (ENABLE_SPI)
 #ifdef ENABLE_I2C
     if (!i2CTool.IsOpen()) {
-        logger::instance()->e(__FILENAME__, __LINE__, "open fail");
+        logger::instance()->e(TAG, __LINE__, "open fail");
         return -1;
     }
     return i2CTool.Write(std::vector<unsigned char>{0x40, dat});
@@ -74,7 +74,7 @@ int ssd1306::SetPos(unsigned char x, unsigned char y) {
 
 int ssd1306::Initial(unsigned char _vccstate) {
     this->vccstate = _vccstate;
-    logger::instance()->d(__FILENAME__, __LINE__, "initial");
+    logger::instance()->d(TAG, __LINE__, "initial");
     int ret = WriteCommand(SSD1306_DISPLAYOFF);//display off
     if (0 > ret)return ret;
     WriteCommand(SSD1306_SETDISPLAYCLOCKDIV);//            # 0xD5
@@ -116,7 +116,7 @@ int ssd1306::Initial(unsigned char _vccstate) {
     WriteCommand(SSD1306_NORMALDISPLAY);//       # 0xA6
 
     WriteCommand(SSD1306_DISPLAYON);
-    logger::instance()->d(__FILENAME__, __LINE__, "initial finish");
+    logger::instance()->d(TAG, __LINE__, "initial finish");
     return 0;
 }
 

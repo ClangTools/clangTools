@@ -16,7 +16,7 @@
 #endif
 
 
-#define LOGGER_PRINT_FUNC_NAME()  logger::instance()->i(__FILENAME__, __LINE__, "%s", __FUNCTION__)
+#define LOGGER_PRINT_FUNC_NAME()  logger::instance()->i(TAG, __LINE__, "%s", __FUNCTION__)
 
 using namespace std;
 using namespace cv;
@@ -179,7 +179,7 @@ void video_task_run(GtkWidget *_image) {
         g_idle_remove_by_data((void *) _image);
         // waitKey(1000 / fps);
     }
-    logger::instance()->d(__FILENAME__, __LINE__, "视频读取完毕");
+    logger::instance()->d(TAG, __LINE__, "视频读取完毕");
 }
 
 
@@ -224,7 +224,7 @@ int main(int argc, char *argv[]) {
 #if defined(LINUX) || defined(linux)
     setenv("DISPLAY", "localhost:10.0", 1);
     // setenv("DISPLAY", ":1", 1);
-    logger::instance()->i(__FILENAME__, __LINE__, "XOpenDisplay : %s", XOpenDisplay(nullptr) ? "True" : "False");
+    logger::instance()->i(TAG, __LINE__, "XOpenDisplay : %s", XOpenDisplay(nullptr) ? "True" : "False");
 #endif
 
     cap.open(1);

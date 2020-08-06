@@ -18,6 +18,12 @@ using namespace clangTools;
 using namespace std;
 using namespace cv;
 
+
+#ifdef __FILENAME__
+const char *escp_printer::TAG = __FILENAME__;
+#else
+const char * escp_printer::TAG = "escp_printer";
+#endif
 escp_printer::escp_printer(PrinterToolReadWriteAgent *agent) {
     setPrinterToolReadWriteAgent(agent);
 }
@@ -82,7 +88,7 @@ bool escp_printer::ResetPrinter() {
         // read(data, 32);
         return true;
     }
-    logger::instance()->e(__FILENAME__, __LINE__, "ResetPrinter is fail");
+    logger::instance()->e(TAG, __LINE__, "ResetPrinter is fail");
     return false;
 }
 
@@ -126,14 +132,14 @@ int escp_printer::Get(std::string &OutData, escp_printer::ModelType model, bool 
         case escp_printer::ModelType::INFO_RQTY :
             mode = "INFO";
             code = "RQTY";
-            logger::instance()->w(__FILENAME__, __LINE__, "do not get INFO RQTY");
+            logger::instance()->w(TAG, __LINE__, "do not get INFO RQTY");
             return Error_ParamFail;
         case escp_printer::ModelType::INFO_SERIAL_NUMBER :
             mode = "INFO";
             code = "SERIAL_NUMBER";
             break;
         default:
-            logger::instance()->e(__FILENAME__, __LINE__, "Error_ParamFail");
+            logger::instance()->e(TAG, __LINE__, "Error_ParamFail");
             return Error_ParamFail;
     }
     if (isAgentReady()) {
@@ -200,7 +206,7 @@ bool escp_printer::PutImage(ImageType type, int len) {
             code = "MULTICUT";
             break;
         default:
-            logger::instance()->e(__FILENAME__, __LINE__, "Error_ParamFail");
+            logger::instance()->e(TAG, __LINE__, "Error_ParamFail");
             return Error_ParamFail;
     }
     unsigned char data[32] = {0};
@@ -242,7 +248,7 @@ int escp_printer::CNTRL(escp_printer::CNTRLType type, unsigned char *sData, int 
             code = "FULL_CUTTER_SET";
             break;
         default:
-            logger::instance()->e(__FILENAME__, __LINE__, "Error_ParamFail");
+            logger::instance()->e(TAG, __LINE__, "Error_ParamFail");
             return Error_ParamFail;
     }
     memcpy(&data[8], code.c_str(), code.size());
@@ -306,7 +312,7 @@ int escp_printer::print_image(cv::Mat *img) {
 
     return print_bmp(&bmp);
 #else
-    logger::instance()->w(__FILENAME__, __LINE__, "未开启 OpenCV");
+    logger::instance()->w(TAG, __LINE__, "未开启 OpenCV");
     return Error_FAIL;
 #endif
 }
@@ -388,7 +394,7 @@ int escp_printer::print_mat(cv::Mat *img) {
     int sRet = 0, rRet = 0;
     string data = Get(escp_printer::ModelType::INFO_FREE_PBUFFER);
     if (data.size() < 5 || (data[4] == '0')) {
-        logger::instance()->e(__FILENAME__, __LINE__, "打印机没有打印空间");
+        logger::instance()->e(TAG, __LINE__, "打印机没有打印空间");
         return Error_FAIL;
     }
 
@@ -520,7 +526,7 @@ int escp_printer::print_mat(cv::Mat *img) {
     CNTRL_Start();
     return 0;
 #else
-    logger::instance()->w(__FILENAME__, __LINE__, "未开启 OpenCV");
+    logger::instance()->w(TAG, __LINE__, "未开启 OpenCV");
     return Error_FAIL;
 #endif
 }
@@ -530,12 +536,12 @@ int escp_printer::print_bmp(BMP *bmp) {
     if (bmp == nullptr)return Error_ParamFail;
     string data = Get(escp_printer::ModelType::INFO_FREE_PBUFFER);
     if (data.size() < 5 || (data[4] == '0')) {
-        logger::instance()->e(__FILENAME__, __LINE__, "打印机没有打印空间");
+        logger::instance()->e(TAG, __LINE__, "打印机没有打印空间");
         return Error_FAIL;
     }
     BMP bmps[3];
     if (bmp->split(bmps) != 0) {
-        logger::instance()->e(__FILENAME__, __LINE__, "分割图片失败");
+        logger::instance()->e(TAG, __LINE__, "分割图片失败");
         return Error_ParamFail;
     }
 
@@ -584,19 +590,19 @@ int escp_printer::print_bmp(BMP *bmp) {
         }
 
         bmps[i].GetBITMAPFILEHEADER()->file_size -= sizeof(border_adjust_data);
-        logger::instance()->d(__FILENAME__, __LINE__, "%s", __FUNCTION__);
+        logger::instance()->d(TAG, __LINE__, "%s", __FUNCTION__);
         ret = printerToolReadWriteAgent->Send(_D, _Dsize);
         delete[] _D;
         if (ret <= 0) {
             return Error_FAIL;
         }
-        logger::instance()->d(__FILENAME__, __LINE__, "%s", __FUNCTION__);
+        logger::instance()->d(TAG, __LINE__, "%s", __FUNCTION__);
         ret = printerToolReadWriteAgent->Send((unsigned char *) bmps[i].GetData(), msize);
         if (ret <= 0) {
             return Error_FAIL;
         }
     }
-    logger::instance()->d(__FILENAME__, __LINE__, "%s", __FUNCTION__);
+    logger::instance()->d(TAG, __LINE__, "%s", __FUNCTION__);
     CNTRL_Start();
     return 0;
 }

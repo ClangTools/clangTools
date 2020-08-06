@@ -116,7 +116,7 @@ bool usb_tool::Open() {
 
             ret = libusb_set_configuration(deviceHandle, 0);
             if (ret < 0) {
-                logger::instance()->d(__FILENAME__, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
+                logger::instance()->d(TAG, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
                                       libusb_error_name(ret));
             }
 #endif
@@ -136,7 +136,7 @@ bool usb_tool::Open() {
 #endif
             // ret = libusb_set_configuration(deviceHandle, 0);
             // if (ret < 0) {
-            //     logger::instance()->d(__FILENAME__, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
+            //     logger::instance()->d(TAG, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
             //                           libusb_error_name(ret));
             // }
             ret = libusb_claim_interface(deviceHandle, INTERFACE);
@@ -165,7 +165,7 @@ bool usb_tool::Open() {
 
                     ret = libusb_set_configuration(deviceHandle, conf->bConfigurationValue);
                     if (ret < 0) {
-                        logger::instance()->d(__FILENAME__, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
+                        logger::instance()->d(TAG, __LINE__, "Failed libusb_set_configuration: %d (%s)", ret,
                                               libusb_error_name(ret));
                     }
 

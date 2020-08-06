@@ -22,7 +22,7 @@ void spi_tool::setPath(const char *path) {
 bool spi_tool::Open() {
     handle = open(spi_path.c_str(), O_RDWR);
     if (handle < 0) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't open device : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't open device : %s", strerror(errno));
         return false;
     }
     /*
@@ -30,13 +30,13 @@ bool spi_tool::Open() {
      */
     int ret = ioctl(handle, SPI_IOC_WR_MODE, &mode);
     if (ret == -1) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't set spi mode : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't set spi mode : %s", strerror(errno));
         Close();
         return false;
     }
     ret = ioctl(handle, SPI_IOC_RD_MODE, &mode);
     if (ret == -1) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't get spi mode : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't get spi mode : %s", strerror(errno));
         Close();
         return false;
     }
@@ -45,14 +45,14 @@ bool spi_tool::Open() {
      */
     ret = ioctl(handle, SPI_IOC_WR_BITS_PER_WORD, &bits);
     if (ret == -1) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't set bits per word : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't set bits per word : %s", strerror(errno));
         Close();
         return false;
     }
 
     ret = ioctl(handle, SPI_IOC_RD_BITS_PER_WORD, &bits);
     if (ret == -1) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't get bits per word : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't get bits per word : %s", strerror(errno));
         Close();
         return false;
     }
@@ -62,13 +62,13 @@ bool spi_tool::Open() {
      */
     ret = ioctl(handle, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
     if (ret == -1) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't set max speed hz : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't set max speed hz : %s", strerror(errno));
         Close();
         return false;
     }
     ret = ioctl(handle, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
     if (ret == -1) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't get max speed hz : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't get max speed hz : %s", strerror(errno));
         Close();
         return false;
     }
@@ -100,7 +100,7 @@ int spi_tool::transfer(std::vector<unsigned char> sData, std::vector<unsigned ch
 
     int ret = ioctl(handle, SPI_IOC_MESSAGE(1), &tr);
     if (ret < 1) {
-        logger::instance()->e(__FILENAME__, __LINE__, "can't send spi message : %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "can't send spi message : %s", strerror(errno));
         delete[]rx;
         delete[]tx;
         return -99;

@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     WSADATA wd;
     if(WSAStartup(MAKEWORD(2,2),&wd)  != 0) //WSAStartup
     {
-        logger::instance()->e(__FILENAME__, __LINE__, "WSAStartup error！");
+        logger::instance()->e(TAG, __LINE__, "WSAStartup error！");
         return 1;
     }
 #endif
@@ -32,13 +32,13 @@ int main(int argc, char *argv[]) {
         hostname = argv[1];
     }
     if ((h = gethostbyname(hostname.c_str())) == nullptr) {
-        logger::instance()->e(__FILENAME__, __LINE__, "不能得到IP");
+        logger::instance()->e(TAG, __LINE__, "不能得到IP");
         exit(1);
     }
-    logger::instance()->i(__FILENAME__, __LINE__, "HostName :%s", h->h_name);
+    logger::instance()->i(TAG, __LINE__, "HostName :%s", h->h_name);
     int i = 0;
     while (h->h_addr_list[i]) {
-        logger::instance()->i(__FILENAME__, __LINE__, "[%02d] IP Address :%s", i + 1,
+        logger::instance()->i(TAG, __LINE__, "[%02d] IP Address :%s", i + 1,
                               inet_ntoa(*((struct in_addr *) h->h_addr_list[i])));
         i++;
     }

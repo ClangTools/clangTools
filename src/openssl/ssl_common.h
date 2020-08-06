@@ -41,6 +41,7 @@ private:
 #endif
     std::mutex ssl_lock;
 public:
+    static const char *TAG;
     const int DEFAULT_BUF_SIZE = 64;
     SSL_mode ssl_mode = SSL_MODE_SERVER;
 
