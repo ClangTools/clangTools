@@ -42,6 +42,13 @@ using namespace std;
 // #define pthread_mutex_unlock(TAG) pthread_mutex_unlock(TAG);logger::instance()->d("pthread_mutex_lock","pthread_mutex_unlock")
 namespace clangTools {
 
+
+#ifdef __FILENAME__
+const char *v4l2Tool::TAG = __FILENAME__;
+#else
+const char * v4l2Tool::TAG = "v4l2Tool";
+#endif
+
 #ifdef WIN32
 
     //VIDEODEVICE
@@ -806,12 +813,6 @@ namespace clangTools {
         s.erase(s.find_last_not_of(" ") + 1);
         return s;
     }
-
-#ifdef __FILENAME__
-const char *v4l2Tool::TAG = __FILENAME__;
-#else
-const char * v4l2Tool::TAG = "v4l2Tool";
-#endif
     /**
      * @brief 获取摄像头列表
      *
