@@ -7,6 +7,7 @@
 
 
 #include "PrinterToolReadWriteAgent.h"
+#include <BmpTool.h>
 
 namespace cv {
     class Mat;
@@ -109,6 +110,8 @@ namespace clangTools {
             YPLANE,
             MPLANE,
             CPLANE,
+
+            MULTICUT,
         };
 
         struct PageSize {
@@ -201,10 +204,36 @@ namespace clangTools {
         int CNTRL_Start();
 
         /**
+         * 设置 打印大小
+         * @param width
+         * @param height
+         * @return
+         */
+        int setPageSize(int width = 1088,int height = 1920);
+        /**
          * 打印 Mat 图片
          * @return
          */
         int print_image(cv::Mat *img);
+        /**
+         * 打印 Mat 图片
+         * @return
+         */
+        int print_mat(cv::Mat *img);
+
+        /**
+         * 打印 BMP 格式文件
+         * @param bmp
+         * @return
+         */
+        int print_bmp(BMP *bmp);
+
+        /**
+         * 打印 BMP 格式文件
+         * @param bmp
+         * @return
+         */
+        int print_bmpfile(std::string bmp_path);
     };
 
 }

@@ -5,7 +5,13 @@
 #include "escp_printer.h"
 #include <string>
 #include <logger.h>
+
+#ifdef ENABLE_OPENCV
+
 #include <opencv2/opencv.hpp>
+
+#endif
+
 #include <BmpTool.h>
 
 using namespace clangTools;
@@ -143,6 +149,9 @@ int escp_printer::Get(std::string &OutData, escp_printer::ModelType model, bool 
                 memset(rData, 0x00, 64);
                 memset(rData1, 0x00, 64);
                 rRet = printerToolReadWriteAgent->Read(rData, 32);
+                if (rRet < 0) {
+                    return Error_FAIL;
+                }
                 rRet1 = printerToolReadWriteAgent->Read(rData1, 32);
                 if (rRet1 > 0) {
                     rRet = rRet1;
@@ -187,6 +196,9 @@ bool escp_printer::PutImage(ImageType type, int len) {
         case ImageType::CPLANE:
             code = "CPLANE";
             break;
+        case ImageType::MULTICUT:
+            code = "MULTICUT";
+            break;
         default:
             logger::instance()->e(__FILENAME__, __LINE__, "Error_ParamFail");
             return Error_ParamFail;
@@ -212,22 +224,22 @@ int escp_printer::CNTRL(escp_printer::CNTRLType type, unsigned char *sData, int 
     string code;
     switch (type) {
         case escp_printer::CNTRLType::START:
-            code = "BUFFCNTRL";
+            code = "START";
             break;
         case escp_printer::CNTRLType::CUTTER:
-            code = "BUFFCNTRL";
+            code = "CUTTER";
             break;
         case escp_printer::CNTRLType::OVERCOAT:
-            code = "BUFFCNTRL";
+            code = "OVERCOAT";
             break;
         case escp_printer::CNTRLType::BUFFCNTRL:
             code = "BUFFCNTRL";
             break;
         case escp_printer::CNTRLType::DUPLEX_CANCEL:
-            code = "BUFFCNTRL";
+            code = "DUPLEX_CANCEL";
             break;
         case escp_printer::CNTRLType::FULL_CUTTER_SET:
-            code = "BUFFCNTRL";
+            code = "FULL_CUTTER_SET";
             break;
         default:
             logger::instance()->e(__FILENAME__, __LINE__, "Error_ParamFail");
@@ -240,7 +252,7 @@ int escp_printer::CNTRL(escp_printer::CNTRLType type, unsigned char *sData, int 
     int sRet = this->printerToolReadWriteAgent->Send(data, 32);
     if (sRet == 32) {
         if (len == 0 || sData == nullptr) {
-            return Error_OK;
+            return sRet;
         }
         return this->printerToolReadWriteAgent->Send(sData, len);
     }
@@ -269,13 +281,50 @@ int escp_printer::CNTRL_BuffCntrl(int value) {
     return CNTRL(CNTRLType::BUFFCNTRL, (unsigned char *) data, 8);
 }
 
+/**
+ * 设置 打印大小
+ * @param width
+ * @param height
+ * @return
+ */
+int escp_printer::setPageSize(int width, int height) {
+    page.width = width;
+    page.height = height;
+    return Error_OK;
+}
+
 int escp_printer::print_image(cv::Mat *img) {
     if (!isAgentReady())return Error_AgentNotReady;
     if (img->empty())return Error_ParamFail;
-    Mat imageROI;
+#ifdef ENABLE_OPENCV
     Mat image;
-
     resize(*img, image, Size(page.width, page.height));
+    BMP bmp;
+    vector<unsigned char> buf;
+    imencode(".bmp", image, buf);
+    bmp.ReadBmp(buf.data());
+
+    return print_bmp(&bmp);
+#else
+    logger::instance()->w(__FILENAME__, __LINE__, "未开启 OpenCV");
+    return Error_FAIL;
+#endif
+}
+
+int escp_printer::print_mat(cv::Mat *img) {
+    if (!isAgentReady())return Error_AgentNotReady;
+    if (img->empty())return Error_ParamFail;
+#ifdef ENABLE_OPENCV
+    Mat image;
+    resize(*img, image, Size(page.width, page.height));
+#define IsShowImage FALSE
+#if IsShowImage
+    namedWindow("enhanced", 0);
+    resizeWindow("enhanced", 640, 480);
+    imshow("enhanced", Car);
+    waitKey(0);
+    return false;
+#endif
 
 #pragma region 图片处理
     int W = 0;
@@ -291,10 +340,10 @@ int escp_printer::print_image(cv::Mat *img) {
     //设定BITMAPFILEHEADER
     memset(&bfh, 0, sizeof(bfh));
     bfh.identity = 0x4d42;
-    bfh.file_size = sizeof(BITMAPFILEHEADER) + sizeof(
+    bfh.file_size = SIZEOF_BITMAPFILEHEADER + sizeof(
             BITMAPINFOHEADER) + sizeof(border_adjust_data) + sizeof(PALLETTE) * 256 +
                     ((W * 8 + 31) / 32 * 4) * H;
-    bfh.data_offset = sizeof(BITMAPFILEHEADER) + sizeof(
+    bfh.data_offset = SIZEOF_BITMAPFILEHEADER + sizeof(
             BITMAPINFOHEADER) + sizeof(border_adjust_data) + sizeof(PALLETTE) * 256;
 
     //设定BITMAPINFOHEADER
@@ -339,22 +388,75 @@ int escp_printer::print_image(cv::Mat *img) {
     int sRet = 0, rRet = 0;
     string data = Get(escp_printer::ModelType::INFO_FREE_PBUFFER);
     if (data.size() < 5 || (data[4] == '0')) {
-        // LogE(TAG, "打印机没有打印空间");
-        return false;
+        logger::instance()->e(__FILENAME__, __LINE__, "打印机没有打印空间");
+        return Error_FAIL;
     }
+
+
+#define MY_PRINT TRUE
+#if MY_PRINT
+
+    if (CarCutSize > 0) {
+        int type = 0;
+        switch (type)
+        {
+        case 1:
+            sprintf(data, "%08d", 1);
+            break;
+        case 2:
+            sprintf(data, "%08d", 120);
+            break;
+        case 0:
+        default:
+            sprintf(data, "%08d", 0);
+            break;
+        }
+        PutCntrl("CUTTER", (unsigned char*)data, 8);
+
+
+        sprintf(data, "%03d%03d%03d%03d000\r"
+            , CarCutSize
+            , 0
+            , 0
+            , 0
+        );
+        PutCntrl("FULL_CUTTER_SET", (unsigned char*)data, 16);
+    }
+#else
+    char __data[32] = {0};
+    PutImage(MULTICUT, 8);
+    {
+
+        sprintf(__data, "%08d", 1
+        );
+        memset(&__data[8], 0x00, 32 - 8);
+        printerToolReadWriteAgent->Send((unsigned char *) __data, 32);
+    }
+
+    CNTRL_BuffCntrl(0);
+#endif // MY_PRINT
+
+    // Get(data, "INFO", "RQTY");
+
+    //char data[100];
+    //sprintf(data, "%08d", 8);
+    //PutCntrl("OVERCOAT", (unsigned char*)data, 8);
+    //PutCntrl("BUFFCNTRL", (unsigned char*)data, 8);
+    //PutCntrl("QTY", (unsigned char*)data, 8);
+    CNTRL_Cutter(0);
 
     {
         PutImage(YPLANE, msize);
 
         int ret = 0;
-        int _Dsize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data) +
+        int _Dsize = SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data) +
                      sizeof(PALLETTE) * 256;
         unsigned char *_D = new unsigned char[_Dsize];
-        memcpy(&_D[0], (unsigned char *) &bfh, sizeof(BITMAPFILEHEADER));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER)], (unsigned char *) &bih, sizeof(BITMAPINFOHEADER));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)], (unsigned char *) &border_adjust_data,
+        memcpy(&_D[0], (unsigned char *) &bfh, SIZEOF_BITMAPFILEHEADER);
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER], (unsigned char *) &bih, sizeof(BITMAPINFOHEADER));
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER)], (unsigned char *) &border_adjust_data,
                sizeof(border_adjust_data));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data)],
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data)],
                (unsigned char *) &Quad, sizeof(PALLETTE) * 256);
         ret = printerToolReadWriteAgent->Send(_D, _Dsize);
         delete[] _D;
@@ -371,14 +473,14 @@ int escp_printer::print_image(cv::Mat *img) {
         PutImage(MPLANE, msize);
 
         int ret = 0;
-        int _Dsize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data) +
+        int _Dsize = SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data) +
                      sizeof(PALLETTE) * 256;
         unsigned char *_D = new unsigned char[_Dsize];
-        memcpy(&_D[0], (unsigned char *) &bfh, sizeof(BITMAPFILEHEADER));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER)], (unsigned char *) &bih, sizeof(BITMAPINFOHEADER));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)], (unsigned char *) &border_adjust_data,
+        memcpy(&_D[0], (unsigned char *) &bfh, SIZEOF_BITMAPFILEHEADER);
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER], (unsigned char *) &bih, sizeof(BITMAPINFOHEADER));
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER)], (unsigned char *) &border_adjust_data,
                sizeof(border_adjust_data));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data)],
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data)],
                (unsigned char *) &Quad, sizeof(PALLETTE) * 256);
         ret = printerToolReadWriteAgent->Send(_D, _Dsize);
         delete[] _D;
@@ -394,14 +496,14 @@ int escp_printer::print_image(cv::Mat *img) {
         PutImage(CPLANE, msize);
 
         int ret = 0;
-        int _Dsize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data) +
+        int _Dsize = SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data) +
                      sizeof(PALLETTE) * 256;
         unsigned char *_D = new unsigned char[_Dsize];
-        memcpy(&_D[0], (unsigned char *) &bfh, sizeof(BITMAPFILEHEADER));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER)], (unsigned char *) &bih, sizeof(BITMAPINFOHEADER));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)], (unsigned char *) &border_adjust_data,
+        memcpy(&_D[0], (unsigned char *) &bfh, SIZEOF_BITMAPFILEHEADER);
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER], (unsigned char *) &bih, sizeof(BITMAPINFOHEADER));
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER)], (unsigned char *) &border_adjust_data,
                sizeof(border_adjust_data));
-        memcpy(&_D[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data)],
+        memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data)],
                (unsigned char *) &Quad, sizeof(PALLETTE) * 256);
         ret = printerToolReadWriteAgent->Send(_D, _Dsize);
         delete[] _D;
@@ -416,7 +518,94 @@ int escp_printer::print_image(cv::Mat *img) {
 
 
     CNTRL_Start();
+    return 0;
+#else
+    logger::instance()->w(__FILENAME__, __LINE__, "未开启 OpenCV");
+    return Error_FAIL;
+#endif
+}
 
-    return true;
+int escp_printer::print_bmp(BMP *bmp) {
+    if (!isAgentReady())return Error_AgentNotReady;
+    if (bmp == nullptr)return Error_ParamFail;
+    string data = Get(escp_printer::ModelType::INFO_FREE_PBUFFER);
+    if (data.size() < 5 || (data[4] == '0')) {
+        logger::instance()->e(__FILENAME__, __LINE__, "打印机没有打印空间");
+        return Error_FAIL;
+    }
+    BMP bmps[3];
+    if (bmp->split(bmps) != 0) {
+        logger::instance()->e(__FILENAME__, __LINE__, "分割图片失败");
+        return Error_ParamFail;
+    }
+
+    PutImage(MULTICUT, 8);
+    {
+        char __data[32] = {0};
+        sprintf(__data, "%08d", 1);
+        memset(&__data[8], 0x00, 32 - 8);
+        printerToolReadWriteAgent->Send((unsigned char *) __data, 32);
+        CNTRL_BuffCntrl(8);
+    }
+
+
+    unsigned char border_adjust_data[10] = {0};
+    ImageType types[3] = {
+            ImageType::YPLANE,
+            ImageType::MPLANE,
+            ImageType::CPLANE,
+    };
+
+    for (int i = 0; i < 3; i++) {
+        int msize = bmps[i].GetDataSize();
+        PutImage(types[i], msize);
+
+        int ret = 0;
+        int _Dsize = SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data) +
+                     sizeof(PALLETTE) * 256;
+        unsigned char *_D = new unsigned char[_Dsize];
+        bmps[i].GetBITMAPFILEHEADER()->file_size += sizeof(border_adjust_data);
+        if (true) {
+            int offset = bmps[i].WriteBmpInfo(_D);
+            memcpy(&_D[offset], (unsigned char *) &border_adjust_data, sizeof(border_adjust_data));
+            offset += sizeof(border_adjust_data);
+            if (bmps[i].GetBitPerPixel() == 8) {
+                memcpy(&_D[offset], (unsigned char *) bmps[i].GetQuad(), sizeof(PALLETTE) * 256);
+                offset += sizeof(PALLETTE) * 256;
+            }
+        } else {
+            memcpy(&_D[0], (unsigned char *) bmps[i].GetBITMAPFILEHEADER(), SIZEOF_BITMAPFILEHEADER);
+            memcpy(&_D[SIZEOF_BITMAPFILEHEADER], (unsigned char *) bmps[i].GetBITMAPINFOHEADER(),
+                   sizeof(BITMAPINFOHEADER));
+            memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER)], (unsigned char *) &border_adjust_data,
+                   sizeof(border_adjust_data));
+            memcpy(&_D[SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) + sizeof(border_adjust_data)],
+                   (unsigned char *) bmps[i].GetQuad(), sizeof(PALLETTE) * 256);
+        }
+
+        bmps[i].GetBITMAPFILEHEADER()->file_size -= sizeof(border_adjust_data);
+        logger::instance()->d(__FILENAME__, __LINE__, "%s", __FUNCTION__);
+        ret = printerToolReadWriteAgent->Send(_D, _Dsize);
+        delete[] _D;
+        if (ret <= 0) {
+            return Error_FAIL;
+        }
+        logger::instance()->d(__FILENAME__, __LINE__, "%s", __FUNCTION__);
+        ret = printerToolReadWriteAgent->Send((unsigned char *) bmps[i].GetData(), msize);
+        if (ret <= 0) {
+            return Error_FAIL;
+        }
+    }
+    logger::instance()->d(__FILENAME__, __LINE__, "%s", __FUNCTION__);
+    CNTRL_Start();
+    return 0;
+}
+
+int escp_printer::print_bmpfile(std::string bmp_path) {
+    BMP bmp;
+    if (!bmp.ReadBmp(bmp_path.c_str())) {
+        return -1;
+    }
+    return print_bmp(&bmp);
 }
 
