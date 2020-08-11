@@ -35,7 +35,15 @@ public:
 
 public:
     static const char *TAG;
-    static cv::Mat CreateQrCode(const std::string& data,int size = 2);
+
+    static cv::Mat CreateQrCode(const std::string &data, int size = 2);
+
+    /**
+     * 基于OpenCV的图像模糊与否检测
+     * @param img
+     * @return
+     */
+    static double variance_of_laplacian(const cv::Mat &img);
 
     static void create2dArray(cv::Mat *input, uint8_t ***outputPtr);
 
@@ -81,6 +89,33 @@ public:
              bool useMserGetPlate = false);
 
     static int WarpAffine(const cv::Mat &srcImage, std::vector<cv::Mat> &outImage, cv::RotatedRect box);
+
+    /**
+     * 添加半透明光圈
+     * left right top bottom 默认为 十分之一
+     * @param inMat inMat 待增加图片
+     * @param outMat outMat 输出图片
+     * @param color color 颜色
+     * @return
+     */
+    static int
+    maskTranslucent(const cv::Mat &inMat, cv::Mat &outMat, cv::Scalar color = cv::Scalar(0, 0, 0));
+
+    /**
+     * 添加半透明光圈
+     * @param inMat 待增加图片
+     * @param outMat 输出图片
+     * @param left 左边边距
+     * @param right 右边边距
+     * @param top 顶部边距
+     * @param bottom 底部边距
+     * @param color 颜色
+     * @return
+     */
+    static int
+    maskTranslucent(const cv::Mat &inMat, cv::Mat &outMat, int left, int right, int top, int bottom,
+                    cv::Scalar color = cv::Scalar(0, 0, 0));
+
 
 #ifdef ENABLE_GTK3
 

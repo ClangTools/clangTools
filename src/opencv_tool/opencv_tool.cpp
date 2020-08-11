@@ -612,7 +612,7 @@ cv::Mat opencv_tool::CreateQrCode(const std::string &data, int size) {
                     for (int _1 = 0; _1 < size; _1++) {
                         for (int _2 = 0; _2 < size; _2++) {
                             // qrImg.at<uint8_t>(x * size + _1, y * size + _2, i) = 0;
-                            auto& pixel = qrImg.at<Vec3b>(x * size + _1, y * size + _2);
+                            auto &pixel = qrImg.at<Vec3b>(x * size + _1, y * size + _2);
                             pixel[0] = 0;
                             pixel[1] = 0;
                             pixel[2] = 0;
@@ -625,7 +625,7 @@ cv::Mat opencv_tool::CreateQrCode(const std::string &data, int size) {
                     for (int _1 = 0; _1 < size; _1++) {
                         for (int _2 = 0; _2 < size; _2++) {
                             // qrImg.at<uint8_t>(x * size + _1, y * size + _2, i) = 255;
-                            auto& pixel = qrImg.at<Vec3b>(x * size + _1, y * size + _2);
+                            auto &pixel = qrImg.at<Vec3b>(x * size + _1, y * size + _2);
                             pixel[0] = 255;
                             pixel[1] = 255;
                             pixel[2] = 255;
@@ -637,6 +637,90 @@ cv::Mat opencv_tool::CreateQrCode(const std::string &data, int size) {
     }
     return qrImg;
 }
+
+/**
+ * 基于OpenCV的图像模糊与否检测
+ * https://blog.csdn.net/tianzhaixing2013/article/details/77746653
+ * @param img
+ * @return
+ */
+double opencv_tool::variance_of_laplacian(const Mat &img) {
+    if (img.empty()) {
+        return 0.0;
+    }
+    Mat image;
+    resize(img, image, Size(320, 240));
+    const int imgrows = image.size().height;
+    const int imgcols = image.size().width;
+    Mat gray(Size(imgcols, imgrows), CV_8UC1, 1);
+    if (image.channels() == 3) {
+        cv::cvtColor(image, gray, COLOR_BGR2GRAY);
+    } else if (image.channels() == 1) {
+        cv::copyTo(image, gray, NULL);
+    } else {
+        cv::cvtColor(image, gray, COLOR_BGRA2GRAY);
+    }
+
+    Mat lap(Size(imgcols, imgrows), CV_64FC1, 1);
+    cv::Laplacian(gray, lap, 3);
+
+    Scalar lap_mean, lap_stddev;
+    cv::meanStdDev(lap, lap_mean, lap_stddev);
+    return lap_stddev.val[0];
+}
+
+int opencv_tool::maskTranslucent(const Mat &inMat, Mat &outMat, int left, int right, int top, int bottom,
+                                 cv::Scalar color) {
+    Mat img = inMat.clone();
+    int w = img.size().width, h = img.size().height;
+    double alphaReserve = 0.0;
+    unsigned char BChannel = color[0],
+            GChannel = color[1],
+            RChannel = color[2];
+
+    for (int row = 0; row < top; row++) {
+        alphaReserve = row / (double) top;
+        for (int col = 0; col < w; col++) {
+            img.at<Vec3b>(row, col)[0] = img.at<Vec3b>(row, col)[0] * alphaReserve + BChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[1] = img.at<Vec3b>(row, col)[1] * alphaReserve + GChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[2] = img.at<Vec3b>(row, col)[2] * alphaReserve + RChannel * (1 - alphaReserve);
+        }
+    }
+    for (int _row = 0; _row < bottom; _row++) {
+        alphaReserve = _row / (double) bottom;
+        int row = h - _row - 1;
+        for (int col = 0; col < w; col++) {
+            img.at<Vec3b>(row, col)[0] = img.at<Vec3b>(row, col)[0] * alphaReserve + BChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[1] = img.at<Vec3b>(row, col)[1] * alphaReserve + GChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[2] = img.at<Vec3b>(row, col)[2] * alphaReserve + RChannel * (1 - alphaReserve);
+        }
+    }
+    for (int col = 0; col < left; col++) {
+        alphaReserve = col / (double) left;
+        for (int row = 0; row < h; row++) {
+            img.at<Vec3b>(row, col)[0] = img.at<Vec3b>(row, col)[0] * alphaReserve + BChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[1] = img.at<Vec3b>(row, col)[1] * alphaReserve + GChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[2] = img.at<Vec3b>(row, col)[2] * alphaReserve + RChannel * (1 - alphaReserve);
+        }
+    }
+    for (int _col = 0; _col < right; _col++) {
+        alphaReserve = _col / (double) right;
+        int col = w - _col - 1;
+        for (int row = 0; row < h; row++) {
+            img.at<Vec3b>(row, col)[0] = img.at<Vec3b>(row, col)[0] * alphaReserve + BChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[1] = img.at<Vec3b>(row, col)[1] * alphaReserve + GChannel * (1 - alphaReserve);
+            img.at<Vec3b>(row, col)[2] = img.at<Vec3b>(row, col)[2] * alphaReserve + RChannel * (1 - alphaReserve);
+        }
+    }
+
+    outMat = img;
+    return 0;
+}
+
+int opencv_tool::maskTranslucent(const Mat &inMat, Mat &outMat, cv::Scalar color) {
+    return maskTranslucent(inMat, outMat, inMat.cols / 10, inMat.cols / 10, inMat.rows / 10, inMat.rows / 10, color);
+}
+
 
 #ifdef ENABLE_GTK3
 
