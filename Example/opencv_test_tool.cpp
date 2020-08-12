@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 #endif
 #endif
 #if 1
-    Mat img = imread("/Users/caesar/Desktop/2.jpg"), outMat;
+    Mat img = imread("C:\\Users\\John\\Desktop\\1.jpeg"), outMat;
     resize(img, img, Size(480, 640));
 
     opencv_tool::makeSineWave(img,img);

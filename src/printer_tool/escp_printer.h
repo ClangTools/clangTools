@@ -120,6 +120,11 @@ namespace clangTools {
         struct PageSize {
             int width = 0;
             int height = 0;
+        public:
+            PageSize(int width,int height){
+                this->width = width;
+                this->height = height;
+            }
         };
     private:
         PrinterToolReadWriteAgent *printerToolReadWriteAgent = nullptr;

@@ -656,7 +656,7 @@ double opencv_tool::variance_of_laplacian(const Mat &img) {
     if (image.channels() == 3) {
         cv::cvtColor(image, gray, COLOR_BGR2GRAY);
     } else if (image.channels() == 1) {
-        cv::copyTo(image, gray, NULL);
+        image.copyTo(gray, NULL);
     } else {
         cv::cvtColor(image, gray, COLOR_BGRA2GRAY);
     }

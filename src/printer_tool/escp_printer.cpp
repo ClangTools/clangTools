@@ -392,12 +392,13 @@ int escp_printer::print_mat(cv::Mat *img) {
     int sRet = 0, rRet = 0;
     string data = Get(escp_printer::ModelType::INFO_FREE_PBUFFER);
     if (data.size() < 5 || (data[4] == '0')) {
-        logger::instance()->e(TAG, __LINE__, "打印机没有打印空间");
-        return Error_FAIL;
+        logger::instance()->e( TAG , __LINE__ , " not INFO_FREE_PBUFFER ");
+
+        return Error_FAIL ;
     }
 
 
-#define MY_PRINT TRUE
+#define MY_PRINT FALSE
 #if MY_PRINT
 
     if (CarCutSize > 0) {
@@ -534,12 +535,12 @@ int escp_printer::print_bmp(BMP *bmp) {
     if (bmp == nullptr)return Error_ParamFail;
     string data = Get(escp_printer::ModelType::INFO_FREE_PBUFFER);
     if (data.size() < 5 || (data[4] == '0')) {
-        logger::instance()->e(TAG, __LINE__, "打印机没有打印空间");
+        logger::instance()->e(TAG, __LINE__, "no INFO_FREE_PBUFFER");
         return Error_FAIL;
     }
     BMP bmps[3];
     if (bmp->split(bmps) != 0) {
-        logger::instance()->e(TAG, __LINE__, "分割图片失败");
+        logger::instance()->e(TAG, __LINE__, "split photo fail");
         return Error_ParamFail;
     }
 
