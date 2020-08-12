@@ -116,6 +116,7 @@ public:
     maskTranslucent(const cv::Mat &inMat, cv::Mat &outMat, int left, int right, int top, int bottom,
                     cv::Scalar color = cv::Scalar(0, 0, 0));
 
+    static int makeSineWave(const cv::Mat &inMat, cv::Mat &outMat,int A = 10,int deltaI = 10);
 
 #ifdef ENABLE_GTK3
 

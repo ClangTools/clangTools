@@ -721,6 +721,43 @@ int opencv_tool::maskTranslucent(const Mat &inMat, Mat &outMat, cv::Scalar color
     return maskTranslucent(inMat, outMat, inMat.cols / 10, inMat.cols / 10, inMat.rows / 10, inMat.rows / 10, color);
 }
 
+int opencv_tool::makeSineWave(const Mat &inMat, Mat &outMat, int A, int deltaI) {
+    double angle;
+    const Mat src = inMat;
+    Mat img;
+    src.copyTo(img);
+    int width = src.cols;
+    int heigh = src.rows;
+    angle = 0.0;
+
+    for (int y = 0; y < heigh; y++) {
+        int changeX = A * sin(angle);
+        const unsigned char *srcP = src.ptr<uchar>(y);
+        uchar *imgP = img.ptr<uchar>(y);
+        for (int x = 0; x < width; x++) {
+            if (changeX + x < width && changeX + x > 0)        //正弦分布（-1,1）
+            {
+                imgP[3 * x] = srcP[3 * (x + changeX)];
+                imgP[3 * x + 1] = srcP[3 * (x + changeX) + 1];
+                imgP[3 * x + 2] = srcP[3 * (x + changeX) + 2];
+            }
+                //每行开始和结束的空白区;
+            else if (x <= changeX) {
+                imgP[3 * x] = srcP[0];
+                imgP[3 * x + 1] = srcP[1];
+                imgP[3 * x + 2] = srcP[2];
+            } else if (x >= width - changeX) {
+                imgP[3 * x] = srcP[3 * (width - 1)];
+                imgP[3 * x + 1] = srcP[3 * (width - 1) + 1];
+                imgP[3 * x + 2] = srcP[3 * (width - 1) + 2];
+            }
+        }
+        angle += ((double) deltaI) / 100;
+    }
+    outMat = img;
+    return 0;
+}
+
 
 #ifdef ENABLE_GTK3
 

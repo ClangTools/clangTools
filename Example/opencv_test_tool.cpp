@@ -33,7 +33,10 @@ int main(int argc, char **argv) {
     Mat img = imread("/Users/caesar/Desktop/2.jpg"), outMat;
     resize(img, img, Size(480, 640));
 
+    opencv_tool::makeSineWave(img,img);
+
     opencv_tool::maskTranslucent(img, outMat, img.cols / 5, img.cols / 5, img.rows / 5, img.rows / 5);
+
 
     imshow("img", img);
     imshow("outMat", outMat);
