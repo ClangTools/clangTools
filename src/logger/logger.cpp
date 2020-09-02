@@ -60,7 +60,7 @@ void logger::open(const char *path) {
     if (path != nullptr) {
         mk_dir(get_path_by_filepath(path, false));
         d(L_TAG, __LINE__, "log save to %s", path);
-        logger_file = fopen(path, "ab+");;
+        logger_file = fopen(path, "ab+");
         need_free = true;
         // logger_file->open(path, ios::app);
         this->filepath = path;
@@ -493,12 +493,9 @@ std::string logger::get_local_path() {
 bool logger::is_dir(const std::string &directory) {
 #ifdef WIN32
     DWORD dwAttr = GetFileAttributes(directory.c_str());
-    if (dwAttr & FILE_ATTRIBUTE_DIRECTORY)
-    {//是目录
+    if (dwAttr & FILE_ATTRIBUTE_DIRECTORY) {//是目录
         return true;
-    }
-    else
-    {//是文件
+    } else {//是文件
         return false;
     }
     // return (_access(directory.c_str(), 0) == 0);
@@ -824,6 +821,21 @@ int logger::g2u(char *inbuf, size_t inlen, string &data) {
     return 0;
 #endif
 #endif
+}
+
+bool logger::copy(std::string srcPath, std::string desPath) {
+    if (!logger::exists(srcPath))return false;
+    FILE *fin = fopen(srcPath.c_str(), "rb");;
+    FILE *fout = fopen(desPath.c_str(), "wb");
+
+    char buff[1024] = {'\0'};
+    int len = 0;
+    while ((len = ::fread(buff, 1, sizeof(buff), fin)) > 0) {
+        fwrite(buff, len, 1, fout);
+    }
+    fclose(fin);
+    fclose(fout);
+    return true;
 }
 
 
