@@ -104,7 +104,7 @@ else ()
 endif ()
 
 include_directories(
-#        .
+        #        .
         ./src
         ${srcSourceHeader}
 )
@@ -167,12 +167,26 @@ target_compile_definitions(
         ${libTools_LIBRARIES}
         PUBLIC -D_${libTools_LIBRARIES}_HEADER_ #-D_LOGGER_USE_THREAD_POOL_
 )
+if (UINX)
+    add_definitions(
+            -D_DLL_ClangTools_Export=__declspec\(dllimport\)
+    )
+    target_compile_definitions(
+            ${libTools_LIBRARIES}
+            PUBLIC -D_DLL_ClangTools_Export=__declspec\(dllexport\)
+    )
+else ()
+    target_compile_definitions(
+            ${libTools_LIBRARIES}
+            PUBLIC -D_DLL_ClangTools_Export=
+    )
+endif ()
 
 # Mark these variables above as deprecated.
 function(__deprecated_var var access)
-    if(access STREQUAL "READ_ACCESS")
+    if (access STREQUAL "READ_ACCESS")
         message(STATUS "The variable '${var}' is deprecated!  Instead, simply use target_link_libraries(your_app dlib::dlib).  See http://dlib.net/examples/CMakeLists.txt.html for an example.")
-    endif()
+    endif ()
 endfunction()
 
 if (CURL_FOUND)

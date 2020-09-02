@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
     void *handle = dlopen("./libprint_fail.so", RTLD_LAZY);
     if (!handle) {
-        logger::instance()->e(__FILENAME__, __LINE__, "dlopen get error: %s", dlerror());
+        logger::instance()->e(TAG, __LINE__, "dlopen get error: %s", dlerror());
         return -1;
     }
 
@@ -42,12 +42,12 @@ int main(int argc, char *argv[]) {
     int (*func)();
     func = (int (*)()) dlsym(handle, "print_fail");
     if (func == nullptr) {
-        logger::instance()->e(__FILENAME__, __LINE__, "获取函数失败 get error: %s", dlerror());
+        logger::instance()->e(TAG, __LINE__, "获取函数失败 get error: %s", dlerror());
         return -1;
     }
 
     int ret = (*func)();
-    logger::instance()->i(__FILENAME__, __LINE__, "print_fail : %d", ret);
+    logger::instance()->i(TAG, __LINE__, "print_fail : %d", ret);
     return 0;
 }
 ```

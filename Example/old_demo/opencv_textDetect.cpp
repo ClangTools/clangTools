@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 
     string faceXml = logger::get_local_path() + "/data/haarcascades/haarcascade_frontalface_alt2.xml";
     opencv_tool::instance()->init(faceXml);
-    logger::instance()->d(__FILENAME__, __LINE__, "CascadeClassifier load : %s",
+    logger::instance()->d(TAG, __LINE__, "CascadeClassifier load : %s",
                           (opencv_tool::instance()->isLoad() ? "true" : "false"));
 
     cv::Mat srcImage =
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
             cv::rectangle(srcImage, faces[i].boundingRect(), Scalar(255, 0, 0));
         }
     }
-    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
     cv::imshow("src Image", srcImage);
     cv::waitKey(0);
     return 0;

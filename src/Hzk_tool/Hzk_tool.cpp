@@ -73,7 +73,7 @@ bool Hzk_tool::get(std::vector<std::vector<std::vector<unsigned char>>> &out, co
             i++;
             // flag = true;
         } else {
-            logger::instance()->e(__FILENAME__, __LINE__, "No pattern for %c", (char) dest[i]);
+            logger::instance()->e(TAG, __LINE__, "No pattern for %c", (char) dest[i]);
         }
         i++;
     }
@@ -99,7 +99,7 @@ cv::Mat Hzk_tool::getOne(char *dest) {
         fin.read(p, length);
         item = (block->getPattern());
     } else {
-        logger::instance()->e(__FILENAME__, __LINE__, "No pattern for %c", (char) dest[0]);
+        logger::instance()->e(TAG, __LINE__, "No pattern for %c", (char) dest[0]);
         return out;
     }
     if (item.empty())return out;

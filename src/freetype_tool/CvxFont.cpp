@@ -12,16 +12,16 @@ cvx::CvxFont::CvxFont(const cv::String &fontType) {
 
     m_error = FT_Init_FreeType(&m_library);
     if (m_error) {
-        logger::instance()->e(__FILENAME__, __LINE__, "library initial error!");
+        logger::instance()->e(TAG, __LINE__, "library initial error!");
         return;
     }
 
     m_error = FT_New_Face(m_library, fontType.c_str(), 0, &m_face);
     if (m_error == FT_Err_Unknown_File_Format) {
-        logger::instance()->e(__FILENAME__, __LINE__, "unsupported font format!");
+        logger::instance()->e(TAG, __LINE__, "unsupported font format!");
         return;
     } else if (m_error) {
-        logger::instance()->e(__FILENAME__, __LINE__, " can not open font files");
+        logger::instance()->e(TAG, __LINE__, " can not open font files");
         return;
     }
 

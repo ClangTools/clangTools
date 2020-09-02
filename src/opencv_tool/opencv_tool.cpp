@@ -19,6 +19,12 @@ using qrcodegen::QrSegment;
 using namespace std;
 using namespace cv;
 
+#ifdef __FILENAME__
+const char *opencv_tool::TAG = __FILENAME__;
+#else
+const char * opencv_tool::TAG = "opencv_tool";
+#endif
+
 opencv_tool opencvTool{};
 
 opencv_tool *opencv_tool::instance() {
@@ -369,7 +375,7 @@ std::vector<cv::RotatedRect> opencv_tool::FindLine_Gray(const cv::Mat &srcImage)
     // 再次膨胀，让轮廓明显一些
     erode(gray, gray, element2, Point(-1, -1), 2);
 
-//    logger::instance()->d(__FILENAME__, __LINE__, "imshow GaussianBlur");
+//    logger::instance()->d(TAG, __LINE__, "imshow GaussianBlur");
 //    imshow("GaussianBlur", gray);
 
 //    Mat vis = srcImage.clone();
@@ -390,12 +396,12 @@ std::vector<cv::RotatedRect> opencv_tool::FindLine_Gray(const cv::Mat &srcImage)
         keep.push_back(rect);
         // cv::rectangle(vis, rect.boundingRect(), Scalar(255, 255, 0), 1);
     }
-//    logger::instance()->d(__FILENAME__, __LINE__, "imshow vis");
+//    logger::instance()->d(TAG, __LINE__, "imshow vis");
 //    imshow("vis", vis);
 
 //    Mat img = srcImage.clone();
 //    polylines(img, hulls, true, Scalar(0, 255, 0));
-//    logger::instance()->d(__FILENAME__, __LINE__, "imshow img");
+//    logger::instance()->d(TAG, __LINE__, "imshow img");
 //    imshow("img", img);
 
     return keep;
@@ -554,8 +560,8 @@ void opencv_tool::ImgDithering(const cv::Mat &gray, std::vector<std::vector<unsi
     /* Get the size info */
     int imgWidth = dithImg.cols;
     int imgHeight = dithImg.rows;
-    logger::instance()->d(__FILENAME__, __LINE__, "Image width : %d", imgWidth);
-    logger::instance()->d(__FILENAME__, __LINE__, "Image height: %d", imgHeight);
+    logger::instance()->d(TAG, __LINE__, "Image width : %d", imgWidth);
+    logger::instance()->d(TAG, __LINE__, "Image height: %d", imgHeight);
 
     outputPtr = std::vector<std::vector<unsigned char>>(imgHeight, std::vector<unsigned char>(imgWidth));
 

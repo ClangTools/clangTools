@@ -10,10 +10,10 @@ using namespace cv;
 
 int main(int argc, char *argv[]) {
     logger::instance()->init_default();
-    logger::instance()->d(__FILENAME__, __LINE__, "running go");
+    logger::instance()->d(TAG, __LINE__, "running go");
 
     opencv_tool opencvTool(logger::get_local_path() + "/data/haarcascades/haarcascade_frontalface_default.xml");
-    logger::instance()->d(__FILENAME__, __LINE__, "opencvTool load %s", opencvTool.isLoad() ? "True" : "False");
+    logger::instance()->d(TAG, __LINE__, "opencvTool load %s", opencvTool.isLoad() ? "True" : "False");
 
     cv::VideoCapture cap;
     cap.open(0);
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    logger::instance()->d(__FILENAME__, __LINE__, "running finish");
+    logger::instance()->d(TAG, __LINE__, "running finish");
     return 0;
 }
 

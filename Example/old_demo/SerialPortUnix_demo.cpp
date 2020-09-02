@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
     logger::instance()->init_default();
     if (argc != 2) {
-        logger::instance()->e(__FILENAME__, __LINE__, "错误参数");
+        logger::instance()->e(TAG, __LINE__, "错误参数");
         return 0;
     }
     SerialPortUnix serialPortUnix;
@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
         auto start = logger::get_time_tick();
         int ret = serialPortUnix.read(data,500);
         auto end = logger::get_time_tick();
-        logger::instance()->d(__FILENAME__, __LINE__, "read", data.data(), data.size());
-        logger::instance()->i(__FILENAME__, __LINE__, "read size : %d ; %lld", ret, end - start);
+        logger::instance()->d(TAG, __LINE__, "read", data.data(), data.size());
+        logger::instance()->i(TAG, __LINE__, "read size : %d ; %lld", ret, end - start);
     }
     serialPortUnix.close();
     return 0;

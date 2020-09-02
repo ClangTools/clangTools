@@ -17,6 +17,7 @@ class SerialPortUnix {
 public:
     int open(const char *tty_path, int baudrate = 115200, int dataBits = 8, int parity = 'N', int stopBits = 1,
              int flags = 0);
+    static const char * TAG;
 
     void close();
 

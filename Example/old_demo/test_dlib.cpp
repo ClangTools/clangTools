@@ -66,16 +66,16 @@ int main(int argc, char *argv[]) {
         IplImage ipl_img = cvIplImage(temp);
         dlib::cv_image<dlib::bgr_pixel> cimg(&ipl_img);
 
-        logger::instance()->i(__FILENAME__, __LINE__, "%lld", logger::get_time_tick() - start);
+        logger::instance()->i(TAG, __LINE__, "%lld", logger::get_time_tick() - start);
         // Detect faces
         std::vector<dlib::rectangle> faces = detector(cimg, 0);
-        logger::instance()->d(__FILENAME__, __LINE__, "%lld : faces.size() : %lu", logger::get_time_tick() - start,
+        logger::instance()->d(TAG, __LINE__, "%lld : faces.size() : %lu", logger::get_time_tick() - start,
                               faces.size());
         // Find the pose of each face.
         std::vector<full_object_detection> shapes;
         for (unsigned long i = 0; i < faces.size(); ++i)
             shapes.push_back(pose_model(cimg, faces[i]));
-        logger::instance()->d(__FILENAME__, __LINE__, "%lld", logger::get_time_tick() - start);
+        logger::instance()->d(TAG, __LINE__, "%lld", logger::get_time_tick() - start);
 
         // Display it all on the screen
     }

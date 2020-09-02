@@ -15,7 +15,7 @@ using namespace std;
 
 int main1(int argc, char **argv) {
     logger::instance()->init_default();
-    logger::instance()->d(__FILENAME__, __LINE__, "running");
+    logger::instance()->d(TAG, __LINE__, "running");
     // 读取RBG图片，转成Lab模式
     Mat bgr_image =
 //            cv::imread(argc == 2 ? argv[1] : "../images/4.jpg");
@@ -27,14 +27,14 @@ int main1(int argc, char **argv) {
     auto startTime = logger::get_time_tick();
     Mat lab_image;
     cvtColor(bgr_image, lab_image, COLOR_BGR2Lab);
-    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
     // 提取L通道
     vector<Mat> lab_planes(3);
     split(lab_image, lab_planes);
     // CLAHE 算法
     Ptr<CLAHE> clahe = createCLAHE();
     clahe->setClipLimit(4);
-    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
     Mat dst;
     clahe->apply(lab_planes[0], dst);
     dst.copyTo(lab_planes[0]);
@@ -42,18 +42,18 @@ int main1(int argc, char **argv) {
     //恢复RGB图像
     Mat image_clahe;
     cvtColor(lab_image, image_clahe, COLOR_Lab2BGR);
-    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
     //打印结果
     imshow("src", bgr_image);
     imshow("CLAHE", image_clahe);
     waitKey();
-    logger::instance()->d(__FILENAME__, __LINE__, "end");
+    logger::instance()->d(TAG, __LINE__, "end");
     return 0;
 }
 
 int main(int argc, char *argv[]) {
     logger::instance()->init_default();
-    logger::instance()->d(__FILENAME__, __LINE__, "running");
+    logger::instance()->d(TAG, __LINE__, "running");
 
     Mat gray;
     cv::Mat srcImage =
@@ -90,14 +90,14 @@ int main(int argc, char *argv[]) {
 //    } else {
 //        gray = mOut.clone();
 //    }
-//    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+//    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
 //    adaptiveThreshold(gray, gray, 255, ADAPTIVE_THRESH_GAUSSIAN_C,
 //                      THRESH_BINARY, 13 * 2 + 1, 3);
-//    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+//    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
 
 //    方法一3以下的版本
 //    Canny(mOut, out, 10, 150);
-//    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+//    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
     Canny(gOut, out, 10, 50);
 
 //    int elementSize = 1;
@@ -130,8 +130,8 @@ int main(int argc, char *argv[]) {
     }
     std::vector<cv::RotatedRect> results;
     opencv_tool::nms(results, candidates);
-    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
-    logger::instance()->d(__FILENAME__, __LINE__, "results : %lu", results.size());
+    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+    logger::instance()->d(TAG, __LINE__, "results : %lu", results.size());
     for (const auto &rRect :results) {
         ///*
         Point2f vertices[4];
@@ -142,8 +142,8 @@ int main(int argc, char *argv[]) {
         /*
         std::vector<cv::Mat> outImages;
         opencv_tool::WarpAffine(srcImage, outImages, rRect);
-        logger::instance()->d(__FILENAME__, __LINE__, "WarpAffine : %lu", outImages.size());
-        logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+        logger::instance()->d(TAG, __LINE__, "WarpAffine : %lu", outImages.size());
+        logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
         for (const auto& outImage:outImages) {
             cv::imshow("outImage", outImage);
             cv::waitKey(0);
@@ -152,12 +152,12 @@ int main(int argc, char *argv[]) {
     }
 
 
-    logger::instance()->d(__FILENAME__, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
+    logger::instance()->d(TAG, __LINE__, "use time : %lld", logger::get_time_tick() - startTime);
     cv::imshow("gray", gray);
     cv::imshow("src Image", srcImage);
     cv::waitKey(0);
 
-    logger::instance()->d(__FILENAME__, __LINE__, "end");
+    logger::instance()->d(TAG, __LINE__, "end");
     return 0;
 }
 

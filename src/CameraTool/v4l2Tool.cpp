@@ -42,6 +42,13 @@ using namespace std;
 // #define pthread_mutex_unlock(TAG) pthread_mutex_unlock(TAG);logger::instance()->d("pthread_mutex_lock","pthread_mutex_unlock")
 namespace clangTools {
 
+
+#ifdef __FILENAME__
+const char *v4l2Tool::TAG = __FILENAME__;
+#else
+const char * v4l2Tool::TAG = "v4l2Tool";
+#endif
+
 #ifdef WIN32
 
     //VIDEODEVICE
@@ -806,7 +813,6 @@ namespace clangTools {
         s.erase(s.find_last_not_of(" ") + 1);
         return s;
     }
-
     /**
      * @brief 获取摄像头列表
      *
@@ -819,7 +825,7 @@ namespace clangTools {
         DIR *dir;
         struct dirent *ptr;
         if ((dir = opendir(video2linux.c_str())) == NULL) {
-            logger::instance()->e(__FILENAME__, __LINE__, "摄像头信息目录打开出错");
+            logger::instance()->e(TAG, __LINE__, "摄像头信息目录打开出错");
             return -1;
         }
         while (len < vdLen && ((ptr = readdir(dir)) != NULL)) {
@@ -828,14 +834,14 @@ namespace clangTools {
                 continue;
             else if (ptr->d_type == 8) ///file
             {
-                logger::instance()->i(__FILENAME__, __LINE__, "文件%s", ptr->d_name);
+                logger::instance()->i(TAG, __LINE__, "文件%s", ptr->d_name);
                 continue;
             } else if (ptr->d_type == 10) ///link file
             {
-                logger::instance()->i(__FILENAME__, __LINE__, "链接 %s", ptr->d_name);
+                logger::instance()->i(TAG, __LINE__, "链接 %s", ptr->d_name);
             } else if (ptr->d_type == 4) ///dir
             {
-                logger::instance()->i(__FILENAME__, __LINE__, "目录 %s", ptr->d_name);
+                logger::instance()->i(TAG, __LINE__, "目录 %s", ptr->d_name);
             } else {
                 continue;
             }
@@ -846,7 +852,7 @@ namespace clangTools {
             memset(vd[len].path, 0x00, 256);
             memcpy(vd[len].path, videoPath.c_str(), videoPath.size());
 
-            logger::instance()->i(__FILENAME__, __LINE__, "摄像头路径 %s", (videoPath).c_str());
+            logger::instance()->i(TAG, __LINE__, "摄像头路径 %s", (videoPath).c_str());
 
             string s;
             string name;
@@ -860,12 +866,12 @@ namespace clangTools {
             filestr.close();
             memset(vd[len].name, 0x00, 50);
             memcpy(vd[len].name, name.c_str(), name.size());
-            logger::instance()->i(__FILENAME__, __LINE__, "摄像头名 %s", name.c_str());
+            logger::instance()->i(TAG, __LINE__, "摄像头名 %s", name.c_str());
 
             DIR *dir1;
             struct dirent *ptr1;
             if ((dir1 = opendir((sub_dir + "/device/input").c_str())) == nullptr) {
-                logger::instance()->e(__FILENAME__, __LINE__, "摄像头信息目录打开出错 %s ", (sub_dir + "/device/input").c_str());
+                logger::instance()->e(TAG, __LINE__, "摄像头信息目录打开出错 %s ", (sub_dir + "/device/input").c_str());
                 continue;
             }
             while ((ptr1 = readdir(dir1)) != nullptr) {
@@ -874,10 +880,10 @@ namespace clangTools {
                     continue;
                 else if (ptr1->d_type == 10) ///link file
                 {
-                    logger::instance()->i(__FILENAME__, __LINE__, "链接 %s", ptr1->d_name);
+                    logger::instance()->i(TAG, __LINE__, "链接 %s", ptr1->d_name);
                 } else if (ptr1->d_type == 4) ///dir
                 {
-                    logger::instance()->i(__FILENAME__, __LINE__, "目录 %s", ptr1->d_name);
+                    logger::instance()->i(TAG, __LINE__, "目录 %s", ptr1->d_name);
                 } else {
                     continue;
                 }
@@ -904,7 +910,7 @@ namespace clangTools {
                 memcpy(vd[len].vid, vid.c_str(), vid.size());
                 memset(vd[len].pid, 0x00, 10);
                 memcpy(vd[len].pid, pid.c_str(), pid.size());
-                logger::instance()->i(__FILENAME__, __LINE__, "vid : %s ;pid : %s", vid.c_str(), pid.c_str());
+                logger::instance()->i(TAG, __LINE__, "vid : %s ;pid : %s", vid.c_str(), pid.c_str());
             }
             closedir(dir1);
             len++;
@@ -941,10 +947,10 @@ namespace clangTools {
         */
         struct v4l2_capability caps;
         if (xioctl(dev->fd, VIDIOC_QUERYCAP, &caps) == -1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "Querying Capabilities");
+            logger::instance()->e(TAG, __LINE__, "Querying Capabilities");
             return 1;
         }
-        logger::instance()->d(__FILENAME__, __LINE__, "Driver Caps:"
+        logger::instance()->d(TAG, __LINE__, "Driver Caps:"
                                                       "  Driver: \"%s\""
                                                       "  Card: \"%s\""
                                                       "  Bus: \"%s\""
@@ -967,7 +973,7 @@ namespace clangTools {
         fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         char c, e;
         char fourcc[5];
-        logger::instance()->d(__FILENAME__, __LINE__, "  FMT : CE Desc");
+        logger::instance()->d(TAG, __LINE__, "  FMT : CE Desc");
         while (0 == xioctl(dev->fd, VIDIOC_ENUM_FMT, &fmtdesc)) {
             strncpy(fourcc, (char *) &fmtdesc.pixelformat, 4);
             c = fmtdesc.flags & 1 ? 'C' : ' ';
@@ -1001,7 +1007,7 @@ namespace clangTools {
         assert(count > -1);
 
         if (xioctl(dev->fd, VIDIOC_S_INPUT, &count) == -1) {
-            logger::instance()->d(__FILENAME__, __LINE__, "Error selecting input %d", count);
+            logger::instance()->d(TAG, __LINE__, "Error selecting input %d", count);
             return 1;
         }
         return 0;
@@ -1029,10 +1035,10 @@ namespace clangTools {
         fmt.fmt.pix.pixelformat = dev->fmt;
         fmt.fmt.pix.field = V4L2_FIELD_ANY;
         if (-1 == xioctl(dev->fd, VIDIOC_S_FMT, &fmt)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "Setting Pixel Format");
+            logger::instance()->e(TAG, __LINE__, "Setting Pixel Format");
             return 1;
         }
-        logger::instance()->d(__FILENAME__, __LINE__, "Selected Camera Mode:"
+        logger::instance()->d(TAG, __LINE__, "Selected Camera Mode:"
                                                       "  Width: %d"
                                                       "  Height: %d"
                                                       "  PixFmt: %s",
@@ -1042,17 +1048,17 @@ namespace clangTools {
 
         dev->width = fmt.fmt.pix.width;
         dev->height = fmt.fmt.pix.height;
-        logger::instance()->d(__FILENAME__, __LINE__, "Selected Camera Mode:"
+        logger::instance()->d(TAG, __LINE__, "Selected Camera Mode:"
                                                       "  Width: %d"
                                                       "  Height: %d",
                               dev->width,
                               dev->height);
 
         if (dev->fmt != fmt.fmt.pix.pixelformat) {
-            logger::instance()->e(__FILENAME__, __LINE__, "Pix format not accepted");
+            logger::instance()->e(TAG, __LINE__, "Pix format not accepted");
             return 1;
         }
-        logger::instance()->i(__FILENAME__, __LINE__, "Pix format is accepted");
+        logger::instance()->i(TAG, __LINE__, "Pix format is accepted");
         return 0;
     }
 
@@ -1071,7 +1077,7 @@ namespace clangTools {
         setfps.parm.capture.timeperframe.numerator = 1;
         setfps.parm.capture.timeperframe.denominator = dev->fps;
         if (xioctl(dev->fd, VIDIOC_S_PARM, &setfps) == -1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "Error setting frame rate");
+            logger::instance()->e(TAG, __LINE__, "Error setting frame rate");
             return 1;
         }
         dev->fps = setfps.parm.capture.timeperframe.denominator;
@@ -1093,12 +1099,12 @@ namespace clangTools {
         req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         req.memory = V4L2_MEMORY_MMAP;
         if (-1 == xioctl(dev->fd, VIDIOC_REQBUFS, &req)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "Requesting Buffer");
+            logger::instance()->e(TAG, __LINE__, "Requesting Buffer");
             return 1;
         }
         dev->buffer = (buffer_t *) malloc(req.count * sizeof(buffer_t));
         if (!dev->buffer) {
-            logger::instance()->e(__FILENAME__, __LINE__, "Out of memory");
+            logger::instance()->e(TAG, __LINE__, "Out of memory");
             dev->buffer = NULL;
             return 1;
         }
@@ -1110,7 +1116,7 @@ namespace clangTools {
             buf.memory = V4L2_MEMORY_MMAP;
             buf.index = i;
             if (xioctl(dev->fd, VIDIOC_QUERYBUF, &buf) == -1) {
-                logger::instance()->e(__FILENAME__, __LINE__, "VIDIOC_QUERYBUF");
+                logger::instance()->e(TAG, __LINE__, "VIDIOC_QUERYBUF");
                 return 1;
             }
             dev->buffer[i].length = buf.length;
@@ -1123,7 +1129,7 @@ namespace clangTools {
                 }
                 free(dev->buffer);
                 dev->buffer = nullptr;
-                logger::instance()->e(__FILENAME__, __LINE__, "Error mapping buffer");
+                logger::instance()->e(TAG, __LINE__, "Error mapping buffer");
                 return 1;
             }
         }
@@ -1147,14 +1153,14 @@ namespace clangTools {
             buf.memory = V4L2_MEMORY_MMAP;
             buf.index = i;
             if (xioctl(dev->fd, VIDIOC_QBUF, &buf) < 0) {
-                logger::instance()->e(__FILENAME__, __LINE__, "VIDIOC_QBUF");
+                logger::instance()->e(TAG, __LINE__, "VIDIOC_QBUF");
                 return 1;
             }
         }
         enum v4l2_buf_type type;
         type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         if (xioctl(dev->fd, VIDIOC_STREAMON, &type) < 0) {
-            logger::instance()->e(__FILENAME__, __LINE__, "VIDIOC_STREAMON");
+            logger::instance()->e(TAG, __LINE__, "VIDIOC_STREAMON");
             return 1;
         }
         return 0;
@@ -1174,13 +1180,13 @@ namespace clangTools {
         enum v4l2_buf_type type;
         type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         if (xioctl(dev->fd, VIDIOC_STREAMOFF, &type) < 0) {
-            logger::instance()->e(__FILENAME__, __LINE__, "VIDIOC_STREAMOFF");
+            logger::instance()->e(TAG, __LINE__, "VIDIOC_STREAMOFF");
             return 1;
         }
         unsigned int i;
         for (i = 0; i < dev->n_buffers && dev->buffer != nullptr; ++i) {
             if (munmap(dev->buffer[i].data, dev->buffer[i].length) < 0) {
-                logger::instance()->e(__FILENAME__, __LINE__, "munmap");
+                logger::instance()->e(TAG, __LINE__, "munmap");
                 return 1;
             }
         }
@@ -1194,15 +1200,15 @@ namespace clangTools {
      * @return int < 0 保存失败
      */
     int v4l2Tool::grabFrame(const char *BmpPath) {
-        logger::instance()->d(__FILENAME__, __LINE__, "be capturing..");
+        logger::instance()->d(TAG, __LINE__, "be capturing..");
         int ret = pthread_mutex_lock(&testlock);
-        if (ret != 0)logger::instance()->d(__FILENAME__, __LINE__, "获取锁返回值 ：%d", ret);
-        logger::instance()->d(__FILENAME__, __LINE__, "capturing..");
+        if (ret != 0)logger::instance()->d(TAG, __LINE__, "获取锁返回值 ：%d", ret);
+        logger::instance()->d(TAG, __LINE__, "capturing..");
         if (frame_buffer == NULL || dev == NULL) {
             pthread_mutex_unlock(&testlock);
             return -998;
         }
-        logger::instance()->d(__FILENAME__, __LINE__, "capturing..");
+        logger::instance()->d(TAG, __LINE__, "capturing..");
 
         BMP bmp;
         bmp.SetData(dev->width, dev->height, 24, frame_buffer);
@@ -1211,7 +1217,7 @@ namespace clangTools {
         }
         bool flag = bmp.WriteBmp(BmpPath);
         pthread_mutex_unlock(&testlock);
-        logger::instance()->d(__FILENAME__, __LINE__, "capture ok");
+        logger::instance()->d(TAG, __LINE__, "capture ok");
         return flag ? 0 : -1001;
     }
 
@@ -1223,14 +1229,14 @@ namespace clangTools {
      * @return int
      */
     int v4l2Tool::grabFrame(unsigned char *colors, int BitPerPixel) {
-        // logger::instance()->d(__FILENAME__, __LINE__, "be capturing..");
+        // logger::instance()->d(TAG, __LINE__, "be capturing..");
         int ret = pthread_mutex_lock(&testlock);
-        if (ret != 0)logger::instance()->d(__FILENAME__, __LINE__, "获取锁返回值 ：%d", ret);
+        if (ret != 0)logger::instance()->d(TAG, __LINE__, "获取锁返回值 ：%d", ret);
         if (frame_buffer == NULL || running == 0) {
             pthread_mutex_unlock(&testlock);
             return -998;
         }
-        // logger::instance()->d(__FILENAME__, __LINE__, "capturing..");
+        // logger::instance()->d(TAG, __LINE__, "capturing..");
 
 #ifndef ANDROID_SO
         BMP bmp;
@@ -1315,7 +1321,7 @@ namespace clangTools {
         // dev->fdout_devname = open(dev->out_devname, O_RDWR | O_NONBLOCK, 0);
         dev->fdout_devname = open(dev->out_devname, O_RDWR, 0);
         if (dev->fdout_devname == -1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "v4l2loopback: Opening virtual video device");
+            logger::instance()->e(TAG, __LINE__, "v4l2loopback: Opening virtual video device");
             return 1;
         }
         struct v4l2_capability vid_caps;
@@ -1323,7 +1329,7 @@ namespace clangTools {
         CLEAR(vid_format);
 
         if (xioctl(dev->fdout_devname, VIDIOC_QUERYCAP, &vid_caps) < 0) {
-            logger::instance()->e(__FILENAME__, __LINE__, "v4l2loopback: VIDIOC_QUERYCAP");
+            logger::instance()->e(TAG, __LINE__, "v4l2loopback: VIDIOC_QUERYCAP");
             return 1;
         }
         vid_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
@@ -1332,7 +1338,7 @@ namespace clangTools {
         vid_format.fmt.pix.pixelformat = dev->fmt;
         vid_format.fmt.pix.field = V4L2_FIELD_ANY;
         if (xioctl(dev->fdout_devname, VIDIOC_S_FMT, &vid_format) < 0) {
-            logger::instance()->e(__FILENAME__, __LINE__, "v4l2loopback: VIDIOC_S_FMT");
+            logger::instance()->e(TAG, __LINE__, "v4l2loopback: VIDIOC_S_FMT");
             return 1;
         }
 
@@ -1342,7 +1348,7 @@ namespace clangTools {
         setfps.parm.capture.timeperframe.numerator = 1;
         setfps.parm.capture.timeperframe.denominator = dev->fps;
         if (xioctl(dev->fdout_devname, VIDIOC_S_PARM, &setfps) == -1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "v4l2loopback: Error setting frame rate");
+            logger::instance()->e(TAG, __LINE__, "v4l2loopback: Error setting frame rate");
             return 1;
         }
         return 0;
@@ -1381,7 +1387,7 @@ namespace clangTools {
         memset(&ctrl, 0, sizeof(ctrl));
         ctrl.id = V4L2_CID_AUTO_WHITE_BALANCE;
         if (-1 == xioctl(fd, VIDIOC_G_CTRL, &ctrl)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "V4L2_CID_AUTO_WHITE_BALANCE Fail");
+            logger::instance()->e(TAG, __LINE__, "V4L2_CID_AUTO_WHITE_BALANCE Fail");
         }
         return ctrl.value;
     }
@@ -1401,7 +1407,7 @@ namespace clangTools {
         ctrl.id = V4L2_CID_AUTO_WHITE_BALANCE;
         ctrl.value = enable;
         if (-1 == xioctl(fd, VIDIOC_S_CTRL, &ctrl)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "V4L2_CID_AUTO_WHITE_BALANCE Fail");
+            logger::instance()->e(TAG, __LINE__, "V4L2_CID_AUTO_WHITE_BALANCE Fail");
         }
         return GetAutoWhiteBalance() == enable;
     }
@@ -1419,10 +1425,10 @@ namespace clangTools {
         memset(&ctrl, 0, sizeof(ctrl));
         ctrl.id = V4L2_CID_BRIGHTNESS;
         if (-1 == xioctl(fd, VIDIOC_G_CTRL, &ctrl)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "V4L2_CID_BRIGHTNESS : 失败 ");
+            logger::instance()->e(TAG, __LINE__, "V4L2_CID_BRIGHTNESS : 失败 ");
             return -999;
         }
-        logger::instance()->i(__FILENAME__, __LINE__, "V4L2_CID_BRIGHTNESS = 0x%x", ctrl.value);
+        logger::instance()->i(TAG, __LINE__, "V4L2_CID_BRIGHTNESS = 0x%x", ctrl.value);
         return ctrl.value;
     }
 
@@ -1444,7 +1450,7 @@ namespace clangTools {
         ctrl.id = V4L2_CID_BRIGHTNESS;
         ctrl.value = enable; // queryctrl.default_value;
         if (-1 == xioctl(fd, VIDIOC_S_CTRL, &ctrl)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "V4L2_CID_BRIGHTNESS Fail");
+            logger::instance()->e(TAG, __LINE__, "V4L2_CID_BRIGHTNESS Fail");
             return -999;
         }
         return GetBrightness() == enable;
@@ -1463,10 +1469,10 @@ namespace clangTools {
         memset(&ctrl, 0, sizeof(ctrl));
         ctrl.id = V4L2_CID_CONTRAST;
         if (-1 == xioctl(fd, VIDIOC_G_CTRL, &ctrl)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "V4L2_CID_CONTRAST : 失败 ");
+            logger::instance()->e(TAG, __LINE__, "V4L2_CID_CONTRAST : 失败 ");
             return -999;
         }
-        logger::instance()->i(__FILENAME__, __LINE__, "V4L2_CID_CONTRAST = 0x%x", ctrl.value);
+        logger::instance()->i(TAG, __LINE__, "V4L2_CID_CONTRAST = 0x%x", ctrl.value);
         return ctrl.value;
     }
 
@@ -1486,7 +1492,7 @@ namespace clangTools {
         ctrl.id = V4L2_CID_CONTRAST;
         ctrl.value = enable; // queryctrl.default_value;
         if (-1 == xioctl(fd, VIDIOC_S_CTRL, &ctrl)) {
-            logger::instance()->e(__FILENAME__, __LINE__, "V4L2_CID_CONTRAST Fail");
+            logger::instance()->e(TAG, __LINE__, "V4L2_CID_CONTRAST Fail");
             return -999;
         }
         return GetBrightness() == enable;
@@ -1501,7 +1507,7 @@ namespace clangTools {
     int v4l2Tool::Open(const char *devname) {
 
         Close();
-        logger::instance()->d(__FILENAME__, __LINE__, "OpenVideo : %s", devname);
+        logger::instance()->d(TAG, __LINE__, "OpenVideo : %s", devname);
         running = 0;
         dev = (v4l2device *) malloc(sizeof(v4l2device));
         CLEAR(*dev);
@@ -1522,15 +1528,15 @@ namespace clangTools {
 
 
         // print args
-        logger::instance()->d(__FILENAME__, __LINE__, "Required width: %d", dev->width);
-        logger::instance()->d(__FILENAME__, __LINE__, "Required height: %d", dev->height);
-        logger::instance()->d(__FILENAME__, __LINE__, "Required FPS: %d", dev->fps);
-        logger::instance()->d(__FILENAME__, __LINE__, "input device: %s", dev->in_devname);
-        logger::instance()->d(__FILENAME__, __LINE__, "output device: %s", dev->out_devname);
+        logger::instance()->d(TAG, __LINE__, "Required width: %d", dev->width);
+        logger::instance()->d(TAG, __LINE__, "Required height: %d", dev->height);
+        logger::instance()->d(TAG, __LINE__, "Required FPS: %d", dev->fps);
+        logger::instance()->d(TAG, __LINE__, "input device: %s", dev->in_devname);
+        logger::instance()->d(TAG, __LINE__, "output device: %s", dev->out_devname);
 
         // dev->fd = open(dev->in_devname, O_RDWR | O_NONBLOCK, 0);
         dev->fd = open(dev->in_devname, O_RDWR, 0);
-        logger::instance()->i(__FILENAME__, __LINE__, "video fd : %d ", dev->fd);
+        logger::instance()->i(TAG, __LINE__, "video fd : %d ", dev->fd);
         // if (dev->fd <=0)
         // {
         //     logger::instance()->e(__FILENAME__,__LINE__, "Opening video device");
@@ -1538,7 +1544,7 @@ namespace clangTools {
         //     dev->fd = open(dev->in_devname, O_RDWR | O_NONBLOCK, 0);
 
         if (dev->fd <= 0) {
-            logger::instance()->e(__FILENAME__, __LINE__, "Opening video device");
+            logger::instance()->e(TAG, __LINE__, "Opening video device");
             Close();
             return -1;
         }
@@ -1548,7 +1554,7 @@ namespace clangTools {
         // 	check device capabilites
         retcode = v4l2_capabilities();
         if (retcode) {
-            logger::instance()->e(__FILENAME__, __LINE__, "%d", retcode);
+            logger::instance()->e(TAG, __LINE__, "%d", retcode);
             Close();
             return -1;
         }
@@ -1556,7 +1562,7 @@ namespace clangTools {
         // 	set input
         retcode = v4l2_set_input();
         if (retcode) {
-            logger::instance()->e(__FILENAME__, __LINE__, "%d", retcode);
+            logger::instance()->e(TAG, __LINE__, "%d", retcode);
             Close();
             return -1;
         }
@@ -1564,14 +1570,14 @@ namespace clangTools {
         // 	set pixformat
         retcode = v4l2_set_pixfmt();
         if (retcode) {
-            logger::instance()->e(__FILENAME__, __LINE__, "%d", retcode);
+            logger::instance()->e(TAG, __LINE__, "%d", retcode);
             Close();
             return -1;
         }
         // 	set framerate
         retcode = v4l2_set_fps();
         if (retcode) {
-            logger::instance()->e(__FILENAME__, __LINE__, "%d", retcode);
+            logger::instance()->e(TAG, __LINE__, "%d", retcode);
             Close();
             return -1;
         }
@@ -1579,7 +1585,7 @@ namespace clangTools {
         // 	allocate buffers
         retcode = v4l2_init_mmap();
         if (retcode) {
-            logger::instance()->e(__FILENAME__, __LINE__, "%d", retcode);
+            logger::instance()->e(TAG, __LINE__, "%d", retcode);
             Close();
             return -1;
         }
@@ -1587,12 +1593,12 @@ namespace clangTools {
         // 	prepare to grab frames
         retcode = prepare_cap();
         if (retcode) {
-            logger::instance()->e(__FILENAME__, __LINE__, "%d", retcode);
+            logger::instance()->e(TAG, __LINE__, "%d", retcode);
             Close();
             return -1;
         }
 
-        logger::instance()->i(__FILENAME__, __LINE__, "摄像头开启成功");
+        logger::instance()->i(TAG, __LINE__, "摄像头开启成功");
         running = 1;
         isClose = false;
         // pthread_attr_t attr; //attributes of the thread   //from base code
@@ -1604,11 +1610,11 @@ namespace clangTools {
             pthread_create(test_thread, NULL, &ReadVideo, (void *) this);
         }
         catch (...) {
-            logger::instance()->e(__FILENAME__, __LINE__, "出现异常");
+            logger::instance()->e(TAG, __LINE__, "出现异常");
             return -1;
         }
         usleep(100 * 1000);
-        logger::instance()->i(__FILENAME__, __LINE__, "摄像头开启成功End");
+        logger::instance()->i(TAG, __LINE__, "摄像头开启成功End");
         return 0;
     }
 
@@ -1726,7 +1732,7 @@ namespace clangTools {
             }
             try {
                 int ret = pthread_mutex_lock(&that->testlock);
-                if (ret != 0)logger::instance()->d(__FILENAME__, __LINE__, "获取锁返回值 ：%d", ret);
+                if (ret != 0)logger::instance()->d(TAG, __LINE__, "获取锁返回值 ：%d", ret);
             }
             catch (...) {
                 continue;
@@ -1743,7 +1749,7 @@ namespace clangTools {
             tv.tv_usec = 0;
             int r = select(that->dev->fd + 1, &fds, NULL, NULL, &tv);
             if (-1 == r) {
-                logger::instance()->e(__FILENAME__, __LINE__, "Waiting for Frame");
+                logger::instance()->e(TAG, __LINE__, "Waiting for Frame");
                 pthread_mutex_unlock(&that->testlock);
                 continue;
             }
@@ -1753,7 +1759,7 @@ namespace clangTools {
             buf.memory = V4L2_MEMORY_MMAP;
             // dequeue buffer
             if (that->xioctl(that->dev->fd, VIDIOC_DQBUF, &buf) < 0) {
-                logger::instance()->e(__FILENAME__, __LINE__, "VIDIOC_DQBUF");
+                logger::instance()->e(TAG, __LINE__, "VIDIOC_DQBUF");
                 if (that->VIDIOC_DQBUF_Fail_Flag) {
                     that->VIDIOC_DQBUF_Fail_Flag = false;
                     pthread_mutex_unlock(&that->testlock);
@@ -1761,7 +1767,7 @@ namespace clangTools {
                 }
                 that->VIDIOC_DQBUF_Fail_Flag = true;
                 pthread_mutex_unlock(&that->testlock);
-                logger::instance()->e(__FILENAME__, __LINE__, "VIDIOC_DQBUF continue");
+                logger::instance()->e(TAG, __LINE__, "VIDIOC_DQBUF continue");
                 continue;
             }
             that->VIDIOC_DQBUF_Fail_Flag = false;
@@ -1777,7 +1783,7 @@ namespace clangTools {
             that->yuyv_to_rgb(pointer, that->frame_buffer);
             // put buffer
             if (that->xioctl(that->dev->fd, VIDIOC_QBUF, &buf) < 0) {
-                logger::instance()->e(__FILENAME__, __LINE__, "VIDIOC_QBUF");
+                logger::instance()->e(TAG, __LINE__, "VIDIOC_QBUF");
                 pthread_mutex_unlock(&that->testlock);
                 continue;
             }
@@ -1788,16 +1794,16 @@ namespace clangTools {
 
         if (that->frame_buffer != NULL) {
             int ret = pthread_mutex_lock(&that->testlock);
-            if (ret != 0)logger::instance()->d(__FILENAME__, __LINE__, "获取锁返回值 ：%d", ret);
-            logger::instance()->d(__FILENAME__, __LINE__, "free frame_buffer");
+            if (ret != 0)logger::instance()->d(TAG, __LINE__, "获取锁返回值 ：%d", ret);
+            logger::instance()->d(TAG, __LINE__, "free frame_buffer");
             if (that->frame_buffer != NULL)
                 free(that->frame_buffer);
-            logger::instance()->d(__FILENAME__, __LINE__, "freeEnd frame_buffer");
+            logger::instance()->d(TAG, __LINE__, "freeEnd frame_buffer");
             that->frame_buffer = NULL;
             pthread_mutex_unlock(&that->testlock);
         }
 
-        logger::instance()->d(__FILENAME__, __LINE__, "VIDIOC_QBUF is exit");
+        logger::instance()->d(TAG, __LINE__, "VIDIOC_QBUF is exit");
         pthread_exit(NULL);
         return NULL;
     }
@@ -1807,7 +1813,7 @@ namespace clangTools {
      *
      */
     void v4l2Tool::Close() {
-        logger::instance()->d(__FILENAME__, __LINE__, "Close");
+        logger::instance()->d(TAG, __LINE__, "Close");
         isClose = true;
         void *status;
         while (running != 0) {
@@ -1816,7 +1822,7 @@ namespace clangTools {
         stop_capturing();
 
         int ret = pthread_mutex_lock(&testlock);
-        if (ret != 0)logger::instance()->d(__FILENAME__, __LINE__, "获取锁返回值 ：%d", ret);
+        if (ret != 0)logger::instance()->d(TAG, __LINE__, "获取锁返回值 ：%d", ret);
         // if (frame_buffer != NULL)
         // {
         //     // logger::instance()->d("free","file : %s , line : %d",__FILE__,__LINE__);

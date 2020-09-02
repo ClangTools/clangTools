@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]) {
     if (!getenv("DISPLAY"))setenv("DISPLAY", "localhost:10.0", 1);
     logger::instance()->init_default();
-    logger::instance()->d(__FILENAME__, __LINE__, "start");
+    logger::instance()->d(TAG, __LINE__, "start");
     ssd1306 ssd1306;
     ssd1306.clear();
 
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
 #endif
 
-    logger::instance()->d(__FILENAME__, __LINE__, "end");
+    logger::instance()->d(TAG, __LINE__, "end");
     // ssd1306.DisplayState(false);
     return 0;
 }

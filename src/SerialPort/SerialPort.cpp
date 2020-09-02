@@ -135,7 +135,7 @@ void SerialPort::Free() {
 #else
     if (old_flag)
         if ((tcsetattr(hCom, TCSAFLUSH, &oldtio)) != 0) {
-            logger::instance()->e(__FILENAME__, __LINE__, "SetupSerial com set error %s", strerror(errno));
+            logger::instance()->e(TAG, __LINE__, "SetupSerial com set error %s", strerror(errno));
         }
     ::close(hCom);
     _is_open = false;
@@ -242,7 +242,7 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
 
     stop = start + timeOut;
 
-    // logger::instance()->d(__FILENAME__, __LINE__, "read start %d ", timeOut);
+    // logger::instance()->d(TAG, __LINE__, "read start %d ", timeOut);
     while (count < len) {
 #ifdef WIN32
         bReadStat = ReadFile(hCom, str, 1, &wCount, nullptr);
@@ -279,7 +279,7 @@ int SerialPort::read(int timeOut, unsigned char data[], int len) {
         }
 #endif
     }
-    // logger::instance()->d(__FILENAME__, __LINE__, "read end");
+    // logger::instance()->d(TAG, __LINE__, "read end");
     //ReleaseMutex(hMutex1);
     // logger::instance()->puts_info((string(TAG) + ":" + to_string(__LINE__)).c_str(), "Read", data, count);
     return count;
@@ -440,7 +440,7 @@ std::vector<std::string> SerialPort::list() {
         string name = std::string(ent->d_name);
         if ("tty" == name.substr(0, 3) && name.size() > 3 &&
             (name[3] > '9' /*&& (name[3] != 'S' && name[3] != 'T')*/)) {
-            // logger::instance()->d(__FILENAME__, __LINE__, "%s", ent->d_name);
+            // logger::instance()->d(TAG, __LINE__, "%s", ent->d_name);
             ttyList.emplace_back(ent->d_name);
         }
     }
@@ -468,7 +468,7 @@ bool SerialPort::open(const std::string &path, const SerialPort::OpenOptions &op
 int SerialPort::set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
     struct termios newtio{};
     if (tcgetattr(fd, &oldtio) != 0) {
-        logger::instance()->e(__FILENAME__, __LINE__, "SetupSerial %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "SetupSerial %s", strerror(errno));
         return -1;
     }
     old_flag = true;
@@ -514,7 +514,7 @@ int SerialPort::set_opt(int fd, int nSpeed, int nBits, char nEvent, int nStop) {
     newtio.c_cc[VMIN] = 0;
     // tcflush(fd, TCIFLUSH);
     if ((tcsetattr(fd, TCSAFLUSH, &newtio)) != 0) {
-        logger::instance()->e(__FILENAME__, __LINE__, "SetupSerial com set error %s", strerror(errno));
+        logger::instance()->e(TAG, __LINE__, "SetupSerial com set error %s", strerror(errno));
         return -1;
     }
     // printf("set done!\n\r");

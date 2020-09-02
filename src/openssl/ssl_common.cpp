@@ -3,8 +3,13 @@
 std::mutex ssl_common::is_init_ssl_lock;
 bool ssl_common::is_init_ssl = false;
 
+#ifdef __FILENAME__
+const char *ssl_common::TAG = __FILENAME__;
+#else
+const char * ssl_common::TAG = "ssl_common";
+#endif
 ssl_common::ssl_common(const char *cert_file, const char *key_file) {
-    logger::instance()->d(__FILENAME__, __LINE__, "initialising SSL");
+    logger::instance()->d(TAG, __LINE__, "initialising SSL");
 
 #ifdef ENABLE_OPENSSL
     std::unique_lock<std::mutex> lock{is_init_ssl_lock};
@@ -22,31 +27,31 @@ ssl_common::ssl_common(const char *cert_file, const char *key_file) {
     /* create the SSL server context */
     ctx = SSL_CTX_new(SSLv23_method());
     if (!ctx) {
-        logger::instance()->e(__FILENAME__, __LINE__, "SSL_CTX_new()");
+        logger::instance()->e(TAG, __LINE__, "SSL_CTX_new()");
         return;
     }
 
     /* Load certificate and private key files, and check consistency */
     if (cert_file && key_file) {
         if (SSL_CTX_use_certificate_file(ctx, cert_file, SSL_FILETYPE_PEM) != 1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "SSL_CTX_use_certificate_file failed");
+            logger::instance()->e(TAG, __LINE__, "SSL_CTX_use_certificate_file failed");
         }
 
         if (SSL_CTX_use_PrivateKey_file(ctx, key_file, SSL_FILETYPE_PEM) != 1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "SSL_CTX_use_PrivateKey_file failed");
+            logger::instance()->e(TAG, __LINE__, "SSL_CTX_use_PrivateKey_file failed");
         }
 
         /* Make sure the key and certificate file match. */
         if (SSL_CTX_check_private_key(ctx) != 1) {
-            logger::instance()->e(__FILENAME__, __LINE__, "SSL_CTX_check_private_key failed");
+            logger::instance()->e(TAG, __LINE__, "SSL_CTX_check_private_key failed");
         } else
-            logger::instance()->d(__FILENAME__, __LINE__, "certificate and private key loaded and verified");
+            logger::instance()->d(TAG, __LINE__, "certificate and private key loaded and verified");
     }
 
     /* Recommended to avoid SSLv2 & SSLv3 */
     SSL_CTX_set_options(ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
 #else
-    logger::instance()->e(__FILENAME__, __LINE__, "OpenSSL is disable!!!");
+    logger::instance()->e(TAG, __LINE__, "OpenSSL is disable!!!");
 #endif
 }
 

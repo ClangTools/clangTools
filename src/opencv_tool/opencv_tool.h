@@ -34,7 +34,7 @@ public:
     }
 
 public:
-
+    static const char *TAG;
     static cv::Mat CreateQrCode(const std::string& data,int size = 2);
 
     static void create2dArray(cv::Mat *input, uint8_t ***outputPtr);
