@@ -130,7 +130,7 @@ public:
 
 #endif
 
-    static bool copy(std::string srcPath, std::string desPath);
+    static bool copy(const std::string& srcPath, const std::string& desPath);
 
 public:
     log_rank_t min_level = log_rank_NONE;

@@ -823,7 +823,7 @@ int logger::g2u(char *inbuf, size_t inlen, string &data) {
 #endif
 }
 
-bool logger::copy(std::string srcPath, std::string desPath) {
+bool logger::copy(const std::string& srcPath, const std::string& desPath) {
     if (!logger::exists(srcPath))return false;
     FILE *fin = fopen(srcPath.c_str(), "rb");;
     FILE *fout = fopen(desPath.c_str(), "wb");
