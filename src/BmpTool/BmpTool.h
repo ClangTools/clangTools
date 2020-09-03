@@ -56,7 +56,7 @@ namespace clangTools {
          */
         BITMAPINFOHEADER Info;
 
-        PALLETTE Quad[256] = {0};
+        PALLETTE Quad[256];
 
         unsigned char *Data;
 
