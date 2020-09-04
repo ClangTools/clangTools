@@ -305,57 +305,57 @@ void logger::puts_info(const char *TAG, const std::string &data, log_rank_t log_
 void logger::i(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::w(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, TAG, format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::i(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_INFO, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_DEBUG, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *tag_by_data, unsigned char *data, size_t data_len) {
@@ -366,25 +366,25 @@ void logger::d(const char *TAG, size_t line, const char *tag_by_data, unsigned c
 void logger::w(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_WARNING, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::e(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_ERROR, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::f(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-    va_start(args, format);
+            va_start(args, format);
     puts_info(log_rank_FATAL, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-    va_end(args);
+            va_end(args);
 }
 
 void logger::puts_info(const char *TAG, int line, const char *tag_by_data, unsigned char *data, size_t data_len,
@@ -620,7 +620,7 @@ int logger::vscprintf(const char *format, va_list pargs) {
     va_list argcopy;
     va_copy(argcopy, pargs);
     ret_val = ::vsnprintf(nullptr, 0, format, argcopy);
-    va_end(argcopy);
+            va_end(argcopy);
     return ret_val;
 }
 
@@ -823,16 +823,22 @@ int logger::g2u(char *inbuf, size_t inlen, string &data) {
 #endif
 }
 
-bool logger::copy(const std::string& srcPath, const std::string& desPath) {
+bool logger::copy(const std::string &srcPath, const std::string &desPath) {
     if (!logger::exists(srcPath))return false;
     FILE *fin = fopen(srcPath.c_str(), "rb");;
     FILE *fout = fopen(desPath.c_str(), "wb");
+    if (fin == nullptr || fout == nullptr) {
+        if (fin != nullptr)fclose(fin);
+        if (fout != nullptr)fclose(fout);
+        return false;
+    }
 
-    char buff[1024] = {'\0'};
+    auto *buff = new unsigned char[1024];
     int len = 0;
-    while ((len = ::fread(buff, 1, sizeof(buff), fin)) > 0) {
+    while ((len = ::fread(buff, 1, 1024, fin)) > 0) {
         fwrite(buff, len, 1, fout);
     }
+    delete[]buff;
     fclose(fin);
     fclose(fout);
     return true;
