@@ -141,7 +141,7 @@ namespace clangTools {
         Head.file_size = (width * height * BitPerPixel / 8) + SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER);
         Head.reserved1 = 0;
         Head.reserved2 = 0;
-        Head.data_offset = SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER) - sizeof(Head.identity);
+        Head.data_offset = SIZEOF_BITMAPFILEHEADER + sizeof(BITMAPINFOHEADER);// - sizeof(Head.identity);
 
         Info.header_size = sizeof(BITMAPINFOHEADER);
         Info.width = width;
@@ -160,6 +160,7 @@ namespace clangTools {
             Data = nullptr;
         }
         int size = ((width * BitPerPixel / 8 + 3) / 4 * 4 * height);
+        Info.data_size = size;
         Data = (unsigned char *) malloc(size * sizeof(unsigned char));
         if (Data == nullptr) {
             logger::instance()->d(TAG, __LINE__, "开辟内存失败.");
