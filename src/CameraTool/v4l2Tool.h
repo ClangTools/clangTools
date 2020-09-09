@@ -515,6 +515,9 @@ class v4l2Tool
 	 */
 	void yuyv_to_rgb_G(unsigned char *pointer, unsigned char *frame_buffer,
 						int width_2,int i,int j);
+
+	int yuvtorgb0(unsigned char *yuv, unsigned char *rgb, unsigned int width, unsigned int height);
+	int yuvtorgb(int y, int u, int v,bool sign3);
 };
 
 
