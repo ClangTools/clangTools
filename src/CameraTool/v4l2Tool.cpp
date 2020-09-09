@@ -1781,8 +1781,8 @@ namespace clangTools {
             unsigned char *pointer;
 
             pointer = that->dev->buffer[buf.index].data;
-            // that->yuyv_to_rgb(pointer, that->frame_buffer);
-            that->yuvtorgb0(pointer, that->frame_buffer, that->dev->width, that->dev->height);
+            that->yuyv_to_rgb(pointer, that->frame_buffer);
+            // that->yuvtorgb0(pointer, that->frame_buffer, that->dev->width, that->dev->height);
             // put buffer
             if (that->xioctl(that->dev->fd, VIDIOC_QBUF, &buf) < 0) {
                 logger::instance()->e(TAG, __LINE__, "VIDIOC_QBUF");
