@@ -872,7 +872,7 @@ namespace clangTools {
             DIR *dir1;
             struct dirent *ptr1;
             if ((dir1 = opendir((sub_dir + "/device/input").c_str())) == nullptr) {
-                logger::instance()->e(TAG, __LINE__, "摄像头信息目录打开出错 %s ", (sub_dir + "/device/input").c_str());
+                logger::instance()->w(TAG, __LINE__, "摄像头信息目录打开出错 %s ", (sub_dir + "/device/input").c_str());
                 continue;
             }
             while ((ptr1 = readdir(dir1)) != nullptr) {
