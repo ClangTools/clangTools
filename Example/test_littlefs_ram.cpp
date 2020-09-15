@@ -81,7 +81,7 @@ const struct lfs_config cfg = {
         .lookahead_size = 16,
         .block_cycles = 500,
 
-        .context = &rambd_t,
+        .context = (void*)&rambd_t
 };
 
 // entry point

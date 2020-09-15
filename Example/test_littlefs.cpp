@@ -48,7 +48,7 @@ const struct lfs_config cfg = {
         .block_count = 2,
         .cache_size = 16,
         .lookahead_size = 16,
-        .block_cycles = 500,
+        .block_cycles = 500
 };
 
 void test_mkdir() {
