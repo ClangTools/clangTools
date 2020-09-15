@@ -20,6 +20,7 @@ cc_library(
             "//src/fastjson:fastjson",
             "//src/JSON:CJsonObject",
             "//src/json11:json11",
+            "//src/littlefs:littlefs",
             "//src/kHttpd:kHttpd",
             "//src/nlohmann:nlohmann_json",
             "//src/Pipe:Pipe",

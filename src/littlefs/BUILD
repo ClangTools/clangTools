@@ -1,0 +1,14 @@
+cc_library(
+    name = "littlefs",
+    srcs = [
+        "lfs.c",
+        "lfs_util.c",
+        ],
+    hdrs = [
+        "lfs.h",
+        "lfs_util.h",
+        ],
+    visibility = ["//visibility:public"],
+)
+
+
