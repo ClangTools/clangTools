@@ -2,9 +2,7 @@
 
 ## 编译状态 build status
 
-bazel : ![bazel-build CI](https://github.com/ClangTools/clangTools/workflows/bazel-build%20CI/badge.svg)
-
-cmake : ![C/C++ CI](https://github.com/ClangTools/clangTools/workflows/C/C++%20CI/badge.svg)
+build status : ![C/C++ CI](https://github.com/ClangTools/clangTools/workflows/C/C++%20CI/badge.svg)
 
 ## 支持
 
@@ -81,7 +79,10 @@ endif ()
 
 ## bazel 支持
 
-本项目部分支持 `bazel`。![bazel-build CI](https://github.com/ClangTools/clangTools/workflows/bazel-build%20CI/badge.svg)
+本项目部分支持 `bazel`。
+
+build status : ![C/C++ CI](https://github.com/ClangTools/clangTools/workflows/C/C++%20CI/badge.svg)
+
 
 ## demo
 
