@@ -66,6 +66,7 @@ int lfs_rambd_sync(const struct lfs_config *cfg);
 
 // configuration of the filesystem is provided by this struct
 const struct lfs_config cfg = {
+        .context = (void *) &rambd_t,
         // block device operations
         .read  = lfs_rambd_read,
         .prog  = lfs_rambd_prog,
@@ -75,13 +76,17 @@ const struct lfs_config cfg = {
         // block device configuration
         .read_size = 16,
         .prog_size = 16,
-        .block_size = 4096,
-        .block_count = 128,
+        .block_size = 1024,
+        .block_count = 2,
+        .block_cycles = 500,
         .cache_size = 16,
         .lookahead_size = 16,
-        .block_cycles = 500,
-
-        .context = (void*)&rambd_t
+        .read_buffer=NULL,
+        .prog_buffer=NULL,
+        .lookahead_buffer=NULL,
+        .name_max=0,
+        .file_max=0,
+        .attr_max=0
 };
 
 // entry point

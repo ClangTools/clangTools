@@ -35,6 +35,7 @@ int user_provided_block_device_sync(const struct lfs_config *c) {
 
 // configuration of the filesystem is provided by this struct
 const struct lfs_config cfg = {
+        .context = NULL,
         // block device operations
         .read  = user_provided_block_device_read,
         .prog  = user_provided_block_device_prog,
@@ -46,9 +47,15 @@ const struct lfs_config cfg = {
         .prog_size = 16,
         .block_size = 1024,
         .block_count = 2,
+        .block_cycles = 500,
         .cache_size = 16,
         .lookahead_size = 16,
-        .block_cycles = 500
+        .read_buffer=NULL,
+        .prog_buffer=NULL,
+        .lookahead_buffer=NULL,
+        .name_max=0,
+        .file_max=0,
+        .attr_max=0
 };
 
 void test_mkdir() {
