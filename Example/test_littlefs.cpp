@@ -34,29 +34,7 @@ int user_provided_block_device_sync(const struct lfs_config *c) {
 }
 
 // configuration of the filesystem is provided by this struct
-const struct lfs_config cfg = {
-        .context = NULL,
-        // block device operations
-        .read  = user_provided_block_device_read,
-        .prog  = user_provided_block_device_prog,
-        .erase = user_provided_block_device_erase,
-        .sync  = user_provided_block_device_sync,
-
-        // block device configuration
-        .read_size = 16,
-        .prog_size = 16,
-        .block_size = 1024,
-        .block_count = 2,
-        .block_cycles = 500,
-        .cache_size = 16,
-        .lookahead_size = 16,
-        .read_buffer=NULL,
-        .prog_buffer=NULL,
-        .lookahead_buffer=NULL,
-        .name_max=0,
-        .file_max=0,
-        .attr_max=0
-};
+struct lfs_config cfg;
 
 void test_mkdir() {
     lfs_mkdir(&lfs, "/");
@@ -86,6 +64,28 @@ void test_write_boot_count() {
 
 // entry point
 int main(void) {
+    {
+        cfg.context = NULL;
+        // block device operations
+        cfg.read = user_provided_block_device_read;
+        cfg.prog = user_provided_block_device_prog;
+        cfg.erase = user_provided_block_device_erase;
+        cfg.sync = user_provided_block_device_sync;
+        // block device configuration
+        cfg.read_size = 16;
+        cfg.prog_size = 16;
+        cfg.block_size = 1024;
+        cfg.block_count = 2;
+        cfg.block_cycles = 500;
+        cfg.cache_size = 16;
+        cfg.lookahead_size = 16;
+        cfg.read_buffer = NULL;
+        cfg.prog_buffer = NULL;
+        cfg.lookahead_buffer = NULL;
+        cfg.name_max = 0;
+        cfg.file_max = 0;
+        cfg.attr_max = 0;
+    };
     // mount the filesystem
     int err = lfs_mount(&lfs, &cfg);
     // reformat if we can't mount the filesystem

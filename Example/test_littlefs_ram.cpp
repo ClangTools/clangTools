@@ -65,32 +65,33 @@ int lfs_rambd_sync(const struct lfs_config *cfg);
 
 
 // configuration of the filesystem is provided by this struct
-const struct lfs_config cfg = {
-        .context = (void *) &rambd_t,
-        // block device operations
-        .read  = lfs_rambd_read,
-        .prog  = lfs_rambd_prog,
-        .erase = lfs_rambd_erase,
-        .sync  = lfs_rambd_sync,
-
-        // block device configuration
-        .read_size = 16,
-        .prog_size = 16,
-        .block_size = 1024,
-        .block_count = 2,
-        .block_cycles = 500,
-        .cache_size = 16,
-        .lookahead_size = 16,
-        .read_buffer=NULL,
-        .prog_buffer=NULL,
-        .lookahead_buffer=NULL,
-        .name_max=0,
-        .file_max=0,
-        .attr_max=0
-};
+struct lfs_config cfg;
 
 // entry point
 int main(void) {
+    {
+        cfg.context = (void *) &rambd_t;
+        // block device operations
+        cfg.read = lfs_rambd_read;
+        cfg.prog = lfs_rambd_prog;
+        cfg.erase = lfs_rambd_erase;
+        cfg.sync = lfs_rambd_sync;
+
+        // block device configuration
+        cfg.read_size = 16;
+        cfg.prog_size = 16;
+        cfg.block_size = 1024;
+        cfg.block_count = 2;
+        cfg.block_cycles = 500;
+        cfg.cache_size = 16;
+        cfg.lookahead_size = 16;
+        cfg.read_buffer = NULL;
+        cfg.prog_buffer = NULL;
+        cfg.lookahead_buffer = NULL;
+        cfg.name_max = 0;
+        cfg.file_max = 0;
+        cfg.attr_max = 0;
+    };
     int err = lfs_rambd_create(&cfg);
     if (err) {
         return 1;
