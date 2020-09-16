@@ -37,9 +37,20 @@ int user_provided_block_device_sync(const struct lfs_config *c) {
 struct lfs_config cfg;
 
 void test_mkdir() {
-    lfs_mkdir(&lfs, "/");
-    lfs_mkdir(&lfs, "/root");
-    lfs_mkdir(&lfs, "/data");
+    int err = lfs_mkdir(&lfs, "/");
+    err = lfs_mkdir(&lfs, "/root/data");
+}
+
+void test_dir_change(const char *path) {
+    lfs_dir_t dir;
+    int err = 0;
+    struct lfs_info info;
+    err = lfs_dir_open(&lfs, &dir, path);
+    if (0 != err) {
+        return;
+    }
+    err = lfs_dir_read(&lfs, &dir, &info);
+    lfs_dir_close(&lfs, &dir);
 }
 
 void test_write_boot_count() {
@@ -95,6 +106,7 @@ int main(void) {
         err = lfs_mount(&lfs, &cfg);
     }
     test_mkdir();
+    test_dir_change("/root");
     test_write_boot_count();
     test_write_boot_count();
     // release any resources we were using

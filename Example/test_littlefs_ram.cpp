@@ -67,6 +67,65 @@ int lfs_rambd_sync(const struct lfs_config *cfg);
 // configuration of the filesystem is provided by this struct
 struct lfs_config cfg;
 
+void test_mkdir() {
+    int err = lfs_mkdir(&lfs, "/");
+    err = lfs_mkdir(&lfs, "/root");
+    err = lfs_mkdir(&lfs, "/root/data");
+}
+int lfs_ls(lfs_t *lfs, const char *path) {
+    lfs_dir_t dir;
+    int err = lfs_dir_open(lfs, &dir, path);
+    if (err) {
+        return err;
+    }
+
+    struct lfs_info info;
+    while (true) {
+        int res = lfs_dir_read(lfs, &dir, &info);
+        if (res < 0) {
+            return res;
+        }
+
+        if (res == 0) {
+            break;
+        }
+
+        switch (info.type) {
+            case LFS_TYPE_REG: printf("reg "); break;
+            case LFS_TYPE_DIR: printf("dir "); break;
+            default:           printf("?   "); break;
+        }
+
+        static const char *prefixes[] = {"", "K", "M", "G"};
+        for (int i = sizeof(prefixes)/sizeof(prefixes[0])-1; i >= 0; i--) {
+            if (info.size >= (1 << 10*i)-1) {
+                printf("%*u%sB ", 4-(i != 0), info.size >> 10*i, prefixes[i]);
+                break;
+            }
+        }
+
+        printf("%s\n", info.name);
+    }
+
+    err = lfs_dir_close(lfs, &dir);
+    if (err) {
+        return err;
+    }
+
+    return 0;
+}
+
+void test_dir_change(const char *path) {
+    lfs_dir_t dir;
+    int err = 0;
+    struct lfs_info info;
+    err = lfs_dir_open(&lfs, &dir, path);
+    if (0 != err) {
+        return;
+    }
+    err = lfs_dir_read(&lfs, &dir, &info);
+    lfs_dir_close(&lfs, &dir);
+}
 // entry point
 int main(void) {
     {
@@ -80,8 +139,8 @@ int main(void) {
         // block device configuration
         cfg.read_size = 16;
         cfg.prog_size = 16;
-        cfg.block_size = 1024;
-        cfg.block_count = 2;
+        cfg.block_size = 256;
+        cfg.block_count = 6;
         cfg.block_cycles = 500;
         cfg.cache_size = 16;
         cfg.lookahead_size = 16;
@@ -98,6 +157,7 @@ int main(void) {
     }
     // mount the filesystem
     err = lfs_mount(&lfs, &cfg);
+    printf("start \n");
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
@@ -105,6 +165,13 @@ int main(void) {
         lfs_format(&lfs, &cfg);
         lfs_mount(&lfs, &cfg);
     }
+
+    test_mkdir();
+    test_dir_change("/root");
+    test_dir_change("/root/data");
+
+    lfs_ls(&lfs, "/");
+    lfs_ls(&lfs, "/root");
 
     // read current count
     uint32_t boot_count = 0;
