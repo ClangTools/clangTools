@@ -174,7 +174,8 @@ int lfs_rambd_create(const struct lfs_config *cfg) {
                     (void *) (uintptr_t) cfg->read, (void *) (uintptr_t) cfg->prog,
                     (void *) (uintptr_t) cfg->erase, (void *) (uintptr_t) cfg->sync,
                     cfg->read_size, cfg->prog_size, cfg->block_size, cfg->block_count);
-    static const struct lfs_rambd_config defaults = {.erase_value=-1};
+    static struct lfs_rambd_config defaults;
+    defaults.erase_value = -1;
     int err = lfs_rambd_createcfg(cfg, &defaults);
     LFS_RAMBD_TRACE("lfs_rambd_create -> %d", err);
     return err;
