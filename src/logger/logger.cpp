@@ -607,8 +607,8 @@ void logger::hex_string_to_bytes(const std::string &hex_string, std::vector<unsi
     }
     char highByte, lowByte;
     for (size_t i = 0; i < data.size(); i += 2) {
-        highByte = data[i * 2 + 0];
-        lowByte = data[i * 2 + 1];
+        highByte = data[i + 0];
+        lowByte = data[i + 1];
         if (highByte > 0x39) highByte -= 0x07;
         if (lowByte > 0x39) lowByte -= 0x07;
         bytes.push_back(((highByte << 4) & 0xF0) ^ (lowByte & 0x0F));
