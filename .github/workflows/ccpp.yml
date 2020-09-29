@@ -18,10 +18,10 @@ jobs:
       - name: build
         run: cmake --build build-ubuntu
       - uses: actions/upload-artifact@v2
-      with:
-        name: libtools-ubuntu
-        path: |
-          build-ubuntu/libTools.a
+        with:
+          name: libtools-ubuntu
+          path: |
+            build-ubuntu/libTools.a
 
 
   win-build:
@@ -35,10 +35,10 @@ jobs:
       - name: build
         run: cmake --build build-windows
       - uses: actions/upload-artifact@v2
-      with:
-        name: libtools-windows
-        path: |
-          build-windows/libTools.a
+        with:
+          name: libtools-windows
+          path: |
+            build-windows/libTools.a
 
   macOS-build:
 
@@ -51,10 +51,10 @@ jobs:
       - name: build
         run: cmake --build build-macOS
       - uses: actions/upload-artifact@v2
-      with:
-        name: libtools-macOS
-        path: |
-          build-macOS/libTools.a
+        with:
+          name: libtools-macOS
+          path: |
+            build-macOS/libTools.a
 
   bazel-build:
     name: build
