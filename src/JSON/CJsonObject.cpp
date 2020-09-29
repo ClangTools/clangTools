@@ -250,7 +250,7 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%d", (int32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%lld", (int64) pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%ld", (int64) pJsonStruct->valueint);
                 }
             }
             else {
@@ -258,7 +258,7 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%u", (uint32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%lld", pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%ld", pJsonStruct->valueint);
                 }
             }
             return (std::string(szNumber));
@@ -307,7 +307,7 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%d", (int32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%lld", (int64) pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%ld", (int64) pJsonStruct->valueint);
                 }
             }
             else {
@@ -315,7 +315,7 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%u", (uint32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%lld", pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%ld", pJsonStruct->valueint);
                 }
             }
             return (std::string(szNumber));

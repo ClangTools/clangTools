@@ -188,7 +188,7 @@ std::string escp_printer::Get(escp_printer::ModelType model) {
 }
 
 bool escp_printer::PutImage(ImageType type, int len) {
-    if (!isAgentReady())return Error_AgentNotReady;
+    if (!isAgentReady())return false;//Error_AgentNotReady;
     string code = "";
     switch (type) {
         case ImageType::YPLANE:
@@ -205,7 +205,7 @@ bool escp_printer::PutImage(ImageType type, int len) {
             break;
         default:
             logger::instance()->e(TAG, __LINE__, "Error_ParamFail");
-            return Error_ParamFail;
+            return false;//Error_ParamFail;
     }
     unsigned char data[32] = {0};
     char Argument3[9] = {0};
