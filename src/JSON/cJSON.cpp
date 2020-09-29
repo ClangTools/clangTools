@@ -20,7 +20,7 @@
  THE SOFTWARE.
  */
 
-/* cJSON */
+/* cJson */
 /* JSON parser in C. */
 
 #include <string.h>
@@ -30,7 +30,7 @@
 #include <float.h>
 #include <limits.h>
 #include <ctype.h>
-#include "cJSON.h"
+#include "./cJSON.h"
 
 namespace neb {
 #ifndef INT_MAX
@@ -41,11 +41,11 @@ namespace neb {
 
     static const char *ep;
 
-    const char *cJSON_GetErrorPtr() {
+    const char *cJson_GetErrorPtr() {
         return ep;
     }
 
-    static int cJSON_strcasecmp(const char *s1, const char *s2) {
+    static int cJson_strcasecmp(const char *s1, const char *s2) {
         if (!s1)
             return (s1 == s2) ? 0 : 1;
         if (!s2)
@@ -57,58 +57,58 @@ namespace neb {
                - tolower(*(const unsigned char *) s2);
     }
 
-    static void *(*cJSON_malloc)(size_t sz) = malloc;
+    static void *(*cJson_malloc)(size_t sz) = malloc;
 
-    static void (*cJSON_free)(void *ptr) = free;
+    static void (*cJson_free)(void *ptr) = free;
 
-    static char *cJSON_strdup(const char *str) {
+    static char *cJson_strdup(const char *str) {
         size_t len;
         char *copy;
 
         len = strlen(str) + 1;
-        if (!(copy = (char *) cJSON_malloc(len)))
+        if (!(copy = (char *) cJson_malloc(len)))
             return 0;
         memcpy(copy, str, len);
         return copy;
     }
 
-    void cJSON_InitHooks(cJSON_Hooks *hooks) {
+    void cJson_InitHooks(cJson_Hooks *hooks) {
         if (!hooks) { /* Reset hooks */
-            cJSON_malloc = malloc;
-            cJSON_free = free;
+            cJson_malloc = malloc;
+            cJson_free = free;
             return;
         }
 
-        cJSON_malloc = (hooks->malloc_fn) ? hooks->malloc_fn : malloc;
-        cJSON_free = (hooks->free_fn) ? hooks->free_fn : free;
+        cJson_malloc = (hooks->malloc_fn) ? hooks->malloc_fn : malloc;
+        cJson_free = (hooks->free_fn) ? hooks->free_fn : free;
     }
 
 /* Internal constructor. */
-    static cJSON *cJSON_New_Item() {
-        cJSON *node = (cJSON *) cJSON_malloc(sizeof(cJSON));
+    static cJson *cJson_New_Item() {
+        cJson *node = (cJson *) cJson_malloc(sizeof(cJson));
         if (node)
-            memset(node, 0, sizeof(cJSON));
+            memset(node, 0, sizeof(cJson));
         return node;
     }
 
-/* Delete a cJSON structure. */
-    void cJSON_Delete(cJSON *c) {
-        cJSON *next;
+/* Delete a cJson structure. */
+    void cJson_Delete(cJson *c) {
+        cJson *next;
         while (c) {
             next = c->next;
-            if (!(c->type & cJSON_IsReference) && c->child)
-                cJSON_Delete(c->child);
-            if (!(c->type & cJSON_IsReference) && c->valuestring)
-                cJSON_free(c->valuestring);
+            if (!(c->type & cJson_IsReference) && c->child)
+                cJson_Delete(c->child);
+            if (!(c->type & cJson_IsReference) && c->valuestring)
+                cJson_free(c->valuestring);
             if (c->string)
-                cJSON_free(c->string);
-            cJSON_free(c);
+                cJson_free(c->string);
+            cJson_free(c);
             c = next;
         }
     }
 
 /* Parse the input text to generate a number, and populate the result into item. */
-    static const char *parse_number(cJSON *item, const char *num) {
+    static const char *parse_number(cJson *item, const char *num) {
         long double n = 0, scale = 0;
         int subscale = 0, signsubscale = 1;
         item->sign = 1;
@@ -142,23 +142,23 @@ namespace neb {
         if (scale == 0 && subscale == 0) {
             item->valuedouble = (double) (item->sign * n);
             item->valueint = item->sign * (int64) n;
-            item->type = cJSON_Int;
+            item->type = cJson_Int;
         }
         else {
             n = item->sign * n *
                 pow(10.0, (scale + subscale * signsubscale)); /* number = +/- number.fraction * 10^+/- exponent */
             item->valuedouble = (double) n;
             item->valueint = (int64) n;
-            item->type = cJSON_Double;
+            item->type = cJson_Double;
         }
         return num;
     }
 
 /* Render the number nicely from the given item into a string. */
-    static char *print_double(cJSON *item) {
+    static char *print_double(cJson *item) {
         char *str;
         double d = item->valuedouble;
-        str = (char *) cJSON_malloc(64); /* This is a nice tradeoff. */
+        str = (char *) cJson_malloc(64); /* This is a nice tradeoff. */
         if (str) {
             if (fabs(d) < 1.0e-6 || fabs(d) > 1.0e9)
                 sprintf(str, "%lf", d);
@@ -168,16 +168,22 @@ namespace neb {
         return str;
     }
 
-    static char *print_int(cJSON *item) {
+    static char *print_int(cJson *item) {
         char *str;
-        str = (char *) cJSON_malloc(22); /* 2^64+1 can be represented in 21 chars. */
+        str = (char *) cJson_malloc(22); /* 2^64+1 can be represented in 21 chars. */
         if (str) {
             if (item->sign == -1) {
                 if ((int64) item->valueint <= (int64) INT_MAX && (int64) item->valueint >= (int64) INT_MIN) {
                     sprintf(str, "%d", (int32) item->valueint);
                 }
                 else {
-                    sprintf(str, "%lld", (int64) item->valueint);
+                    sprintf(str,
+#ifdef __APPLE__ // DARWIN
+                            "%lld"
+#else
+                            "%ld"
+#endif
+                            , (int64) item->valueint);
                 }
             }
             else {
@@ -185,7 +191,13 @@ namespace neb {
                     sprintf(str, "%u", (uint32) item->valueint);
                 }
                 else {
-                    sprintf(str, "%lld", item->valueint);
+                    sprintf(str,
+#ifdef __APPLE__ // DARWIN
+                            "%lld"
+#else
+                            "%ld"
+#endif
+                            , item->valueint);
                 }
             }
         }
@@ -197,7 +209,7 @@ namespace neb {
             0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC
     };
 
-    static const char *parse_string(cJSON *item, const char *str) {
+    static const char *parse_string(cJson *item, const char *str) {
         const char *ptr = str + 1;
         char *ptr2;
         char *out;
@@ -212,7 +224,7 @@ namespace neb {
             if (*ptr++ == '\\')
                 ptr++; /* Skip escaped quotes. */
 
-        out = (char *) cJSON_malloc(len + 1); /* This is how long we need for the string, roughly. */
+        out = (char *) cJson_malloc(len + 1); /* This is how long we need for the string, roughly. */
         if (!out)
             return 0;
 
@@ -292,7 +304,7 @@ namespace neb {
         if (*ptr == '\"')
             ptr++;
         item->valuestring = out;
-        item->type = cJSON_String;
+        item->type = cJson_String;
         return ptr;
     }
 
@@ -304,7 +316,7 @@ namespace neb {
         unsigned char token;
 
         if (!str)
-            return cJSON_strdup("");
+            return cJson_strdup("");
         ptr = str;
         while ((token = *ptr) && ++len) {
             if (strchr("\"\\\b\f\n\r\t", token))
@@ -314,7 +326,7 @@ namespace neb {
             ptr++;
         }
 
-        out = (char *) cJSON_malloc(len + 3);
+        out = (char *) cJson_malloc(len + 3);
         if (!out)
             return 0;
 
@@ -361,22 +373,22 @@ namespace neb {
     }
 
 /* Invote print_string_ptr (which is useful) on an item. */
-    static char *print_string(cJSON *item) {
+    static char *print_string(cJson *item) {
         return print_string_ptr(item->valuestring);
     }
 
 /* Predeclare these prototypes. */
-    static const char *parse_value(cJSON *item, const char *value);
+    static const char *parse_value(cJson *item, const char *value);
 
-    static char *print_value(cJSON *item, int depth, int fmt);
+    static char *print_value(cJson *item, int depth, int fmt);
 
-    static const char *parse_array(cJSON *item, const char *value);
+    static const char *parse_array(cJson *item, const char *value);
 
-    static char *print_array(cJSON *item, int depth, int fmt);
+    static char *print_array(cJson *item, int depth, int fmt);
 
-    static const char *parse_object(cJSON *item, const char *value);
+    static const char *parse_object(cJson *item, const char *value);
 
-    static char *print_object(cJSON *item, int depth, int fmt);
+    static char *print_object(cJson *item, int depth, int fmt);
 
 /* Utility to jump whitespace and cr/lf */
     static const char *skip(const char *in) {
@@ -386,42 +398,42 @@ namespace neb {
     }
 
 /* Parse an object - create a new root, and populate. */
-    cJSON *cJSON_Parse(const char *value) {
-        cJSON *c = cJSON_New_Item();
+    cJson *cJson_Parse(const char *value) {
+        cJson *c = cJson_New_Item();
         ep = 0;
         if (!c)
             return 0; /* memory fail */
 
         if (!parse_value(c, skip(value))) {
-            cJSON_Delete(c);
+            cJson_Delete(c);
             return 0;
         }
         return c;
     }
 
-/* Render a cJSON item/entity/structure to text. */
-    char *cJSON_Print(cJSON *item) {
+/* Render a cJson item/entity/structure to text. */
+    char *cJson_Print(cJson *item) {
         return print_value(item, 0, 1);
     }
 
-    char *cJSON_PrintUnformatted(cJSON *item) {
+    char *cJson_PrintUnformatted(cJson *item) {
         return print_value(item, 0, 0);
     }
 
 /* Parser core - when encountering text, process appropriately. */
-    static const char *parse_value(cJSON *item, const char *value) {
+    static const char *parse_value(cJson *item, const char *value) {
         if (!value)
             return 0; /* Fail on null. */
         if (!strncmp(value, "null", 4)) {
-            item->type = cJSON_NULL;
+            item->type = cJson_NULL;
             return value + 4;
         }
         if (!strncmp(value, "false", 5)) {
-            item->type = cJSON_False;
+            item->type = cJson_False;
             return value + 5;
         }
         if (!strncmp(value, "true", 4)) {
-            item->type = cJSON_True;
+            item->type = cJson_True;
             item->valueint = 1;
             return value + 4;
         }
@@ -443,33 +455,33 @@ namespace neb {
     }
 
 /* Render a value to text. */
-    static char *print_value(cJSON *item, int depth, int fmt) {
+    static char *print_value(cJson *item, int depth, int fmt) {
         char *out = 0;
         if (!item)
             return 0;
         switch ((item->type) & 255) {
-            case cJSON_NULL:
-                out = cJSON_strdup("null");
+            case cJson_NULL:
+                out = cJson_strdup("null");
                 break;
-            case cJSON_False:
-                out = cJSON_strdup("false");
+            case cJson_False:
+                out = cJson_strdup("false");
                 break;
-            case cJSON_True:
-                out = cJSON_strdup("true");
+            case cJson_True:
+                out = cJson_strdup("true");
                 break;
-            case cJSON_Int:
+            case cJson_Int:
                 out = print_int(item);
                 break;
-            case cJSON_Double:
+            case cJson_Double:
                 out = print_double(item);
                 break;
-            case cJSON_String:
+            case cJson_String:
                 out = print_string(item);
                 break;
-            case cJSON_Array:
+            case cJson_Array:
                 out = print_array(item, depth, fmt);
                 break;
-            case cJSON_Object:
+            case cJson_Object:
                 out = print_object(item, depth, fmt);
                 break;
         }
@@ -477,19 +489,19 @@ namespace neb {
     }
 
 /* Build an array from input text. */
-    static const char *parse_array(cJSON *item, const char *value) {
-        cJSON *child;
+    static const char *parse_array(cJson *item, const char *value) {
+        cJson *child;
         if (*value != '[') {
             ep = value;
             return 0;
         } /* not an array! */
 
-        item->type = cJSON_Array;
+        item->type = cJson_Array;
         value = skip(value + 1);
         if (*value == ']')
             return value + 1; /* empty array. */
 
-        item->child = child = cJSON_New_Item();
+        item->child = child = cJson_New_Item();
         if (!item->child)
             return 0; /* memory fail */
         value = skip(parse_value(child, skip(value))); /* skip any spacing, get the value. */
@@ -497,8 +509,8 @@ namespace neb {
             return 0;
 
         while (*value == ',') {
-            cJSON *new_item;
-            if (!(new_item = cJSON_New_Item()))
+            cJson *new_item;
+            if (!(new_item = cJson_New_Item()))
                 return 0; /* memory fail */
             child->next = new_item;
             new_item->prev = child;
@@ -515,18 +527,18 @@ namespace neb {
     }
 
 /* Render an array to text */
-    static char *print_array(cJSON *item, int depth, int fmt) {
+    static char *print_array(cJson *item, int depth, int fmt) {
         char **entries;
         char *out = 0, *ptr, *ret;
         int len = 5;
-        cJSON *child = item->child;
+        cJson *child = item->child;
         int numentries = 0, i = 0, fail = 0;
 
         /* How many entries in the array? */
         while (child)
             numentries++, child = child->next;
         /* Allocate an array to hold the values for each */
-        entries = (char **) cJSON_malloc(numentries * sizeof(char *));
+        entries = (char **) cJson_malloc(numentries * sizeof(char *));
         if (!entries)
             return 0;
         memset(entries, 0, numentries * sizeof(char *));
@@ -544,7 +556,7 @@ namespace neb {
 
         /* If we didn't fail, try to malloc the output string */
         if (!fail)
-            out = (char *) cJSON_malloc(len);
+            out = (char *) cJson_malloc(len);
         /* If that fails, we fail. */
         if (!out)
             fail = 1;
@@ -553,8 +565,8 @@ namespace neb {
         if (fail) {
             for (i = 0; i < numentries; i++)
                 if (entries[i])
-                    cJSON_free(entries[i]);
-            cJSON_free(entries);
+                    cJson_free(entries[i]);
+            cJson_free(entries);
             return 0;
         }
 
@@ -571,28 +583,28 @@ namespace neb {
                     *ptr++ = ' ';
                 *ptr = 0;
             }
-            cJSON_free(entries[i]);
+            cJson_free(entries[i]);
         }
-        cJSON_free(entries);
+        cJson_free(entries);
         *ptr++ = ']';
         *ptr++ = 0;
         return out;
     }
 
 /* Build an object from the text. */
-    static const char *parse_object(cJSON *item, const char *value) {
-        cJSON *child;
+    static const char *parse_object(cJson *item, const char *value) {
+        cJson *child;
         if (*value != '{') {
             ep = value;
             return 0;
         } /* not an object! */
 
-        item->type = cJSON_Object;
+        item->type = cJson_Object;
         value = skip(value + 1);
         if (*value == '}')
             return value + 1; /* empty array. */
 
-        item->child = child = cJSON_New_Item();
+        item->child = child = cJson_New_Item();
         if (!item->child)
             return 0;
         value = skip(parse_string(child, skip(value)));
@@ -609,8 +621,8 @@ namespace neb {
             return 0;
 
         while (*value == ',') {
-            cJSON *new_item;
-            if (!(new_item = cJSON_New_Item()))
+            cJson *new_item;
+            if (!(new_item = cJson_New_Item()))
                 return 0; /* memory fail */
             child->next = new_item;
             new_item->prev = child;
@@ -636,22 +648,22 @@ namespace neb {
     }
 
 /* Render an object to text. */
-    static char *print_object(cJSON *item, int depth, int fmt) {
+    static char *print_object(cJson *item, int depth, int fmt) {
         char **entries = 0, **names = 0;
         char *out = 0, *ptr, *ret, *str;
         int len = 7, i = 0, j;
-        cJSON *child = item->child;
+        cJson *child = item->child;
         int numentries = 0, fail = 0;
         /* Count the number of entries. */
         while (child)
             numentries++, child = child->next;
         /* Allocate space for the names and the objects */
-        entries = (char **) cJSON_malloc(numentries * sizeof(char *));
+        entries = (char **) cJson_malloc(numentries * sizeof(char *));
         if (!entries)
             return 0;
-        names = (char **) cJSON_malloc(numentries * sizeof(char *));
+        names = (char **) cJson_malloc(numentries * sizeof(char *));
         if (!names) {
-            cJSON_free(entries);
+            cJson_free(entries);
             return 0;
         }
         memset(entries, 0, sizeof(char *) * numentries);
@@ -674,7 +686,7 @@ namespace neb {
 
         /* Try to allocate the output string */
         if (!fail)
-            out = (char *) cJSON_malloc(len);
+            out = (char *) cJson_malloc(len);
         if (!out)
             fail = 1;
 
@@ -682,12 +694,12 @@ namespace neb {
         if (fail) {
             for (i = 0; i < numentries; i++) {
                 if (names[i])
-                    cJSON_free(names[i]);
+                    cJson_free(names[i]);
                 if (entries[i])
-                    cJSON_free(entries[i]);
+                    cJson_free(entries[i]);
             }
-            cJSON_free(names);
-            cJSON_free(entries);
+            cJson_free(names);
+            cJson_free(entries);
             return 0;
         }
 
@@ -713,12 +725,12 @@ namespace neb {
             if (fmt)
                 *ptr++ = '\n';
             *ptr = 0;
-            cJSON_free(names[i]);
-            cJSON_free(entries[i]);
+            cJson_free(names[i]);
+            cJson_free(entries[i]);
         }
 
-        cJSON_free(names);
-        cJSON_free(entries);
+        cJson_free(names);
+        cJson_free(entries);
         if (fmt)
             for (i = 0; i < depth - 1; i++)
                 *ptr++ = '\t';
@@ -728,49 +740,49 @@ namespace neb {
     }
 
 /* Get Array size/item / object item. */
-    int cJSON_GetArraySize(cJSON *array) {
-        cJSON *c = array->child;
+    int cJson_GetArraySize(cJson *array) {
+        cJson *c = array->child;
         int i = 0;
         while (c)
             i++, c = c->next;
         return i;
     }
 
-    cJSON *cJSON_GetArrayItem(cJSON *array, int item) {
-        cJSON *c = array->child;
+    cJson *cJson_GetArrayItem(cJson *array, int item) {
+        cJson *c = array->child;
         while (c && item > 0)
             item--, c = c->next;
         return c;
     }
 
-    cJSON *cJSON_GetObjectItem(cJSON *object, const char *string) {
-        cJSON *c = object->child;
-        while (c && cJSON_strcasecmp(c->string, string))
+    cJson *cJson_GetObjectItem(cJson *object, const char *string) {
+        cJson *c = object->child;
+        while (c && cJson_strcasecmp(c->string, string))
             c = c->next;
         return c;
     }
 
 /* Utility for array list handling. */
-    static void suffix_object(cJSON *prev, cJSON *item) {
+    static void suffix_object(cJson *prev, cJson *item) {
         prev->next = item;
         item->prev = prev;
     }
 
 /* Utility for handling references. */
-    static cJSON *create_reference(cJSON *item) {
-        cJSON *ref = cJSON_New_Item();
+    static cJson *create_reference(cJson *item) {
+        cJson *ref = cJson_New_Item();
         if (!ref)
             return 0;
-        memcpy(ref, item, sizeof(cJSON));
+        memcpy(ref, item, sizeof(cJson));
         ref->string = 0;
-        ref->type |= cJSON_IsReference;
+        ref->type |= cJson_IsReference;
         ref->next = ref->prev = 0;
         return ref;
     }
 
 /* Add item to array/object. */
-    void cJSON_AddItemToArray(cJSON *array, cJSON *item) {
-        cJSON *c = array->child;
+    void cJson_AddItemToArray(cJson *array, cJson *item) {
+        cJson *c = array->child;
         if (!item)
             return;
         if (!c) {
@@ -783,8 +795,8 @@ namespace neb {
         }
     }
 
-    void cJSON_AddItemToArrayHead(cJSON *array, cJSON *item) {
-        cJSON *c = array->child;
+    void cJson_AddItemToArrayHead(cJson *array, cJson *item) {
+        cJson *c = array->child;
         if (!item)
             return;
         if (!c) {
@@ -798,26 +810,26 @@ namespace neb {
         }
     }
 
-    void cJSON_AddItemToObject(cJSON *object, const char *string, cJSON *item) {
+    void cJson_AddItemToObject(cJson *object, const char *string, cJson *item) {
         if (!item)
             return;
         if (item->string)
-            cJSON_free(item->string);
-        item->string = cJSON_strdup(string);
-        cJSON_AddItemToArray(object, item);
+            cJson_free(item->string);
+        item->string = cJson_strdup(string);
+        cJson_AddItemToArray(object, item);
     }
 
-    void cJSON_AddItemReferenceToArray(cJSON *array, cJSON *item) {
-        cJSON_AddItemToArray(array, create_reference(item));
+    void cJson_AddItemReferenceToArray(cJson *array, cJson *item) {
+        cJson_AddItemToArray(array, create_reference(item));
     }
 
-    void cJSON_AddItemReferenceToObject(cJSON *object, const char *string,
-                                        cJSON *item) {
-        cJSON_AddItemToObject(object, string, create_reference(item));
+    void cJson_AddItemReferenceToObject(cJson *object, const char *string,
+                                        cJson *item) {
+        cJson_AddItemToObject(object, string, create_reference(item));
     }
 
-    cJSON *cJSON_DetachItemFromArray(cJSON *array, int which) {
-        cJSON *c = array->child;
+    cJson *cJson_DetachItemFromArray(cJson *array, int which) {
+        cJson *c = array->child;
         while (c && which > 0)
             c = c->next, which--;
         if (!c)
@@ -832,27 +844,27 @@ namespace neb {
         return c;
     }
 
-    void cJSON_DeleteItemFromArray(cJSON *array, int which) {
-        cJSON_Delete(cJSON_DetachItemFromArray(array, which));
+    void cJson_DeleteItemFromArray(cJson *array, int which) {
+        cJson_Delete(cJson_DetachItemFromArray(array, which));
     }
 
-    cJSON *cJSON_DetachItemFromObject(cJSON *object, const char *string) {
+    cJson *cJson_DetachItemFromObject(cJson *object, const char *string) {
         int i = 0;
-        cJSON *c = object->child;
-        while (c && cJSON_strcasecmp(c->string, string))
+        cJson *c = object->child;
+        while (c && cJson_strcasecmp(c->string, string))
             i++, c = c->next;
         if (c)
-            return cJSON_DetachItemFromArray(object, i);
+            return cJson_DetachItemFromArray(object, i);
         return 0;
     }
 
-    void cJSON_DeleteItemFromObject(cJSON *object, const char *string) {
-        cJSON_Delete(cJSON_DetachItemFromObject(object, string));
+    void cJson_DeleteItemFromObject(cJson *object, const char *string) {
+        cJson_Delete(cJson_DetachItemFromObject(object, string));
     }
 
 /* Replace array/object items with new ones. */
-    void cJSON_ReplaceItemInArray(cJSON *array, int which, cJSON *newitem) {
-        cJSON *c = array->child;
+    void cJson_ReplaceItemInArray(cJson *array, int which, cJson *newitem) {
+        cJson *c = array->child;
         while (c && which > 0)
             c = c->next, which--;
         if (!c)
@@ -866,54 +878,54 @@ namespace neb {
         else
             newitem->prev->next = newitem;
         c->next = c->prev = 0;
-        cJSON_Delete(c);
+        cJson_Delete(c);
     }
 
-    void cJSON_ReplaceItemInObject(cJSON *object, const char *string,
-                                   cJSON *newitem) {
+    void cJson_ReplaceItemInObject(cJson *object, const char *string,
+                                   cJson *newitem) {
         int i = 0;
-        cJSON *c = object->child;
-        while (c && cJSON_strcasecmp(c->string, string))
+        cJson *c = object->child;
+        while (c && cJson_strcasecmp(c->string, string))
             i++, c = c->next;
         if (c) {
-            newitem->string = cJSON_strdup(string);
-            cJSON_ReplaceItemInArray(object, i, newitem);
+            newitem->string = cJson_strdup(string);
+            cJson_ReplaceItemInArray(object, i, newitem);
         }
     }
 
 /* Create basic types: */
-    cJSON *cJSON_CreateNull() {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateNull() {
+        cJson *item = cJson_New_Item();
         if (item)
-            item->type = cJSON_NULL;
+            item->type = cJson_NULL;
         return item;
     }
 
-    cJSON *cJSON_CreateTrue() {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateTrue() {
+        cJson *item = cJson_New_Item();
         if (item)
-            item->type = cJSON_True;
+            item->type = cJson_True;
         return item;
     }
 
-    cJSON *cJSON_CreateFalse() {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateFalse() {
+        cJson *item = cJson_New_Item();
         if (item)
-            item->type = cJSON_False;
+            item->type = cJson_False;
         return item;
     }
 
-    cJSON *cJSON_CreateBool(int b) {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateBool(int b) {
+        cJson *item = cJson_New_Item();
         if (item)
-            item->type = b ? cJSON_True : cJSON_False;
+            item->type = b ? cJson_True : cJson_False;
         return item;
     }
 
-    cJSON *cJSON_CreateDouble(double num, int sign) {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateDouble(double num, int sign) {
+        cJson *item = cJson_New_Item();
         if (item) {
-            item->type = cJSON_Double;
+            item->type = cJson_Double;
             item->valuedouble = num;
             item->valueint = (int64) num;
             item->sign = sign;
@@ -921,10 +933,10 @@ namespace neb {
         return item;
     }
 
-    cJSON *cJSON_CreateInt(uint64 num, int sign) {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateInt(uint64 num, int sign) {
+        cJson *item = cJson_New_Item();
         if (item) {
-            item->type = cJSON_Int;
+            item->type = cJson_Int;
             item->valuedouble = (double) num;
             item->valueint = (int64) num;
             item->sign = sign;
@@ -932,35 +944,35 @@ namespace neb {
         return item;
     }
 
-    cJSON *cJSON_CreateString(const char *string) {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateString(const char *string) {
+        cJson *item = cJson_New_Item();
         if (item) {
-            item->type = cJSON_String;
-            item->valuestring = cJSON_strdup(string);
+            item->type = cJson_String;
+            item->valuestring = cJson_strdup(string);
         }
         return item;
     }
 
-    cJSON *cJSON_CreateArray() {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateArray() {
+        cJson *item = cJson_New_Item();
         if (item)
-            item->type = cJSON_Array;
+            item->type = cJson_Array;
         return item;
     }
 
-    cJSON *cJSON_CreateObject() {
-        cJSON *item = cJSON_New_Item();
+    cJson *cJson_CreateObject() {
+        cJson *item = cJson_New_Item();
         if (item)
-            item->type = cJSON_Object;
+            item->type = cJson_Object;
         return item;
     }
 
 /* Create Arrays: */
-    cJSON *cJSON_CreateIntArray(int *numbers, int sign, int count) {
+    cJson *cJson_CreateIntArray(int *numbers, int sign, int count) {
         int i;
-        cJSON *n = 0, *p = 0, *a = cJSON_CreateArray();
+        cJson *n = 0, *p = 0, *a = cJson_CreateArray();
         for (i = 0; a && i < count; i++) {
-            n = cJSON_CreateDouble((long double) ((unsigned int) numbers[i]), sign);
+            n = cJson_CreateDouble((long double) ((unsigned int) numbers[i]), sign);
             if (!i)
                 a->child = n;
             else
@@ -970,11 +982,11 @@ namespace neb {
         return a;
     }
 
-    cJSON *cJSON_CreateFloatArray(float *numbers, int count) {
+    cJson *cJson_CreateFloatArray(float *numbers, int count) {
         int i;
-        cJSON *n = 0, *p = 0, *a = cJSON_CreateArray();
+        cJson *n = 0, *p = 0, *a = cJson_CreateArray();
         for (i = 0; a && i < count; i++) {
-            n = cJSON_CreateDouble((long double) numbers[i], -1);
+            n = cJson_CreateDouble((long double) numbers[i], -1);
             if (!i)
                 a->child = n;
             else
@@ -984,11 +996,11 @@ namespace neb {
         return a;
     }
 
-    cJSON *cJSON_CreateDoubleArray(double *numbers, int count) {
+    cJson *cJson_CreateDoubleArray(double *numbers, int count) {
         int i;
-        cJSON *n = 0, *p = 0, *a = cJSON_CreateArray();
+        cJson *n = 0, *p = 0, *a = cJson_CreateArray();
         for (i = 0; a && i < count; i++) {
-            n = cJSON_CreateDouble((long double) numbers[i], -1);
+            n = cJson_CreateDouble((long double) numbers[i], -1);
             if (!i)
                 a->child = n;
             else
@@ -998,11 +1010,11 @@ namespace neb {
         return a;
     }
 
-    cJSON *cJSON_CreateStringArray(const char **strings, int count) {
+    cJson *cJson_CreateStringArray(const char **strings, int count) {
         int i;
-        cJSON *n = 0, *p = 0, *a = cJSON_CreateArray();
+        cJson *n = 0, *p = 0, *a = cJson_CreateArray();
         for (i = 0; a && i < count; i++) {
-            n = cJSON_CreateString(strings[i]);
+            n = cJson_CreateString(strings[i]);
             if (!i)
                 a->child = n;
             else

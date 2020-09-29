@@ -22,7 +22,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "cJSON.h"
+#include "./cJSON.h"
 #ifdef __cplusplus
 }
 #endif
@@ -148,12 +148,12 @@ public:     // method of json array
     bool ReplaceWithNull(int iWhich);      // replace with a null value
 
 private:
-    CJsonObject(cJSON* pJsonData);
+    CJsonObject(cJson* pJsonData);
 
 private:
-    cJSON* m_pJsonData;
-    cJSON* m_pExternJsonDataRef;
-    cJSON* m_pKeyTravers;
+    cJson* m_pJsonData;
+    cJson* m_pExternJsonDataRef;
+    cJson* m_pKeyTravers;
     std::string m_strErrMsg;
     std::map<unsigned int, CJsonObject*> m_mapJsonArrayRef;
     std::map<std::string, CJsonObject*> m_mapJsonObjectRef;
