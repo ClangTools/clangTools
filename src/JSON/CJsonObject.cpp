@@ -250,7 +250,13 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%d", (int32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%ld", (int64) pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber),
+#ifdef __APPLE__ // DARWIN
+                             "%lld"
+#else
+                            "%ld"
+#endif
+                            , (int64) pJsonStruct->valueint);
                 }
             }
             else {
@@ -258,7 +264,13 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%u", (uint32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%ld", pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber),
+#ifdef __APPLE__ // DARWIN
+                             "%lld"
+#else
+                            "%ld"
+#endif
+                            , pJsonStruct->valueint);
                 }
             }
             return (std::string(szNumber));
@@ -307,7 +319,13 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%d", (int32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%ld", (int64) pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber),
+#ifdef __APPLE__ // DARWIN
+                             "%lld"
+#else
+                            "%ld"
+#endif
+                            , (int64) pJsonStruct->valueint);
                 }
             }
             else {
@@ -315,7 +333,13 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%u", (uint32) pJsonStruct->valueint);
                 }
                 else {
-                    snprintf(szNumber, sizeof(szNumber), "%ld", pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber),
+#ifdef __APPLE__ // DARWIN
+                             "%lld"
+#else
+                             "%ld"
+#endif
+                             , pJsonStruct->valueint);
                 }
             }
             return (std::string(szNumber));

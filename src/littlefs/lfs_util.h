@@ -7,9 +7,9 @@
 #ifndef LFS_UTIL_H
 #define LFS_UTIL_H
 
-#ifndef __LFS_UTIL_LOGGER
-#define __LFS_UTIL_LOGGER
-#endif
+// #ifndef __LFS_UTIL_LOGGER
+// #define __LFS_UTIL_LOGGER
+// #endif
 #ifndef __LFS_UTIL_LOGGER
 #ifndef LFS_NO_DEBUG
 #define LFS_NO_DEBUG
