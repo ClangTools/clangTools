@@ -81,7 +81,8 @@ bool opencv_tool::findMaxFace(const cv::Mat &inMat, std::vector<cv::Rect> &faces
     cv::Mat img_gray;
     if (inMat.type() != CV_8U) {
         cvtColor(inMat, img_gray, cv::COLOR_BGR2GRAY);
-    } else {
+    }
+    else {
         img_gray = inMat;
     }
     cv::equalizeHist(img_gray, img_gray);
@@ -169,7 +170,8 @@ std::vector<int> opencv_tool::argsort(const std::vector<T> &array, const std::ve
                   auto _2 = abs(array2[pos1] - array2[pos2]);
                   if (array[pos1] > array[pos2] && array2[pos1] < array2[pos2]) {
                       return _2 > _1;
-                  } else {
+                  }
+                  else {
                       return _2 < _1;
                   }
                   // return (array[pos1] < array[pos2]);
@@ -273,7 +275,8 @@ std::vector<cv::RotatedRect> opencv_tool::FindLine_mserGetPlate(const cv::Mat &s
 
     if (srcImage.type() != CV_8U) {
         cvtColor(srcImage, gray, cv::COLOR_BGR2GRAY);
-    } else {
+    }
+    else {
         gray = srcImage.clone();
     }
     // 灰度转换
@@ -352,7 +355,8 @@ std::vector<cv::RotatedRect> opencv_tool::FindLine_Gray(const cv::Mat &srcImage)
 
     if (srcImage.type() != CV_8U) {
         cvtColor(srcImage, gray, cv::COLOR_BGR2GRAY);
-    } else {
+    }
+    else {
         gray = srcImage.clone();
     }
 
@@ -414,7 +418,8 @@ int opencv_tool::FindLine(const cv::Mat &srcImage, std::vector<cv::RotatedRect> 
     std::vector<cv::RotatedRect> candidates;
     if (useMserGetPlate) {
         candidates = FindLine_mserGetPlate(srcImage);
-    } else {
+    }
+    else {
         candidates = FindLine_Gray(srcImage);
     }
     std::vector<cv::Rect> _faces;
@@ -475,7 +480,8 @@ int opencv_tool::WarpAffine(const cv::Mat &srcImage, std::vector<cv::Mat> &outIm
     //旋转角度调整
     if (90 <= angle && angle < 45) {
         angle -= 90;
-    } else if (-90 <= angle && angle < -45) {
+    }
+    else if (-90 <= angle && angle < -45) {
         angle += 90;
     }
 
@@ -542,9 +548,11 @@ uint8_t opencv_tool::saturated_add(uint8_t val1, int8_t val2) {
 
     if (tmp > 255) {
         return 255;
-    } else if (tmp < 0) {
+    }
+    else if (tmp < 0) {
         return 0;
-    } else {
+    }
+    else {
         return tmp;
     }
 }
@@ -575,7 +583,8 @@ void opencv_tool::ImgDithering(const cv::Mat &gray, std::vector<std::vector<unsi
                 err = dithImg.at<uint8_t>(i, j) - 255;
                 dithImg.at<uint8_t>(i, j) = 255;
                 outputPtr[i][j] = 255;
-            } else {
+            }
+            else {
                 err = dithImg.at<uint8_t>(i, j) - 0;
                 dithImg.at<uint8_t>(i, j) = 0;
                 outputPtr[i][j] = 0;
@@ -619,7 +628,8 @@ cv::Mat opencv_tool::CreateQrCode(const std::string &data, int size) {
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 // for (int i = 0; i < 3; i++)
                 {
                     for (int _1 = 0; _1 < size; _1++) {
@@ -655,9 +665,11 @@ double opencv_tool::variance_of_laplacian(const Mat &img) {
     Mat gray(Size(imgcols, imgrows), CV_8UC1, 1);
     if (image.channels() == 3) {
         cv::cvtColor(image, gray, COLOR_BGR2GRAY);
-    } else if (image.channels() == 1) {
+    }
+    else if (image.channels() == 1) {
         image.copyTo(gray, NULL);
-    } else {
+    }
+    else {
         cv::cvtColor(image, gray, COLOR_BGRA2GRAY);
     }
 
@@ -746,7 +758,8 @@ int opencv_tool::makeSineWave(const Mat &inMat, Mat &outMat, int A, int deltaI) 
                 imgP[3 * x] = srcP[0];
                 imgP[3 * x + 1] = srcP[1];
                 imgP[3 * x + 2] = srcP[2];
-            } else if (x >= width - changeX) {
+            }
+            else if (x >= width - changeX) {
                 imgP[3 * x] = srcP[3 * (width - 1)];
                 imgP[3 * x + 1] = srcP[3 * (width - 1) + 1];
                 imgP[3 * x + 2] = srcP[3 * (width - 1) + 2];
@@ -756,6 +769,31 @@ int opencv_tool::makeSineWave(const Mat &inMat, Mat &outMat, int A, int deltaI) 
     }
     outMat = img;
     return 0;
+}
+
+int
+opencv_tool::qrCodeDetector(const Mat &inMat, Mat &outMat, std::string &straight_qrcode, std::vector<cv::Point> &list) {
+    cv::QRCodeDetector QRdetecter;
+    if (inMat.empty())return -1;
+    Mat img = inMat.clone();
+    int width = 640;
+    resize(img, img, Size(width, img.rows * width / img.cols));
+    cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+    vector<cv::String> decode_info;
+    vector<Point> corners;
+    vector<Mat> straight_qrcode_img;
+    // straight_qrcode = QRdetecter.detectAndDecode(img,list, outMat);
+    bool flag = QRdetecter.detectAndDecodeMulti(img, decode_info, corners, straight_qrcode_img);
+
+    for (int i = 0; i < corners.size(); i++) {
+        if (i == 3)
+            line(img, corners[i], corners[0], Scalar(0, 255, 0), 2);
+        else
+            line(img, corners[i], corners[i + 1], Scalar(0, 255, 0), 2);
+    }
+    imshow("straight_qrcode:" + straight_qrcode, img);
+    waitKey(0);
+    return straight_qrcode.size();
 }
 
 

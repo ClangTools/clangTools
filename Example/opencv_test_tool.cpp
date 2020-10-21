@@ -30,6 +30,20 @@ int main(int argc, char **argv) {
 #endif
 #endif
 #if 1
+    string path = argc == 1 ? "/Users/caesar/Desktop/1.jpg" : argv[1];
+    logger::instance()->i(__FILENAME__, __LINE__, "opencv version:%s", cv::getVersionString().c_str());
+    Mat img = imread(path), outMat;
+    std::vector<cv::Point> list;
+    string straight_qrcode;
+    int ret = opencv_tool::qrCodeDetector(img, outMat, straight_qrcode, list);
+
+    if (ret > 0) {
+        imshow("img", img);
+        imshow("outMat", outMat);
+        waitKey();
+    }
+#endif
+#if 0
     Mat img = imread("C:\\Users\\John\\Desktop\\1.jpeg"), outMat;
     resize(img, img, Size(480, 640));
 
