@@ -7,7 +7,7 @@
 #include <regex>
 #include <utility>
 #include <logger.h>
-#include <UTF8Url.h>
+#include <UTF8Url/UTF8Url.h>
 #ifdef ENABLE_CURL
 #include <curl/curl.h>
 #endif
