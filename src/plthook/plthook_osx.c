@@ -107,12 +107,12 @@ static int64_t sleb128(const uint8_t** p)
     for (;;) {
         uint8_t b = *(*p)++;
         if (b < 0x80) {
-          if (b & 0x40) {
-            r -= (0x80 - b) << s;
-          } else {
-            r |= (b & 0x3f) << s;
-          }
-          break;
+            if (b & 0x40) {
+                r -= (0x80 - b) << s;
+            } else {
+                r |= (b & 0x3f) << s;
+            }
+            break;
         }
         r |= (b & 0x7f) << s;
         s += 7;
@@ -148,7 +148,7 @@ int plthook_open(plthook_t **plthook_out, const char *filename)
         if (*filename != '/') {
             size_t image_name_len = strlen(image_name);
             if (image_name_len > namelen) {
-              offset = image_name_len - namelen;
+                offset = image_name_len - namelen;
             }
         }
         if (strcmp(image_name + offset, filename) == 0) {
@@ -163,8 +163,8 @@ int plthook_open(plthook_t **plthook_out, const char *filename)
 int plthook_open_by_handle(plthook_t **plthook_out, void *hndl)
 {
     int flags[] = {
-        RTLD_LAZY | RTLD_NOLOAD,
-        RTLD_LAZY | RTLD_NOLOAD | RTLD_FIRST,
+            RTLD_LAZY | RTLD_NOLOAD,
+            RTLD_LAZY | RTLD_NOLOAD | RTLD_FIRST,
     };
     int flag_idx;
     uint32_t cnt = _dyld_image_count();
@@ -243,21 +243,21 @@ static int plthook_open_real(plthook_t **plthook_out, uint32_t image_idx, const 
         struct segment_command_64 *segment64;
 
         switch (cmd->cmd) {
-        case LC_SEGMENT: /* 0x1 */
-            segment = (struct segment_command *)cmd;
-            DEBUG_CMD("LC_SEGMENT\n"
-                      "  segname   %s\n"
-                      "  vmaddr    %8x  vmsize     %8x\n"
-                      "  fileoff   %8x  filesize   %8x\n"
-                      "  maxprot   %8x  initprot   %8x\n"
-                      "  nsects    %8d  flags      %8x\n",
-                      segment->segname,
-                      segment->vmaddr, segment->vmsize,
-                      segment->fileoff, segment->filesize,
-                      segment->maxprot, segment->initprot,
-                      segment->nsects, segment->flags);
+            case LC_SEGMENT: /* 0x1 */
+                segment = (struct segment_command *)cmd;
+                DEBUG_CMD("LC_SEGMENT\n"
+                          "  segname   %s\n"
+                          "  vmaddr    %8x  vmsize     %8x\n"
+                          "  fileoff   %8x  filesize   %8x\n"
+                          "  maxprot   %8x  initprot   %8x\n"
+                          "  nsects    %8d  flags      %8x\n",
+                          segment->segname,
+                          segment->vmaddr, segment->vmsize,
+                          segment->fileoff, segment->filesize,
+                          segment->maxprot, segment->initprot,
+                          segment->nsects, segment->flags);
 #ifndef __LP64__
-            if (strcmp(segment->segname, "__LINKEDIT") == 0) {
+                if (strcmp(segment->segname, "__LINKEDIT") == 0) {
                 data.linkedit_segment_idx = data.num_segments;
             }
             if (data.num_segments == MAX_SEGMENTS) {
@@ -266,89 +266,89 @@ static int plthook_open_real(plthook_t **plthook_out, uint32_t image_idx, const 
             }
             data.segments[data.num_segments++] = segment;
 #endif
-            break;
-        case LC_SEGMENT_64: /* 0x19 */
-            segment64 = (struct segment_command_64 *)cmd;
-            DEBUG_CMD("LC_SEGMENT_64\n"
-                      "  segname   %s\n"
-                      "  vmaddr    %8llx  vmsize     %8llx\n"
-                      "  fileoff   %8llx  filesize   %8llx\n"
-                      "  maxprot   %8x  initprot   %8x\n"
-                      "  nsects    %8d  flags      %8x\n",
-                      segment64->segname,
-                      segment64->vmaddr, segment64->vmsize,
-                      segment64->fileoff, segment64->filesize,
-                      segment64->maxprot, segment64->initprot,
-                      segment64->nsects, segment64->flags);
+                break;
+            case LC_SEGMENT_64: /* 0x19 */
+                segment64 = (struct segment_command_64 *)cmd;
+                DEBUG_CMD("LC_SEGMENT_64\n"
+                          "  segname   %s\n"
+                          "  vmaddr    %8llx  vmsize     %8llx\n"
+                          "  fileoff   %8llx  filesize   %8llx\n"
+                          "  maxprot   %8x  initprot   %8x\n"
+                          "  nsects    %8d  flags      %8x\n",
+                          segment64->segname,
+                          segment64->vmaddr, segment64->vmsize,
+                          segment64->fileoff, segment64->filesize,
+                          segment64->maxprot, segment64->initprot,
+                          segment64->nsects, segment64->flags);
 #ifdef __LP64__
-            if (strcmp(segment64->segname, "__LINKEDIT") == 0) {
-                data.linkedit_segment_idx = data.num_segments;
-            }
-            if (data.num_segments == MAX_SEGMENTS) {
-                set_errmsg("Too many segments: %s", image_name);
-                return PLTHOOK_INTERNAL_ERROR;
-            }
-            data.segments[data.num_segments++] = segment64;
+                if (strcmp(segment64->segname, "__LINKEDIT") == 0) {
+                    data.linkedit_segment_idx = data.num_segments;
+                }
+                if (data.num_segments == MAX_SEGMENTS) {
+                    set_errmsg("Too many segments: %s", image_name);
+                    return PLTHOOK_INTERNAL_ERROR;
+                }
+                data.segments[data.num_segments++] = segment64;
 #endif
-            break;
-        case LC_DYLD_INFO_ONLY: /* (0x22|LC_REQ_DYLD) */
-            dyld_info= (struct dyld_info_command *)cmd;
-            lazy_bind_off = dyld_info->lazy_bind_off;
-            lazy_bind_size = dyld_info->lazy_bind_size;
-            DEBUG_CMD("LC_DYLD_INFO_ONLY\n"
-                      "                 offset     size\n"
-                      "  rebase       %8x %8x\n"
-                      "  bind         %8x %8x\n"
-                      "  weak_bind    %8x %8x\n"
-                      "  lazy_bind    %8x %8x\n"
-                      "  export_bind  %8x %8x\n",
-                      dyld_info->rebase_off, dyld_info->rebase_size,
-                      dyld_info->bind_off, dyld_info->bind_size,
-                      dyld_info->weak_bind_off, dyld_info->weak_bind_size,
-                      dyld_info->lazy_bind_off, dyld_info->lazy_bind_size,
-                      dyld_info->export_off, dyld_info->export_size);
-            break;
-        case LC_SYMTAB: /* 0x2 */
-            DEBUG_CMD("LC_SYMTAB\n");
-            break;
-        case LC_DYSYMTAB: /* 0xb */
-            DEBUG_CMD("LC_DYSYMTAB\n");
-            break;
-        case LC_LOAD_DYLIB: /* 0xc */
-            DEBUG_CMD("LC_LOAD_DYLIB\n");
-            break;
-        case LC_ID_DYLIB: /* 0xd */
-            DEBUG_CMD("LC_ID_DYLIB\n");
-            break;
-        case LC_LOAD_DYLINKER: /* 0xe */
-            DEBUG_CMD("LC_LOAD_DYLINKER\n");
-            break;
-        case LC_ROUTINES_64: /* 0x1a */
-            DEBUG_CMD("LC_ROUTINES_64\n");
-            break;
-        case LC_UUID: /* 0x1b */
-            DEBUG_CMD("LC_UUID\n");
-            break;
-        case LC_VERSION_MIN_MACOSX: /* 0x24 */
-            DEBUG_CMD("LC_VERSION_MIN_MACOSX\n");
-            break;
-        case LC_FUNCTION_STARTS: /* 0x26 */
-            DEBUG_CMD("LC_FUNCTION_STARTS\n");
-            break;
-        case LC_MAIN: /* 0x28|LC_REQ_DYLD */
-            DEBUG_CMD("LC_MAIN\n");
-            break;
-        case LC_DATA_IN_CODE: /* 0x29 */
-            DEBUG_CMD("LC_DATA_IN_CODE\n");
-            break;
-        case LC_SOURCE_VERSION: /* 0x2A */
-            DEBUG_CMD("LC_SOURCE_VERSION\n");
-            break;
-        case LC_DYLIB_CODE_SIGN_DRS: /* 0x2B */
-            DEBUG_CMD("LC_DYLIB_CODE_SIGN_DRS\n");
-            break;
-        default:
-            DEBUG_CMD("LC_? (0x%x)\n", cmd->cmd);
+                break;
+            case LC_DYLD_INFO_ONLY: /* (0x22|LC_REQ_DYLD) */
+                dyld_info= (struct dyld_info_command *)cmd;
+                lazy_bind_off = dyld_info->lazy_bind_off;
+                lazy_bind_size = dyld_info->lazy_bind_size;
+                DEBUG_CMD("LC_DYLD_INFO_ONLY\n"
+                          "                 offset     size\n"
+                          "  rebase       %8x %8x\n"
+                          "  bind         %8x %8x\n"
+                          "  weak_bind    %8x %8x\n"
+                          "  lazy_bind    %8x %8x\n"
+                          "  export_bind  %8x %8x\n",
+                          dyld_info->rebase_off, dyld_info->rebase_size,
+                          dyld_info->bind_off, dyld_info->bind_size,
+                          dyld_info->weak_bind_off, dyld_info->weak_bind_size,
+                          dyld_info->lazy_bind_off, dyld_info->lazy_bind_size,
+                          dyld_info->export_off, dyld_info->export_size);
+                break;
+            case LC_SYMTAB: /* 0x2 */
+                DEBUG_CMD("LC_SYMTAB\n");
+                break;
+            case LC_DYSYMTAB: /* 0xb */
+                DEBUG_CMD("LC_DYSYMTAB\n");
+                break;
+            case LC_LOAD_DYLIB: /* 0xc */
+                DEBUG_CMD("LC_LOAD_DYLIB\n");
+                break;
+            case LC_ID_DYLIB: /* 0xd */
+                DEBUG_CMD("LC_ID_DYLIB\n");
+                break;
+            case LC_LOAD_DYLINKER: /* 0xe */
+                DEBUG_CMD("LC_LOAD_DYLINKER\n");
+                break;
+            case LC_ROUTINES_64: /* 0x1a */
+                DEBUG_CMD("LC_ROUTINES_64\n");
+                break;
+            case LC_UUID: /* 0x1b */
+                DEBUG_CMD("LC_UUID\n");
+                break;
+            case LC_VERSION_MIN_MACOSX: /* 0x24 */
+                DEBUG_CMD("LC_VERSION_MIN_MACOSX\n");
+                break;
+            case LC_FUNCTION_STARTS: /* 0x26 */
+                DEBUG_CMD("LC_FUNCTION_STARTS\n");
+                break;
+            case LC_MAIN: /* 0x28|LC_REQ_DYLD */
+                DEBUG_CMD("LC_MAIN\n");
+                break;
+            case LC_DATA_IN_CODE: /* 0x29 */
+                DEBUG_CMD("LC_DATA_IN_CODE\n");
+                break;
+            case LC_SOURCE_VERSION: /* 0x2A */
+                DEBUG_CMD("LC_SOURCE_VERSION\n");
+                break;
+            case LC_DYLIB_CODE_SIGN_DRS: /* 0x2B */
+                DEBUG_CMD("LC_DYLIB_CODE_SIGN_DRS\n");
+                break;
+            default:
+                DEBUG_CMD("LC_? (0x%x)\n", cmd->cmd);
         }
         cmd = (struct load_command *)((size_t)cmd + cmd->cmdsize);
     }
@@ -391,65 +391,65 @@ static unsigned int set_bind_addrs(data_t *data, uint32_t lazy_bind_off, uint32_
         DEBUG_BIND("0x%02x: ", *ptr);
         ptr++;
         switch (op) {
-        case BIND_OPCODE_DONE:
-            DEBUG_BIND("BIND_OPCODE_DONE\n");
-            break;
-        case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM:
-            DEBUG_BIND("BIND_OPCODE_SET_DYLIB_ORDINAL_IMM: ordinal = %u\n", imm);
-            break;
-        case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:
-            ulebval = uleb128(&ptr);
-            DEBUG_BIND("BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB: ordinal = %llu\n", ulebval);
-            break;
-        case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:
-            if (imm == 0) {
-                DEBUG_BIND("BIND_OPCODE_SET_DYLIB_SPECIAL_IMM: ordinal = 0\n");
-            } else {
-                DEBUG_BIND("BIND_OPCODE_SET_DYLIB_SPECIAL_IMM: ordinal = %u\n", BIND_OPCODE_MASK | imm);
-            }
-        case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:
-            sym_name = (const char*)ptr;
-            ptr += strlen(sym_name) + 1;
-            DEBUG_BIND("BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM: sym_name = %s\n", sym_name);
-            break;
-        case BIND_OPCODE_SET_TYPE_IMM:
-            DEBUG_BIND("BIND_OPCODE_SET_TYPE_IMM: type = %u\n", imm);
-            break;
-        case BIND_OPCODE_SET_ADDEND_SLEB:
-            slebval = sleb128(&ptr);
-            DEBUG_BIND("BIND_OPCODE_SET_ADDEND_SLEB: ordinal = %lld\n", slebval);
-            break;
-        case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:
-            seg_index = imm;
-            seg_offset = uleb128(&ptr);
-            DEBUG_BIND("BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB: seg_index = %u, seg_offset = 0x%llx\n", seg_index, seg_offset);
-            break;
-        case BIND_OPCODE_ADD_ADDR_ULEB:
-            seg_offset += uleb128(&ptr);
-            DEBUG_BIND("BIND_OPCODE_ADD_ADDR_ULEB: seg_offset = 0x%llx\n", seg_offset);
-            break;
-        case BIND_OPCODE_DO_BIND:
-            set_bind_addr(data, &idx, sym_name, seg_index, seg_offset);
-            DEBUG_BIND("BIND_OPCODE_DO_BIND\n");
-            break;
-        case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
-            seg_offset += uleb128(&ptr);
-            DEBUG_BIND("BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB: seg_offset = 0x%llx\n", seg_offset);
-            break;
-        case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
-            set_bind_addr(data, &idx, sym_name, seg_index, seg_offset);
-            seg_offset += imm * sizeof(void *);
-            DEBUG_BIND("BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED\n");
-            break;
-        case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:
-            count = uleb128(&ptr);
-            skip = uleb128(&ptr);
-            for (i = 0; i < count; i++) {
+            case BIND_OPCODE_DONE:
+                DEBUG_BIND("BIND_OPCODE_DONE\n");
+                break;
+            case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM:
+                DEBUG_BIND("BIND_OPCODE_SET_DYLIB_ORDINAL_IMM: ordinal = %u\n", imm);
+                break;
+            case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:
+                ulebval = uleb128(&ptr);
+                DEBUG_BIND("BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB: ordinal = %llu\n", ulebval);
+                break;
+            case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:
+                if (imm == 0) {
+                    DEBUG_BIND("BIND_OPCODE_SET_DYLIB_SPECIAL_IMM: ordinal = 0\n");
+                } else {
+                    DEBUG_BIND("BIND_OPCODE_SET_DYLIB_SPECIAL_IMM: ordinal = %u\n", BIND_OPCODE_MASK | imm);
+                }
+            case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:
+                sym_name = (const char*)ptr;
+                ptr += strlen(sym_name) + 1;
+                DEBUG_BIND("BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM: sym_name = %s\n", sym_name);
+                break;
+            case BIND_OPCODE_SET_TYPE_IMM:
+                DEBUG_BIND("BIND_OPCODE_SET_TYPE_IMM: type = %u\n", imm);
+                break;
+            case BIND_OPCODE_SET_ADDEND_SLEB:
+                slebval = sleb128(&ptr);
+                DEBUG_BIND("BIND_OPCODE_SET_ADDEND_SLEB: ordinal = %lld\n", slebval);
+                break;
+            case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:
+                seg_index = imm;
+                seg_offset = uleb128(&ptr);
+                DEBUG_BIND("BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB: seg_index = %u, seg_offset = 0x%llx\n", seg_index, seg_offset);
+                break;
+            case BIND_OPCODE_ADD_ADDR_ULEB:
+                seg_offset += uleb128(&ptr);
+                DEBUG_BIND("BIND_OPCODE_ADD_ADDR_ULEB: seg_offset = 0x%llx\n", seg_offset);
+                break;
+            case BIND_OPCODE_DO_BIND:
                 set_bind_addr(data, &idx, sym_name, seg_index, seg_offset);
-                seg_offset += skip;
-            }
-            DEBUG_BIND("BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB\n");
-            break;
+                DEBUG_BIND("BIND_OPCODE_DO_BIND\n");
+                break;
+            case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
+                seg_offset += uleb128(&ptr);
+                DEBUG_BIND("BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB: seg_offset = 0x%llx\n", seg_offset);
+                break;
+            case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
+                set_bind_addr(data, &idx, sym_name, seg_index, seg_offset);
+                seg_offset += imm * sizeof(void *);
+                DEBUG_BIND("BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED\n");
+                break;
+            case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:
+                count = uleb128(&ptr);
+                skip = uleb128(&ptr);
+                for (i = 0; i < count; i++) {
+                    set_bind_addr(data, &idx, sym_name, seg_index, seg_offset);
+                    seg_offset += skip;
+                }
+                DEBUG_BIND("BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB\n");
+                break;
         }
     }
     return idx;
@@ -514,7 +514,7 @@ int plthook_replace(plthook_t *plthook, const char *funcname, void *funcaddr, vo
             }
         }
         continue;
-matched:
+        matched:
         if (oldfunc) {
             *oldfunc = *addr;
         }

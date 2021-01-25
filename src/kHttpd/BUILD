@@ -19,6 +19,7 @@ cc_library(
         "-Isrc/kHttpd",
         "-Isrc/socket",
         "-Isrc/http",
+        "-Isrc/UTF8Url",
         "-Isrc/net_tool",
         "-Isrc/Base64",
         "-Isrc/SHA1",
@@ -30,7 +31,7 @@ cc_library(
             "//src/socket:socket",
             "//src/Base64:base64",
             "//src/CGI:CGI",
-            "//src/http:UTF8Url",
+            "//src/UTF8Url:UTF8Url",
             "//src/net_tool:net_tool",
             "//src/SHA1:SHA1",
             ]

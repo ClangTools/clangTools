@@ -1,14 +1,4 @@
 cc_library(
-    name = "UTF8Url",
-    srcs = [
-        "UTF8Url.cpp",
-        ],
-    hdrs = [
-        "UTF8Url.h",
-        ],
-    visibility = ["//visibility:public"],
-)
-cc_library(
     name = "http",
     srcs = [
         "HTTP.cpp",
@@ -17,12 +7,12 @@ cc_library(
         "HTTP.h",
         ],
     visibility = ["//visibility:public"],
-    copts = ["-Isrc/logger","-Isrc/socket","-Isrc/http","-Isrc/nlohmann","-Isrc"],
+    copts = ["-Isrc/logger","-Isrc/socket","-Isrc/http","-Isrc/nlohmann","-Isrc/UTF8Url","-Isrc"],
     deps = [
             "//src/logger:logger",
             "//src/nlohmann:nlohmann_json",
             "//src/socket:socket",
-            ":UTF8Url",
+            "//src/UTF8Url:UTF8Url",
             ]
 )
 

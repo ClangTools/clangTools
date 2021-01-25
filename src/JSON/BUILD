@@ -8,7 +8,7 @@ cc_library(
     hdrs = [
         "cJSON.h",
         "gason.h",
-        "CJsonObject.h"
+        "CJsonObject.hpp"
         ],
     visibility = ["//visibility:public"],
 )

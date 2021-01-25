@@ -39,11 +39,13 @@ namespace neb {
 #define UINT_MAX   4294967295U
 #endif
 
-    static const char *ep;
-
-    const char *cJson_GetErrorPtr() {
-        return ep;
-    }
+    /* remove global variable for thread safe. --by Bwar on 2020-11-15
+static const char *ep;
+const char *cJson_GetErrorPtr()
+{
+    return ep;
+}
+*/
 
     static int cJson_strcasecmp(const char *s1, const char *s2) {
         if (!s1)
@@ -143,8 +145,7 @@ namespace neb {
             item->valuedouble = (double) (item->sign * n);
             item->valueint = item->sign * (int64) n;
             item->type = cJson_Int;
-        }
-        else {
+        } else {
             n = item->sign * n *
                 pow(10.0, (scale + subscale * signsubscale)); /* number = +/- number.fraction * 10^+/- exponent */
             item->valuedouble = (double) n;
@@ -175,29 +176,14 @@ namespace neb {
             if (item->sign == -1) {
                 if ((int64) item->valueint <= (int64) INT_MAX && (int64) item->valueint >= (int64) INT_MIN) {
                     sprintf(str, "%d", (int32) item->valueint);
+                } else {
+                    sprintf(str, "%lld", (int64) item->valueint);
                 }
-                else {
-                    sprintf(str,
-#ifdef __APPLE__ // DARWIN
-                            "%lld"
-#else
-                            "%ld"
-#endif
-                            , (int64) item->valueint);
-                }
-            }
-            else {
+            } else {
                 if (item->valueint <= (uint64) UINT_MAX) {
                     sprintf(str, "%u", (uint32) item->valueint);
-                }
-                else {
-                    sprintf(str,
-#ifdef __APPLE__ // DARWIN
-                            "%lld"
-#else
-                            "%ld"
-#endif
-                            , item->valueint);
+                } else {
+                    sprintf(str, "%lld", item->valueint);
                 }
             }
         }
@@ -205,18 +191,17 @@ namespace neb {
     }
 
 /* Parse the input text into an unescaped cstring, and populate item. */
-    static const unsigned char firstByteMark[7] = {
-            0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC
-    };
+    static const unsigned char firstByteMark[7] = {0x00, 0x00, 0xC0, 0xE0, 0xF0,
+                                                   0xF8, 0xFC};
 
-    static const char *parse_string(cJson *item, const char *str) {
+    static const char *parse_string(cJson *item, const char *str, const char **ep) {
         const char *ptr = str + 1;
         char *ptr2;
         char *out;
         int len = 0;
         unsigned uc, uc2;
         if (*str != '\"') {
-            ep = str;
+            *ep = str;
             return 0;
         } /* not a string! */
 
@@ -378,15 +363,15 @@ namespace neb {
     }
 
 /* Predeclare these prototypes. */
-    static const char *parse_value(cJson *item, const char *value);
+    static const char *parse_value(cJson *item, const char *value, const char **ep);
 
     static char *print_value(cJson *item, int depth, int fmt);
 
-    static const char *parse_array(cJson *item, const char *value);
+    static const char *parse_array(cJson *item, const char *value, const char **ep);
 
     static char *print_array(cJson *item, int depth, int fmt);
 
-    static const char *parse_object(cJson *item, const char *value);
+    static const char *parse_object(cJson *item, const char *value, const char **ep);
 
     static char *print_object(cJson *item, int depth, int fmt);
 
@@ -398,13 +383,13 @@ namespace neb {
     }
 
 /* Parse an object - create a new root, and populate. */
-    cJson *cJson_Parse(const char *value) {
+    cJson *cJson_Parse(const char *value, const char **ep) {
         cJson *c = cJson_New_Item();
-        ep = 0;
+        *ep = 0;
         if (!c)
             return 0; /* memory fail */
 
-        if (!parse_value(c, skip(value))) {
+        if (!parse_value(c, skip(value), ep)) {
             cJson_Delete(c);
             return 0;
         }
@@ -421,7 +406,7 @@ namespace neb {
     }
 
 /* Parser core - when encountering text, process appropriately. */
-    static const char *parse_value(cJson *item, const char *value) {
+    static const char *parse_value(cJson *item, const char *value, const char **ep) {
         if (!value)
             return 0; /* Fail on null. */
         if (!strncmp(value, "null", 4)) {
@@ -438,19 +423,19 @@ namespace neb {
             return value + 4;
         }
         if (*value == '\"') {
-            return parse_string(item, value);
+            return parse_string(item, value, ep);
         }
         if (*value == '-' || (*value >= '0' && *value <= '9')) {
             return parse_number(item, value);
         }
         if (*value == '[') {
-            return parse_array(item, value);
+            return parse_array(item, value, ep);
         }
         if (*value == '{') {
-            return parse_object(item, value);
+            return parse_object(item, value, ep);
         }
 
-        ep = value;
+        *ep = value;
         return 0; /* failure. */
     }
 
@@ -489,10 +474,10 @@ namespace neb {
     }
 
 /* Build an array from input text. */
-    static const char *parse_array(cJson *item, const char *value) {
+    static const char *parse_array(cJson *item, const char *value, const char **ep) {
         cJson *child;
         if (*value != '[') {
-            ep = value;
+            *ep = value;
             return 0;
         } /* not an array! */
 
@@ -504,7 +489,7 @@ namespace neb {
         item->child = child = cJson_New_Item();
         if (!item->child)
             return 0; /* memory fail */
-        value = skip(parse_value(child, skip(value))); /* skip any spacing, get the value. */
+        value = skip(parse_value(child, skip(value), ep)); /* skip any spacing, get the value. */
         if (!value)
             return 0;
 
@@ -515,14 +500,14 @@ namespace neb {
             child->next = new_item;
             new_item->prev = child;
             child = new_item;
-            value = skip(parse_value(child, skip(value + 1)));
+            value = skip(parse_value(child, skip(value + 1), ep));
             if (!value)
                 return 0; /* memory fail */
         }
 
         if (*value == ']')
             return value + 1; /* end of array */
-        ep = value;
+        *ep = value;
         return 0; /* malformed. */
     }
 
@@ -592,10 +577,10 @@ namespace neb {
     }
 
 /* Build an object from the text. */
-    static const char *parse_object(cJson *item, const char *value) {
+    static const char *parse_object(cJson *item, const char *value, const char **ep) {
         cJson *child;
         if (*value != '{') {
-            ep = value;
+            *ep = value;
             return 0;
         } /* not an object! */
 
@@ -607,16 +592,16 @@ namespace neb {
         item->child = child = cJson_New_Item();
         if (!item->child)
             return 0;
-        value = skip(parse_string(child, skip(value)));
+        value = skip(parse_string(child, skip(value), ep));
         if (!value)
             return 0;
         child->string = child->valuestring;
         child->valuestring = 0;
         if (*value != ':') {
-            ep = value;
+            *ep = value;
             return 0;
         } /* fail! */
-        value = skip(parse_value(child, skip(value + 1))); /* skip any spacing, get the value. */
+        value = skip(parse_value(child, skip(value + 1), ep)); /* skip any spacing, get the value. */
         if (!value)
             return 0;
 
@@ -627,23 +612,23 @@ namespace neb {
             child->next = new_item;
             new_item->prev = child;
             child = new_item;
-            value = skip(parse_string(child, skip(value + 1)));
+            value = skip(parse_string(child, skip(value + 1), ep));
             if (!value)
                 return 0;
             child->string = child->valuestring;
             child->valuestring = 0;
             if (*value != ':') {
-                ep = value;
+                *ep = value;
                 return 0;
             } /* fail! */
-            value = skip(parse_value(child, skip(value + 1))); /* skip any spacing, get the value. */
+            value = skip(parse_value(child, skip(value + 1), ep)); /* skip any spacing, get the value. */
             if (!value)
                 return 0;
         }
 
         if (*value == '}')
             return value + 1; /* end of array */
-        ep = value;
+        *ep = value;
         return 0; /* malformed. */
     }
 
@@ -787,8 +772,7 @@ namespace neb {
             return;
         if (!c) {
             array->child = item;
-        }
-        else {
+        } else {
             while (c && c->next)
                 c = c->next;
             suffix_object(c, item);
@@ -801,8 +785,7 @@ namespace neb {
             return;
         if (!c) {
             array->child = item;
-        }
-        else {
+        } else {
             item->prev = c->prev;
             item->next = c;
             c->prev = item;

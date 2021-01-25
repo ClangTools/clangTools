@@ -72,7 +72,7 @@ namespace neb {
     extern void cJson_InitHooks(cJson_Hooks *hooks);
 
 /* Supply a block of JSON, and this returns a cJson object you can interrogate. Call cJson_Delete when finished. */
-    extern cJson *cJson_Parse(const char *value);
+    extern cJson *cJson_Parse(const char *value, const char **ep);
 
 /* Render a cJson entity to text for transfer/storage. Free the char* when finished. */
     extern char *cJson_Print(cJson *item);
@@ -92,8 +92,9 @@ namespace neb {
 /* Get item "string" from object. Case insensitive. */
     extern cJson *cJson_GetObjectItem(cJson *object, const char *string);
 
+/* remove gloal variable for thread safe. --by Bwar on 2020-11-15 */
 /* For analysing failed parses. This returns a pointer to the parse error. You'll probably need to look a few chars back to make sense of it. Defined when cJson_Parse() returns 0. 0 when cJson_Parse() succeeds. */
-    extern const char *cJson_GetErrorPtr();
+/* extern const char *cJson_GetErrorPtr(); */
 
 /* These calls create a cJson item of the appropriate type. */
     extern cJson *cJson_CreateNull();
@@ -156,6 +157,7 @@ namespace neb {
 #define cJson_AddFalseToObject(object, name)        cJson_AddItemToObject(object, name, cJson_CreateFalse())
 #define cJson_AddNumberToObject(object, name, n)    cJson_AddItemToObject(object, name, cJson_CreateNumber(n))
 #define cJson_AddStringToObject(object, name, s)    cJson_AddItemToObject(object, name, cJson_CreateString(s))
+
 
 }
 
