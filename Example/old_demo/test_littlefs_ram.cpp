@@ -6,13 +6,15 @@
 #include "lfs.h"
 #include "lfs_util.h"
 
+#define LFS_RAMBD_YES_TRACE
 // variables used by the filesystem
 lfs_t lfs;
 lfs_file_t file;
 
 // Block device specific tracing
 #ifdef LFS_RAMBD_YES_TRACE
-#define LFS_RAMBD_TRACE(...) LFS_TRACE(__VA_ARGS__)
+#define LFS_RAMBD_TRACE(fmt, ...) \
+    printf("%s:%d:trace: " fmt "\n", __FILE__, __LINE__, __VA_ARGS__)
 #else
 #define LFS_RAMBD_TRACE(...)
 #endif
@@ -72,6 +74,7 @@ void test_mkdir() {
     err = lfs_mkdir(&lfs, "/root");
     err = lfs_mkdir(&lfs, "/root/data");
 }
+
 int lfs_ls(lfs_t *lfs, const char *path) {
     lfs_dir_t dir;
     int err = lfs_dir_open(lfs, &dir, path);
@@ -91,15 +94,21 @@ int lfs_ls(lfs_t *lfs, const char *path) {
         }
 
         switch (info.type) {
-            case LFS_TYPE_REG: printf("reg "); break;
-            case LFS_TYPE_DIR: printf("dir "); break;
-            default:           printf("?   "); break;
+            case LFS_TYPE_REG:
+                printf("reg ");
+                break;
+            case LFS_TYPE_DIR:
+                printf("dir ");
+                break;
+            default:
+                printf("?   ");
+                break;
         }
 
         static const char *prefixes[] = {"", "K", "M", "G"};
-        for (int i = sizeof(prefixes)/sizeof(prefixes[0])-1; i >= 0; i--) {
-            if (info.size >= (1 << 10*i)-1) {
-                printf("%*u%sB ", 4-(i != 0), info.size >> 10*i, prefixes[i]);
+        for (int i = sizeof(prefixes) / sizeof(prefixes[0]) - 1; i >= 0; i--) {
+            if (info.size >= (1 << 10 * i) - 1) {
+                printf("%*u%sB ", 4 - (i != 0), info.size >> 10 * i, prefixes[i]);
                 break;
             }
         }
@@ -126,6 +135,7 @@ void test_dir_change(const char *path) {
     err = lfs_dir_read(&lfs, &dir, &info);
     lfs_dir_close(&lfs, &dir);
 }
+
 // entry point
 int main(void) {
     {
@@ -198,16 +208,16 @@ int main(void) {
 
 int lfs_rambd_createcfg(const struct lfs_config *cfg,
                         const struct lfs_rambd_config *bdcfg) {
-    LFS_RAMBD_TRACE("lfs_rambd_createcfg(%p {.context=%p, "
-                    ".read=%p, .prog=%p, .erase=%p, .sync=%p, "
-                    ".read_size=%" PRIu32 ", .prog_size=%" PRIu32 ", "
-                                                                  ".block_size=%" PRIu32 ", .block_count=%" PRIu32 "}, "
-                                                                                                                   "%p {.erase_value=%" PRId32 ", .buffer=%p})",
-                    (void *) cfg, cfg->context,
-                    (void *) (uintptr_t) cfg->read, (void *) (uintptr_t) cfg->prog,
-                    (void *) (uintptr_t) cfg->erase, (void *) (uintptr_t) cfg->sync,
-                    cfg->read_size, cfg->prog_size, cfg->block_size, cfg->block_count,
-                    (void *) bdcfg, bdcfg->erase_value, bdcfg->buffer);
+    // LFS_RAMBD_TRACE("lfs_rambd_createcfg(%p {.context=%p, "
+    //                 ".read=%p, .prog=%p, .erase=%p, .sync=%p, "
+    //                 ".read_size=%" PRIu32 ", .prog_size=%" PRIu32 ", "
+    //                                                               ".block_size=%" PRIu32 ", .block_count=%" PRIu32 "}, "
+    //                                                                                                                "%p {.erase_value=%" PRId32 ", .buffer=%p})",
+    //                 (void *) cfg, cfg->context,
+    //                 (void *) (uintptr_t) cfg->read, (void *) (uintptr_t) cfg->prog,
+    //                 (void *) (uintptr_t) cfg->erase, (void *) (uintptr_t) cfg->sync,
+    //                 cfg->read_size, cfg->prog_size, cfg->block_size, cfg->block_count,
+    //                 (void *) bdcfg, bdcfg->erase_value, bdcfg->buffer);
     lfs_rambd_t *bd = (lfs_rambd_t *) cfg->context;
     bd->cfg = bdcfg;
 
@@ -228,28 +238,28 @@ int lfs_rambd_createcfg(const struct lfs_config *cfg,
                cfg->block_size * cfg->block_count);
     }
 
-    LFS_RAMBD_TRACE("lfs_rambd_createcfg -> %d", 0);
+    // LFS_RAMBD_TRACE("lfs_rambd_createcfg -> %d", 0);
     return 0;
 }
 
 int lfs_rambd_create(const struct lfs_config *cfg) {
-    LFS_RAMBD_TRACE("lfs_rambd_create(%p {.context=%p, "
-                    ".read=%p, .prog=%p, .erase=%p, .sync=%p, "
-                    ".read_size=%" PRIu32 ", .prog_size=%" PRIu32 ", "
-                                                                  ".block_size=%" PRIu32 ", .block_count=%" PRIu32 "})",
-                    (void *) cfg, cfg->context,
-                    (void *) (uintptr_t) cfg->read, (void *) (uintptr_t) cfg->prog,
-                    (void *) (uintptr_t) cfg->erase, (void *) (uintptr_t) cfg->sync,
-                    cfg->read_size, cfg->prog_size, cfg->block_size, cfg->block_count);
+    // LFS_RAMBD_TRACE("lfs_rambd_create(%p {.context=%p, "
+    //                 ".read=%p, .prog=%p, .erase=%p, .sync=%p, "
+    //                 ".read_size=%" PRIu32 ", .prog_size=%" PRIu32 ", "
+    //                                                               ".block_size=%" PRIu32 ", .block_count=%" PRIu32 "})",
+    //                 (void *) cfg, cfg->context,
+    //                 (void *) (uintptr_t) cfg->read, (void *) (uintptr_t) cfg->prog,
+    //                 (void *) (uintptr_t) cfg->erase, (void *) (uintptr_t) cfg->sync,
+    //                 cfg->read_size, cfg->prog_size, cfg->block_size, cfg->block_count);
     static struct lfs_rambd_config defaults;
     defaults.erase_value = -1;
     int err = lfs_rambd_createcfg(cfg, &defaults);
-    LFS_RAMBD_TRACE("lfs_rambd_create -> %d", err);
+    // LFS_RAMBD_TRACE("lfs_rambd_create -> %d", err);
     return err;
 }
 
 int lfs_rambd_destroy(const struct lfs_config *cfg) {
-    LFS_RAMBD_TRACE("lfs_rambd_destroy(%p)", (void *) cfg);
+    // LFS_RAMBD_TRACE("lfs_rambd_destroy(%p)", (void *) cfg);
     // clean up memory
     lfs_rambd_t *bd = (lfs_rambd_t *) cfg->context;
     if (!bd->cfg->buffer) {
@@ -261,9 +271,9 @@ int lfs_rambd_destroy(const struct lfs_config *cfg) {
 
 int lfs_rambd_read(const struct lfs_config *cfg, lfs_block_t block,
                    lfs_off_t off, void *buffer, lfs_size_t size) {
-    LFS_RAMBD_TRACE("lfs_rambd_read(%p, "
-                    "0x%" PRIx32 ", %" PRIu32", %p, %" PRIu32 ")",
-                    (void *) cfg, block, off, buffer, size);
+    // LFS_RAMBD_TRACE("lfs_rambd_read(%p, "
+    //                 "0x%" PRIx32 ", %" PRIu32", %p, %" PRIu32 ")",
+    //                 (void *) cfg, block, off, buffer, size);
     lfs_rambd_t *bd = (lfs_rambd_t *) cfg->context;
 
     // check if read is valid
@@ -274,15 +284,15 @@ int lfs_rambd_read(const struct lfs_config *cfg, lfs_block_t block,
     // read data
     memcpy(buffer, &bd->buffer[block * cfg->block_size + off], size);
 
-    LFS_RAMBD_TRACE("lfs_rambd_read -> %d", 0);
+    // LFS_RAMBD_TRACE("lfs_rambd_read -> %d", 0);
     return 0;
 }
 
 int lfs_rambd_prog(const struct lfs_config *cfg, lfs_block_t block,
                    lfs_off_t off, const void *buffer, lfs_size_t size) {
-    LFS_RAMBD_TRACE("lfs_rambd_prog(%p, "
-                    "0x%" PRIx32 ", %" PRIu32 ", %p, %" PRIu32 ")",
-                    (void *) cfg, block, off, buffer, size);
+    // LFS_RAMBD_TRACE("lfs_rambd_prog(%p, "
+    //                 "0x%" PRIx32 ", %" PRIu32 ", %p, %" PRIu32 ")",
+    //                 (void *) cfg, block, off, buffer, size);
     lfs_rambd_t *bd = (lfs_rambd_t *) cfg->context;
 
     // check if write is valid
@@ -318,7 +328,7 @@ int lfs_rambd_erase(const struct lfs_config *cfg, lfs_block_t block) {
                bd->cfg->erase_value, cfg->block_size);
     }
 
-    LFS_RAMBD_TRACE("lfs_rambd_erase -> %d", 0);
+    // LFS_RAMBD_TRACE("lfs_rambd_erase -> %d", 0);
     return 0;
 }
 

@@ -14,9 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: configure
-        run: mkdir build-ubuntu && cd build-ubuntu && cmake -DCMAKE_CXX_FLAGS="-Werror" ..
+        run: mkdir build-ubuntu && cd build-ubuntu && cmake -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_BUILD_TYPE=Release ..
       - name: build
         run: cmake --build build-ubuntu
+      - uses: actions/upload-artifact@v2
+        with:
+          name: libtools-ubuntu
+          path: |
+            build-ubuntu/libTools.a
+
 
   win-build:
 
@@ -27,7 +33,12 @@ jobs:
       - name: configure
         run: mkdir build-windows && cd build-windows && cmake ..
       - name: build
-        run: cmake --build build-windows
+        run: cmake --build build-windows --config Release
+      - uses: actions/upload-artifact@v2
+        with:
+          name: libtools-windows
+          path: |
+            build-windows/Release/Tools.lib
 
   macOS-build:
 
@@ -36,9 +47,14 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: configure
-        run: mkdir build-macOS && cd build-macOS && cmake -DCMAKE_CXX_FLAGS="-Werror" ..
+        run: mkdir build-macOS && cd build-macOS && cmake -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_BUILD_TYPE=Release ..
       - name: build
         run: cmake --build build-macOS
+      - uses: actions/upload-artifact@v2
+        with:
+          name: libtools-macOS
+          path: |
+            build-macOS/libTools.a
 
   bazel-build:
     name: build

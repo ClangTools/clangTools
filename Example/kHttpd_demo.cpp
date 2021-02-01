@@ -17,7 +17,7 @@
 #include <kHttpd.h>
 #include <kWebSocketClient.h>
 #include <base64.h>
-#include <CJsonObject.h>
+#include <CJsonObject.hpp>
 #include <kHttpdClient.h>
 #include <getopt.h>
 #include <string>

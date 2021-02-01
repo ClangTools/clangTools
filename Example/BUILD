@@ -7,6 +7,7 @@ cc_binary(
         "-Isrc/logger",
         "-Isrc/thread_pool",
         "-Isrc/http",
+        "-Isrc/UTF8Url",
         "-Isrc/socket",
         "-Isrc/JSON",
         "-Isrc/Base64",

@@ -3,8 +3,9 @@
 //
 
 #include <HTTP.h>
-#include <CJsonObject.h>
+#include <CJsonObject.hpp>
 using namespace std;
+using namespace neb;
 
 //const char *test_url = "http://kekxv.com/?id=3";
 const char *test_url = "http://wap.baidu.com/?id=3";
