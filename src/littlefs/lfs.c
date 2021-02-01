@@ -587,8 +587,7 @@ static int lfs_alloc(lfs_t *lfs, lfs_block_t *block) {
 
         // check if we have looked at all blocks since last ack
         if (lfs->free.ack == 0) {
-            LFS_ERROR("No more free space %"PRIu32,
-                      lfs->free.i + lfs->free.off);
+            LFS_ERROR("No more free space %"PRIu32, lfs->free.i + lfs->free.off);
             return LFS_ERR_NOSPC;
         }
 
@@ -1102,8 +1101,7 @@ static lfs_stag_t lfs_dir_fetchmatch(lfs_t *lfs,
         dir->rev = revs[(r + 1) % 2];
     }
 
-    LFS_ERROR("Corrupted dir pair at {0x%"PRIx32", 0x%"PRIx32"}",
-              dir->pair[0], dir->pair[1]);
+    LFS_ERROR("Corrupted dir pair at {0x%"PRIx32", 0x%"PRIx32"}", dir->pair[0], dir->pair[1]);
     return LFS_ERR_CORRUPT;
 }
 
@@ -3815,8 +3813,7 @@ static int lfs_rawmount(lfs_t *lfs, const struct lfs_config *cfg) {
             uint16_t minor_version = (0xffff & (superblock.version >> 0));
             if ((major_version != LFS_DISK_VERSION_MAJOR ||
                  minor_version > LFS_DISK_VERSION_MINOR)) {
-                LFS_ERROR("Invalid version v%"PRIu16".%"PRIu16,
-                          major_version, minor_version);
+                LFS_ERROR("Invalid version v%"PRIu16".%"PRIu16, major_version, minor_version);
                 err = LFS_ERR_INVAL;
                 goto cleanup;
             }
@@ -3824,8 +3821,7 @@ static int lfs_rawmount(lfs_t *lfs, const struct lfs_config *cfg) {
             // check superblock configuration
             if (superblock.name_max) {
                 if (superblock.name_max > lfs->name_max) {
-                    LFS_ERROR("Unsupported name_max (%"PRIu32" > %"PRIu32")",
-                              superblock.name_max, lfs->name_max);
+                    LFS_ERROR("Unsupported name_max (%"PRIu32" > %"PRIu32")", superblock.name_max, lfs->name_max);
                     err = LFS_ERR_INVAL;
                     goto cleanup;
                 }
@@ -3835,8 +3831,7 @@ static int lfs_rawmount(lfs_t *lfs, const struct lfs_config *cfg) {
 
             if (superblock.file_max) {
                 if (superblock.file_max > lfs->file_max) {
-                    LFS_ERROR("Unsupported file_max (%"PRIu32" > %"PRIu32")",
-                              superblock.file_max, lfs->file_max);
+                    LFS_ERROR("Unsupported file_max (%"PRIu32" > %"PRIu32")", superblock.file_max, lfs->file_max);
                     err = LFS_ERR_INVAL;
                     goto cleanup;
                 }
@@ -3846,8 +3841,7 @@ static int lfs_rawmount(lfs_t *lfs, const struct lfs_config *cfg) {
 
             if (superblock.attr_max) {
                 if (superblock.attr_max > lfs->attr_max) {
-                    LFS_ERROR("Unsupported attr_max (%"PRIu32" > %"PRIu32")",
-                              superblock.attr_max, lfs->attr_max);
+                    LFS_ERROR("Unsupported attr_max (%"PRIu32" > %"PRIu32")", superblock.attr_max, lfs->attr_max);
                     err = LFS_ERR_INVAL;
                     goto cleanup;
                 }
@@ -4571,8 +4565,7 @@ static int lfs1_dir_fetch(lfs_t *lfs,
     }
 
     if (!valid) {
-        LFS_ERROR("Corrupted dir pair at {0x%"PRIx32", 0x%"PRIx32"}",
-                tpair[0], tpair[1]);
+        LFS_ERROR("Corrupted dir pair at {0x%"PRIx32", 0x%"PRIx32"}", tpair[0], tpair[1]);
         return LFS_ERR_CORRUPT;
     }
 
@@ -4759,8 +4752,7 @@ static int lfs1_mount(lfs_t *lfs, struct lfs1 *lfs1,
         }
 
         if (err || memcmp(superblock.d.magic, "littlefs", 8) != 0) {
-            LFS_ERROR("Invalid superblock at {0x%"PRIx32", 0x%"PRIx32"}",
-                    0, 1);
+            LFS_ERROR("Invalid superblock at {0x%"PRIx32", 0x%"PRIx32"}", 0, 1);
             err = LFS_ERR_CORRUPT;
             goto cleanup;
         }
