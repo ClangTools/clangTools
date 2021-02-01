@@ -26,6 +26,9 @@
 #include <stdint.h>
 #include <inttypes.h>
 
+#ifndef PRId64
+#define PRId64 "ld"
+#endif
 
 #ifdef __cplusplus
 extern "C"
