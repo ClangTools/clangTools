@@ -206,7 +206,7 @@ if (UINX)
 else ()
     target_compile_definitions(
             ${libTools_LIBRARIES}
-            PUBLIC -D_DLL_ClangTools_Export= -DLFS_NO_ERROR -DLFS_DEBUG_ -DLFS_NO_WARN
+            PUBLIC -D_DLL_ClangTools_Export= -DLFS_NO_ERROR -DLFS_NO_DEBUG -DLFS_NO_WARN
     )
 endif ()
 
