@@ -177,13 +177,13 @@ const char *cJson_GetErrorPtr()
                 if ((int64) item->valueint <= (int64) INT_MAX && (int64) item->valueint >= (int64) INT_MIN) {
                     sprintf(str, "%d", (int32) item->valueint);
                 } else {
-                    sprintf(str, "%lld", (int64) item->valueint);
+                    sprintf(str, "%" PRId64, (int64) item->valueint);
                 }
             } else {
                 if (item->valueint <= (uint64) UINT_MAX) {
                     sprintf(str, "%u", (uint32) item->valueint);
                 } else {
-                    sprintf(str, "%lld", item->valueint);
+                    sprintf(str, "%" PRId64, item->valueint);
                 }
             }
         }

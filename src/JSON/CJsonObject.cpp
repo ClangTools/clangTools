@@ -304,9 +304,9 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%d", (int32) pJsonStruct->valueint);
                 } else {
 #if LLONG_MAX == LLONG_MAX
-                    snprintf(szNumber, sizeof(szNumber), "%lld", (int64) pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%" PRId64, (int64) pJsonStruct->valueint);
 #else
-                    snprintf(szNumber, sizeof(szNumber), "%lld", (int64)pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%" PRId64, (int64)pJsonStruct->valueint);
 #endif
                 }
             } else {
@@ -314,7 +314,7 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%u", (uint32) pJsonStruct->valueint);
                 } else {
 #if LLONG_MAX == LLONG_MAX
-                    snprintf(szNumber, sizeof(szNumber), "%lld", pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%" PRId64, pJsonStruct->valueint);
 #else
                     snprintf(szNumber, sizeof(szNumber), "%llu", pJsonStruct->valueint);
 #endif
@@ -360,9 +360,9 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%d", (int32) pJsonStruct->valueint);
                 } else {
 #if LLONG_MAX == LLONG_MAX
-                    snprintf(szNumber, sizeof(szNumber), "%lld", (int64) pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%" PRId64, (int64) pJsonStruct->valueint);
 #else
-                    snprintf(szNumber, sizeof(szNumber), "%lld", (int64)pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%" PRId64, (int64)pJsonStruct->valueint);
 #endif
                 }
             } else {
@@ -370,7 +370,7 @@ namespace neb {
                     snprintf(szNumber, sizeof(szNumber), "%u", (uint32) pJsonStruct->valueint);
                 } else {
 #if LLONG_MAX == LLONG_MAX
-                    snprintf(szNumber, sizeof(szNumber), "%lld", pJsonStruct->valueint);
+                    snprintf(szNumber, sizeof(szNumber), "%" PRId64, pJsonStruct->valueint);
 #else
                     snprintf(szNumber, sizeof(szNumber), "%llu", pJsonStruct->valueint);
 #endif
