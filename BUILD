@@ -31,6 +31,7 @@ cc_library(
             "//src/UTF8Url:UTF8Url",
             "//src/http:http",
             "//src/net_tool:net_tool",
+            "//src/yaml-cpp:yaml-cpp",
         ],
     linkopts = ["-pthread","-ldl"],
 )
