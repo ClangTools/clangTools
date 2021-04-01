@@ -124,13 +124,15 @@ if (WIN32)
 else ()
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*_win")
 endif ()
+list(FILTER srcSourceHeader EXCLUDE REGEX ".*yaml-cpp")
 
 include_directories(
         #        .
         ./src
         ${srcSourceHeader}
+        ./src/yaml-cpp/include
 )
-set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader})
+set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader} ./src/yaml-cpp/include)
 set(srcSource "")
 list(FILTER srcSourceHeader EXCLUDE REGEX ".*plthook")
 foreach (item in ${srcSourceHeader})
@@ -171,9 +173,13 @@ if (NOT OPENSSL_FOUND)
     list(REMOVE_ITEM srcSource src/openssl/ssl_common.cpp)
 endif ()
 
+FILE(GLOB yamlCppSrcSource "./src/yaml-cpp/src/*")
+FILE(GLOB yamlCppContribSrcSource "./src/yaml-cpp/src/contrib/*")
 add_library(${libTools_LIBRARIES} STATIC
         ${RC_FILES}
         ${srcSource}
+        ${yamlCppSrcSource}
+        ${yamlCppContribSrcSource}
         )
 
 
