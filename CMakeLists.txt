@@ -133,7 +133,7 @@ include_directories(
         ${srcSourceHeader}
 )
 set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader})
-message( ${srcSourceHeader} )
+
 set(srcSource "")
 list(FILTER srcSourceHeader EXCLUDE REGEX ".*plthook")
 foreach (item in ${srcSourceHeader})
