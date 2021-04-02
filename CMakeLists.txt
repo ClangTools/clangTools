@@ -125,14 +125,15 @@ else ()
     list(FILTER srcSourceHeader EXCLUDE REGEX ".*_win")
 endif ()
 list(FILTER srcSourceHeader EXCLUDE REGEX ".*yaml-cpp")
+list(APPEND srcSourceHeader " ${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/include")
 
 include_directories(
         #        .
         ${CMAKE_CURRENT_LIST_DIR}/src
         ${srcSourceHeader}
-        ${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/include
 )
-set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader} ${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/include)
+set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader})
+message( ${srcSourceHeader} )
 set(srcSource "")
 list(FILTER srcSourceHeader EXCLUDE REGEX ".*plthook")
 foreach (item in ${srcSourceHeader})
