@@ -128,11 +128,11 @@ list(FILTER srcSourceHeader EXCLUDE REGEX ".*yaml-cpp")
 
 include_directories(
         #        .
-        ./src
+        ${CMAKE_CURRENT_LIST_DIR}/src
         ${srcSourceHeader}
-        ./src/yaml-cpp/include
+        ${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/include
 )
-set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader} ./src/yaml-cpp/include)
+set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader} ${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/include)
 set(srcSource "")
 list(FILTER srcSourceHeader EXCLUDE REGEX ".*plthook")
 foreach (item in ${srcSourceHeader})
@@ -173,8 +173,8 @@ if (NOT OPENSSL_FOUND)
     list(REMOVE_ITEM srcSource src/openssl/ssl_common.cpp)
 endif ()
 
-FILE(GLOB yamlCppSrcSource "./src/yaml-cpp/src/*")
-FILE(GLOB yamlCppContribSrcSource "./src/yaml-cpp/src/contrib/*")
+FILE(GLOB yamlCppSrcSource "${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/src/*")
+FILE(GLOB yamlCppContribSrcSource "${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/src/contrib/*")
 add_library(${libTools_LIBRARIES} STATIC
         ${RC_FILES}
         ${srcSource}
