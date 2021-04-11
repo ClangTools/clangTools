@@ -1,0 +1,17 @@
+cc_library(
+    name = "logger",
+    srcs = ["logger.cpp"],
+    hdrs = ["logger.h","LOGGER_ATTR.h"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "Logging",
+    srcs = ["Logging.cpp"],
+    hdrs = ["Logging.h","LOGGER_ATTR.h"],
+    visibility = ["//visibility:public"],
+    deps = [ ":logger" ],
+    copts = ["-std=c++11"],
+)
+
+
