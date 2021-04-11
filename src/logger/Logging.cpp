@@ -14,13 +14,13 @@ Logging::Logging(const char *TAG, Logging::log_rank_t min_level) {
     init(TAG, "logging.log", min_level, 1024 * 1024, 50);
 }
 
-Logging::Logging(const char *TAG, const char *logName, log_rank_t min_level, size_t logger_file_max_size,
-                 size_t logger_files_max_size) {
+Logging::Logging(const char *TAG, const char *logName, log_rank_t min_level, unsigned long logger_file_max_size,
+                 unsigned long logger_files_max_size) {
     init(TAG, logName, min_level, logger_file_max_size, logger_files_max_size);
 }
 
-void Logging::init(const char *_tag, const char *logName, log_rank_t _min_level, size_t logger_file_max_size,
-                   size_t logger_files_max_size) {
+void Logging::init(const char *_tag, const char *logName, log_rank_t _min_level, unsigned long logger_file_max_size,
+                   unsigned long logger_files_max_size) {
     this->min_level = _min_level;
     if (_tag != nullptr) {
         this->TAG = _tag;
@@ -49,7 +49,7 @@ void Logging::debug(const char *format, ...) const {
     va_end(args);
 }
 
-void Logging::debug(const char *name, unsigned char *bin, ssize_t bin_size) {
+void Logging::debug(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_DEBUG)return;
     logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_DEBUG);
 }
@@ -62,7 +62,7 @@ void Logging::info(const char *format, ...) {
     va_end(args);
 }
 
-void Logging::info(const char *name, unsigned char *bin, ssize_t bin_size) {
+void Logging::info(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_INFO)return;
     logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_INFO);
 }
@@ -75,7 +75,7 @@ void Logging::warn(const char *format, ...) {
     va_end(args);
 }
 
-void Logging::warn(const char *name, unsigned char *bin, ssize_t bin_size) {
+void Logging::warn(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_WARNING)return;
     logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_WARNING);
 }
@@ -88,7 +88,7 @@ void Logging::error(const char *format, ...) {
     va_end(args);
 }
 
-void Logging::error(const char *name, unsigned char *bin, ssize_t bin_size) {
+void Logging::error(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_ERROR)return;
     logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_ERROR);
 }
@@ -101,13 +101,13 @@ void Logging::fatal(const char *format, ...) {
     va_end(args);
 }
 
-void Logging::fatal(const char *name, unsigned char *bin, ssize_t bin_size) {
+void Logging::fatal(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_FATAL)return;
     logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_FATAL);
 }
 
 
-void Logging::bytes_to_hex_string(const unsigned char *bytes, size_t bytes_len, std::string &hex_string) {
+void Logging::bytes_to_hex_string(const unsigned char *bytes, unsigned long bytes_len, std::string &hex_string) {
     logger::bytes_to_hex_string(bytes, bytes_len, hex_string);
 }
 

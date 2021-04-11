@@ -39,8 +39,8 @@ public:
      */
     explicit Logging(const char *TAG, log_rank_t min_level = log_rank_DEBUG);
 
-    Logging(const char *TAG, const char *logName, log_rank_t min_level, size_t logger_file_max_size,
-            size_t logger_files_max_size);
+    Logging(const char *TAG, const char *logName, log_rank_t min_level, unsigned long logger_file_max_size,
+            unsigned long logger_files_max_size);
 
     /**
      * 输出调试信息
@@ -49,7 +49,7 @@ public:
      */
     void debug(_Printf_format_string_ const char *format, ...) const LOGGER_ATTR(2, 3);
 
-    void debug(const char *name, unsigned char *bin, ssize_t bin_size);
+    void debug(const char *name, unsigned char *bin, unsigned long bin_size);
 
     /**
      * 输出信息
@@ -58,7 +58,7 @@ public:
      */
     void info(_Printf_format_string_ const char *format, ...) LOGGER_ATTR(2, 3);
 
-    void info(const char *name, unsigned char *bin, ssize_t bin_size);
+    void info(const char *name, unsigned char *bin, unsigned long bin_size);
 
 
     /**
@@ -68,7 +68,7 @@ public:
      */
     void warn(_Printf_format_string_ const char *format, ...) LOGGER_ATTR(2, 3);
 
-    void warn(const char *name, unsigned char *bin, ssize_t bin_size);
+    void warn(const char *name, unsigned char *bin, unsigned long bin_size);
 
 
     /**
@@ -78,7 +78,7 @@ public:
      */
     void error(_Printf_format_string_ const char *format, ...) LOGGER_ATTR(2, 3);
 
-    void error(const char *name, unsigned char *bin, ssize_t bin_size);
+    void error(const char *name, unsigned char *bin, unsigned long bin_size);
 
 
     /**
@@ -88,10 +88,10 @@ public:
      */
     void fatal(_Printf_format_string_ const char *format, ...) LOGGER_ATTR(2, 3);
 
-    void fatal(const char *name, unsigned char *bin, ssize_t bin_size);
+    void fatal(const char *name, unsigned char *bin, unsigned long bin_size);
 
 public:
-    static void bytes_to_hex_string(const unsigned char *bytes, size_t bytes_len, std::string &hex_string);
+    static void bytes_to_hex_string(const unsigned char *bytes, unsigned long bytes_len, std::string &hex_string);
 
     static void bytes_to_hex_string(const std::vector<unsigned char> &bytes, std::string &hex_string);
 
@@ -100,8 +100,8 @@ public:
     static std::string trim(std::string &str, char c = ' ');
 
 private:
-    void init(const char *TAG, const char *logName, log_rank_t min_level, size_t logger_file_max_size,
-              size_t logger_files_max_size);
+    void init(const char *TAG, const char *logName, log_rank_t min_level, unsigned long logger_file_max_size,
+              unsigned long logger_files_max_size);
 };
 
 
