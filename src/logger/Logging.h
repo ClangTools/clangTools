@@ -5,7 +5,8 @@
 #ifndef TERMINALSERVICE_LOGGING_H
 #define TERMINALSERVICE_LOGGING_H
 
-#include "string"
+#include <string>
+#include <vector>
 #include "LOGGER_ATTR.h"
 
 class DLL_logger_Export logger;

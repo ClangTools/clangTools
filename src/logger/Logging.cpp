@@ -8,7 +8,7 @@
 /**
  * 日志
  */
-logger *Logging::logger = nullptr;
+class DLL_logger_Export logger *Logging::logger = nullptr;
 
 Logging::Logging(const char *TAG, Logging::log_rank_t min_level) {
     init(TAG, "logging.log", min_level, 1024 * 1024, 50);
