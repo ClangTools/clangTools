@@ -8,7 +8,7 @@
 /**
  * 日志
  */
-class DLL_logger_Export logger *Logging::logger = nullptr;
+class DLL_logger_Export logger *Logging::_logger = nullptr;
 
 Logging::Logging(const char *TAG, Logging::log_rank_t min_level) {
     init(TAG, "logging.log", min_level, 1024 * 1024, 50);
@@ -25,18 +25,18 @@ void Logging::init(const char *_tag, const char *logName, log_rank_t _min_level,
     if (_tag != nullptr) {
         this->TAG = _tag;
     }
-    if (logger == nullptr) {
-        logger = new class logger();
+    if (_logger == nullptr) {
+        _logger = new class logger();
     }
-    if (!logger->is_open()) {
-        logger->init_default();
-        logger->min_level = logger::log_rank_DEBUG;
+    if (!_logger->is_open()) {
+        _logger->init_default();
+        _logger->min_level = logger::log_rank_DEBUG;
         std::string logfile =
                 logger::get_local_path() + logger::path_split + "logs" + logger::path_split +
                 (logName == nullptr ? "Logging.log" : logName);
-        logger->logger_file_max_size = logger_file_max_size;
-        logger->logger_files_max_size = logger_files_max_size;
-        logger->open();
+        _logger->logger_file_max_size = logger_file_max_size;
+        _logger->logger_files_max_size = logger_files_max_size;
+        _logger->open();
     }
 
 }
@@ -45,65 +45,65 @@ void Logging::debug(const char *format, ...) const {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
     va_start(args, format);
-    logger->puts_info(logger::log_rank_DEBUG, TAG.c_str(), format, args);
+    _logger->puts_info(logger::log_rank_DEBUG, TAG.c_str(), format, args);
     va_end(args);
 }
 
 void Logging::debug(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_DEBUG)return;
-    logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_DEBUG);
+    _logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_DEBUG);
 }
 
 void Logging::info(const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
     va_start(args, format);
-    logger->puts_info(logger::log_rank_INFO, TAG.c_str(), format, args);
+    _logger->puts_info(logger::log_rank_INFO, TAG.c_str(), format, args);
     va_end(args);
 }
 
 void Logging::info(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_INFO)return;
-    logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_INFO);
+    _logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_INFO);
 }
 
 void Logging::warn(const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
     va_start(args, format);
-    logger->puts_info(logger::log_rank_WARNING, TAG.c_str(), format, args);
+    _logger->puts_info(logger::log_rank_WARNING, TAG.c_str(), format, args);
     va_end(args);
 }
 
 void Logging::warn(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_WARNING)return;
-    logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_WARNING);
+    _logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_WARNING);
 }
 
 void Logging::error(const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
     va_start(args, format);
-    logger->puts_info(logger::log_rank_ERROR, TAG.c_str(), format, args);
+    _logger->puts_info(logger::log_rank_ERROR, TAG.c_str(), format, args);
     va_end(args);
 }
 
 void Logging::error(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_ERROR)return;
-    logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_ERROR);
+    _logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_ERROR);
 }
 
 void Logging::fatal(const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
     va_start(args, format);
-    logger->puts_info(logger::log_rank_FATAL, TAG.c_str(), format, args);
+    _logger->puts_info(logger::log_rank_FATAL, TAG.c_str(), format, args);
     va_end(args);
 }
 
 void Logging::fatal(const char *name, unsigned char *bin, unsigned long bin_size) {
     if (min_level < log_rank_FATAL)return;
-    logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_FATAL);
+    _logger->puts_info(TAG.c_str(), name, bin, bin_size, logger::log_rank_FATAL);
 }
 
 

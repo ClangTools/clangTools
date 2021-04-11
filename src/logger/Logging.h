@@ -31,7 +31,7 @@ private:
     /**
      * 日志
      */
-    static logger *logger;
+    static logger *_logger;
 
 public:
     /**
