@@ -101,7 +101,6 @@ void logger::Free() {
 void logger::WriteToFile(const std::string &data) {
     std::lock_guard<std::mutex> guard(logger_file_mutex);
     if (!is_open()) {
-        //printf("%s:%d\n", L_TAG, __LINE__);
         return;
     }
     fwrite(data.c_str(), data.size(), 1, logger_file);
@@ -113,7 +112,6 @@ void logger::WriteToFile(const std::string &data) {
     fseek(logger_file, 0, SEEK_SET);
     fseek(logger_file, 0, SEEK_END);
     size_t dst_file_size = ftell(logger_file);
-    // printf("%zd : %zu",dst_file_size,logger_file_max_size);
     if (dst_file_size < logger_file_max_size)return;
     string path = get_path_by_filepath(filepath);
     if (path.empty()) {
@@ -203,10 +201,10 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
     __android_log_print(log_rank_type > log_rank_t::log_rank_ERROR ? ANDROID_LOG_INFO : ANDROID_LOG_ERROR, TAG, "%s", data.c_str());
 #endif
 
-    string _time = GetTime("%Y%m%d %H:%M:%S");
+    string _time = GetTime("%Y-%m-%d %H:%M:%S");
     if (console_show) {
         SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Default);
-        printf("%s", _time.c_str());
+        std::cout << _time;
         SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
     }
 
@@ -232,16 +230,16 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
             break;
     }
     if (console_show) {
-        SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Yellow);
-        printf("[%s]", _type.c_str());
+        SetConsoleColor(ConsoleForegroundColor::enmCFC_Red, ConsoleBackGroundColor::enmCBC_Default);
+        cout << "[" << _type << "]";
         SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
     }
     WriteToFile("[" + _type + "]");
 
     if (TAG != nullptr) {
         if (console_show) {
-            SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Cyan);
-            printf("[ %s ]", TAG);
+            SetConsoleColor(ConsoleForegroundColor::enmCFC_Blue, ConsoleBackGroundColor::enmCBC_Default);
+            cout << "[ " << TAG << " ]";
             SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
         }
         WriteToFile("[" + string(TAG) + "]");
@@ -271,7 +269,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
                 break;
         }
 
-        printf("%s", data.c_str());
+        cout << data;
         SetConsoleColor(ConsoleForegroundColor::enmCFC_Default);
     }
     WriteToFile(data);
@@ -279,7 +277,7 @@ void logger::WriteToConsole(const char *TAG, const std::string &data, log_rank_t
     SetConsoleTextAttribute(handle, wOldColorAttrs);
 #endif
     if (console_show) {
-        printf("\n");
+        cout << endl;
     }
     WriteToFile("\n");
 
@@ -305,57 +303,57 @@ void logger::puts_info(const char *TAG, const std::string &data, log_rank_t log_
 void logger::i(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_INFO, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::d(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_DEBUG, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::w(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_WARNING, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::e(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_ERROR, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::f(const char *TAG, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_FATAL, TAG, format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::i(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_INFO)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_INFO, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_DEBUG)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_DEBUG, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::d(const char *TAG, size_t line, const char *tag_by_data, unsigned char *data, size_t data_len) {
@@ -366,25 +364,25 @@ void logger::d(const char *TAG, size_t line, const char *tag_by_data, unsigned c
 void logger::w(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_WARNING)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_WARNING, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::e(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_ERROR)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_ERROR, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::f(const char *TAG, size_t line, const char *format, ...) {
     if (min_level < log_rank_FATAL)return;
     va_list args;
-            va_start(args, format);
+    va_start(args, format);
     puts_info(log_rank_FATAL, (string(TAG) + ":" + to_string(line)).c_str(), format, args);
-            va_end(args);
+    va_end(args);
 }
 
 void logger::puts_info(const char *TAG, int line, const char *tag_by_data, unsigned char *data, size_t data_len,
@@ -424,12 +422,12 @@ logger::SetConsoleColor(ConsoleForegroundColor foreColor,
 void logger::SetConsoleColor(ConsoleForegroundColor foreColor,
                              ConsoleBackGroundColor backColor) {
     if (enmCFC_Default == foreColor && enmCBC_Default == backColor) {
-        printf("\x1b[0m");
+        cout << ("\x1b[0m");
     } else {
         if (enmCBC_Default == backColor) {
-            printf("\x1b[%d;%dm", backColor, foreColor);
+            cout << "\x1b[" << backColor << ";" << foreColor << "m";
         } else {
-            printf("\x1b[%d;%dm", foreColor, backColor);
+            cout << "\x1b[" << foreColor << ";" << backColor << "m";
         }
     }
 }
@@ -620,7 +618,7 @@ int logger::vscprintf(const char *format, va_list pargs) {
     va_list argcopy;
     va_copy(argcopy, pargs);
     ret_val = ::vsnprintf(nullptr, 0, format, argcopy);
-            va_end(argcopy);
+    va_end(argcopy);
     return ret_val;
 }
 
@@ -790,7 +788,6 @@ int logger::code_convert(char *from_charset, char *to_charset,
 
 int logger::g2u(char *inbuf, size_t inlen, string &data) {
     char *outbuf = new char[inlen * 2];
-    size_t outlen = inlen * 2;
 #ifdef WIN32
     //获取所需缓冲区大小
     int nUtf8Count = WideCharToMultiByte(CP_ACP, 0, (const wchar_t *) inbuf, inlen / 2, nullptr, 0, nullptr, nullptr);
@@ -811,6 +808,7 @@ int logger::g2u(char *inbuf, size_t inlen, string &data) {
     return 0;
 #else
 #ifdef ENABLE_ICONV
+    size_t outlen = inlen * 2;
     int flag = code_convert((char *) "UTF-16LE", (char *) "UTF-8//TRANSLIT", inbuf, inlen, outbuf, outlen);
     data = outbuf;
 

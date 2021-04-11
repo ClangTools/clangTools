@@ -12,6 +12,7 @@ cc_library(
     copts = ["-I./src"],
     deps = [
             "//src/logger:logger",
+            "//src/logger:Logging",
             "//src/Base64:base64",
             "//src/BmpTool:BmpTool",
             "//src/C_VECTOR:c_vector",

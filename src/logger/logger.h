@@ -62,29 +62,12 @@ class DLL_thread_pool_Export thread_pool;
 
 #include <cstdarg>
 #include <cstdio>
+#include "LOGGER_ATTR.h"
 
-#ifndef LOGGER_ATTR
-#ifdef __GNUC__
-#define LOGGER_ATTR(x, y) __attribute__((format(printf, x, y)))
-#else
-#define LOGGER_ATTR(x, y)
-#endif
-#endif // LOGGER_ATTR
-#ifndef _Printf_format_string_
-#define _Printf_format_string_
-#endif
-
-#ifdef WIN32
-#ifdef _Tools_HEADER_
-#define DLL_logger_Export  __declspec(dllexport)
-#else
-#define DLL_logger_Export  __declspec(dllimport)
-#endif
-#else
-#define DLL_logger_Export
-#endif
 
 class DLL_logger_Export logger {
+    friend class Logging;
+
 public:
     /**
      * log rank
@@ -130,7 +113,7 @@ public:
 
 #endif
 
-    static bool copy(const std::string& srcPath, const std::string& desPath);
+    static bool copy(const std::string &srcPath, const std::string &desPath);
 
 public:
     log_rank_t min_level = log_rank_NONE;
