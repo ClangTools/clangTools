@@ -93,7 +93,9 @@ void logger::Free() {
     std::lock_guard<std::mutex> guard1(logger_file_mutex);
     if (need_free) {
         need_free = true;
-        fclose(logger_file);
+        if (logger_file != nullptr) {
+            fclose(logger_file);
+        }
         logger_file = nullptr;
     }
 }
