@@ -1,16 +1,29 @@
 cc_library(
     name = "thread_pool",
-    srcs = [
-        "thread_pool.cpp"
-        ],
-    hdrs = [
-        "thread_pool.h"
-        ],
+    linkstatic = True,
+    hdrs = ["thread_pool.hpp"],
+    includes = ["."],
+    copts = select({
+        "//toolchain:mingw32": ["-std=c++11","-DWIN32","-DMINGW"],
+        "@bazel_tools//src/conditions:windows": ["/utf-8","/DWIN32","-D_Tools_HEADER_"],
+        "//toolchain:darwin_arm64": ["-std=c++11"],
+        "//conditions:default": ["-std=c++11","-fPIC"],
+    }),
     visibility = ["//visibility:public"],
-    copts = ["-Isrc/logger","-Isrc/thread_pool"],
-    deps = [
-            "//src/logger:logger",
-            ]
 )
 
+cc_test(
+    name = "thread_pool-test",
+    srcs = ["test/test-thread_pool.cpp"],
+    deps = [
+        "@com_google_googletest//:gtest_main",
+        ":thread_pool",
+    ],
+    copts = ["-std=c++11",] + select({
+        "//toolchain:mingw32": ["-DWIN32","-DMINGW"],
+        "@bazel_tools//src/conditions:windows": ["/utf-8","/DWIN32"],
+        "//toolchain:darwin_arm64": [],
+        "//conditions:default": ["-ldl","-fPIC"],
+    }),
+)
 
