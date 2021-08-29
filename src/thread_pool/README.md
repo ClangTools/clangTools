@@ -1,3 +1,7 @@
+# 修改后版本借鉴
+
+https://github.com/senlinzhan/dpool/blob/master/ThreadPool.hpp
+
 # thread_pool 线程池说明
 ## 实现原理
   “管理一个任务队列，一个线程队列，然后每次取一个任务分配给一个线程去做，循环往复。” 

@@ -1,16 +1,19 @@
 cc_library(
     name = "thread_pool",
-    srcs = [
-        "thread_pool.cpp"
-        ],
-    hdrs = [
-        "thread_pool.h"
-        ],
+    linkstatic = True,
+    hdrs = ["thread_pool.hpp"],
+    includes = ["."],
+    copts = ["-std=c++11","-fPIC"],
     visibility = ["//visibility:public"],
-    copts = ["-Isrc/logger","-Isrc/thread_pool"],
-    deps = [
-            "//src/logger:logger",
-            ]
 )
 
+cc_test(
+    name = "thread_pool-test",
+    srcs = ["test/test-thread_pool.cpp"],
+    deps = [
+        "@com_google_googletest//:gtest_main",
+        ":thread_pool",
+    ],
+    copts = ["-std=c++11",],
+)
 

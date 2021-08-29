@@ -36,7 +36,7 @@ void Logging::init(const char *_tag, const char *logName, log_rank_t _min_level,
                 (logName == nullptr ? "Logging.log" : logName);
         _logger->logger_file_max_size = logger_file_max_size;
         _logger->logger_files_max_size = logger_files_max_size;
-        _logger->open();
+        _logger->open(logfile.c_str());
     }
 
 }

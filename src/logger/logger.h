@@ -26,7 +26,7 @@
 
 #ifdef _LOGGER_USE_THREAD_POOL_
 
-#include "thread_pool.h"
+#include "thread_pool.hpp"
 
 #ifdef WIN32
 #ifdef _Tools_HEADER_

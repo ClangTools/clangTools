@@ -8,7 +8,7 @@
 #include <string>
 #include <Hzk_Font.h>
 #include <opencv_tool.h>
-#include <thread_pool.h>
+#include <thread_pool.hpp>
 #include <ConfigTool.h>
 
 using namespace std;

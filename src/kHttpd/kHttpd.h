@@ -20,7 +20,7 @@
 #endif
 
 #include <logger.h>
-#include <thread_pool.h>
+#include <thread_pool.hpp>
 #include <CGI/kCGI.h>
 #ifdef ENABLE_OPENSSL
 #include <ssl_common.h>
