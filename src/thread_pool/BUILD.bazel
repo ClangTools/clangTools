@@ -3,11 +3,7 @@ cc_library(
     linkstatic = True,
     hdrs = ["thread_pool.hpp"],
     includes = ["."],
-    copts = select({
-        "@platforms//os:windows": ["/utf-8","/DWIN32","-D_Tools_HEADER_"],
-        "@platforms//os:linux": ["-std=c++11","-fPIC"],
-        "//conditions:default": ["-std=c++11"],
-    }),
+    copts = ["-std=c++11","-fPIC"],
     visibility = ["//visibility:public"],
 )
 
