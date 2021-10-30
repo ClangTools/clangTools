@@ -47,8 +47,6 @@ public:
             elem.second.join();
         }
     }
-    void wait_finish() {
-    }
 
     template<typename Func, typename... Ts>
     auto commit(Func &&func, Ts &&... params)

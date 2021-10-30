@@ -74,20 +74,10 @@ void logger::open(FILE *path) {
 }
 
 logger::~logger() {
-#ifdef _LOGGER_USE_THREAD_POOL_
-    wait_finish();
-#endif
     Free();
     std::lock_guard<std::mutex> guard1(logger_console_mutex);
 }
 
-#ifdef _LOGGER_USE_THREAD_POOL_
-
-void logger::wait_finish() {
-    executor.wait_finish();
-}
-
-#endif
 
 void logger::Free() {
     std::lock_guard<std::mutex> guard1(logger_file_mutex);
