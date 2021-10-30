@@ -147,11 +147,6 @@ public:
      */
     explicit logger(FILE *path);
 
-#ifdef _LOGGER_USE_THREAD_POOL_
-
-    void wait_finish();
-
-#endif
 
     /**
      *

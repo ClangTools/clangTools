@@ -3,6 +3,7 @@ if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
     include_directories(
             .
             ${srcSourceHeader}
+            ${LIBWEBSOCKETS_INCLUDE_DIRS}
     )
 
 
@@ -87,7 +88,7 @@ if (clangToolsExample OR "${Tools_Other_Project}" STREQUAL "ON")
             list(APPEND demo_name_list "${demo_name}\\;")
             add_executable(${demo_name} ${filepath})
             target_link_libraries(${demo_name} ${libTools_LIBRARIES} ${dl_LIBRARIES} ${OPENSSL_LIBRARIES}
-                    ${LIBEVENT_LIBRARIES} ${libevent_LIBRARIES}
+                    ${LIBEVENT_LIBRARIES} ${libevent_LIBRARIES} ${LIBWEBSOCKETS_LIBRARIES}
                     ${OpenJPEG_LIBRARIES})
             if (ENABLE_FILENAME)
                 redefine_file_macro(${demo_name})

@@ -21,6 +21,9 @@ FILE(GLOB ToolsCmakePath "${libTools_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(LWS_WITH_SSL off)
+add_subdirectory(src/libwebsokcets)
+
 set(libTools_LIBRARIES Tools)
 set_property(GLOBAL PROPERTY libTools_LIBRARIES ${libTools_LIBRARIES})
 if (WIN32)
@@ -131,6 +134,7 @@ include_directories(
         #        .
         ${CMAKE_CURRENT_LIST_DIR}/src
         ${srcSourceHeader}
+        ${LIBWEBSOCKETS_INCLUDE_DIRS}
 )
 set_property(GLOBAL PROPERTY libTools_INCLUDE_DIR ${srcSourceHeader})
 
@@ -176,6 +180,8 @@ endif ()
 
 FILE(GLOB yamlCppSrcSource "${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/src/*")
 FILE(GLOB yamlCppContribSrcSource "${CMAKE_CURRENT_LIST_DIR}/src/yaml-cpp/src/contrib/*")
+include_directories(${LIBWEBSOCKETS_INCLUDE_DIRS})
+message("LIBWEBSOCKETS_INCLUDE_DIRS" ${LIBWEBSOCKETS_INCLUDE_DIRS})
 add_library(${libTools_LIBRARIES} STATIC
         ${RC_FILES}
         ${srcSource}
