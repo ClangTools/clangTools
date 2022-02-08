@@ -1,0 +1,12 @@
+cc_binary(
+    name = "logger_demo",
+    srcs = ["logger_demo.cpp"],
+    copts = [
+        "-Isrc",
+        "-Isrc/logger",
+        "-Isrc/thread_pool",
+    ],
+    deps = [
+        "//:Tools",
+    ],
+)
