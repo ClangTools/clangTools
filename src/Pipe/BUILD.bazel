@@ -1,17 +1,16 @@
 cc_library(
     name = "Pipe",
     srcs = [
-        "Pipe.cpp"
-        ],
+        "Pipe.cpp",
+    ],
     hdrs = [
-        "Pipe.h"
-        ],
+        "Pipe.h",
+    ],
+    copts = [
+        "-Isrc/logger",
+    ],
     visibility = ["//visibility:public"],
-    copts = ["-Isrc/logger","-Isrc/socket",],
     deps = [
-            "//src/logger:logger",
-            "//src/socket:socket",
-            ]
+        "//src/logger",
+    ],
 )
-
-

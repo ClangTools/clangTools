@@ -1,157 +1,98 @@
-#ifndef THREADPOOL_H
-#define THREADPOOL_H
+#ifndef THREAD_POOL_H
+#define THREAD_POOL_H
 
-#include <cassert>
-#include <condition_variable>
-#include <functional>
-#include <future>
-#include <memory>
-#include <mutex>
+#ifdef _MSC_VER
+#include "ThreadPool.hpp"
+typedef ThreadPool thread_pool;
+#else
+#include <vector>
 #include <queue>
+#include <memory>
 #include <thread>
-#include <unordered_map>
+#include <mutex>
+#include <condition_variable>
+#include <future>
+#include <functional>
+#include <stdexcept>
+#include "threadpool.h"
+#include <iostream>
 
 class thread_pool {
 public:
-    using MutexGuard = std::lock_guard<std::mutex>;
-    using UniqueLock = std::unique_lock<std::mutex>;
-    using Thread = std::thread;
-    using ThreadID = std::thread::id;
-    using Task = std::function<void()>;
+    explicit thread_pool(size_t);
 
-    thread_pool()
-            : thread_pool(Thread::hardware_concurrency()) {
-    }
+    template<class F, class... Args>
+    auto enqueue(F &&f, Args &&... args)
+    -> std::future<typename std::result_of<F(Args...)>::type>;
 
-    explicit thread_pool(size_t maxThreads)
-            : quit_(false),
-              currentThreads_(0),
-              idleThreads_(0),
-              maxThreads_(maxThreads) {
-    }
+    ~thread_pool();
 
-    // disable the copy operations
-    thread_pool(const thread_pool &) = delete;
-
-    thread_pool &operator=(const thread_pool &) = delete;
-
-    ~thread_pool() {
-        {
-            MutexGuard guard(mutex_);
-            quit_ = true;
-        }
-        cv_.notify_all();
-
-        for (auto &elem: threads_) {
-            assert(elem.second.joinable());
-            elem.second.join();
-        }
-    }
-
-    template<typename Func, typename... Ts>
-    auto commit(Func &&func, Ts &&... params)
-    -> std::future<typename std::result_of<Func(Ts...)>::type> {
-        return submit(func, params...);
-    }
-
-    template<typename Func, typename... Ts>
-    auto submit(Func &&func, Ts &&... params)
-    -> std::future<typename std::result_of<Func(Ts...)>::type> {
-        auto execute = std::bind(std::forward<Func>(func), std::forward<Ts>(params)...);
-
-        using ReturnType = typename std::result_of<Func(Ts...)>::type;
-        using PackagedTask = std::packaged_task<ReturnType()>;
-
-        auto task = std::make_shared<PackagedTask>(std::move(execute));
-        auto result = task->get_future();
-
-        MutexGuard guard(mutex_);
-        assert(!quit_);
-
-        tasks_.emplace([task]() {
-            (*task)();
-        });
-        if (idleThreads_ > 0) {
-            cv_.notify_one();
-        } else if (currentThreads_ < maxThreads_) {
-            Thread t(&thread_pool::worker, this);
-            assert(threads_.find(t.get_id()) == threads_.end());
-            threads_[t.get_id()] = std::move(t);
-            ++currentThreads_;
-        }
-
-        return result;
-    }
-
-    size_t idlCount() const {
-        return threadsNum();
-    }
-
-    size_t threadsNum() const {
-        MutexGuard guard(mutex_);
-        return currentThreads_;
-    }
+    void shutdown();
 
 private:
-    void worker() {
-        while (true) {
-            Task task;
-            {
-                UniqueLock uniqueLock(mutex_);
-                ++idleThreads_;
-                auto hasTimedout = !cv_.wait_for(uniqueLock,
-                                                 std::chrono::seconds(WAIT_SECONDS),
-                                                 [this]() {
-                                                     return quit_ || !tasks_.empty();
-                                                 });
-                --idleThreads_;
-                if (tasks_.empty()) {
-                    if (quit_) {
-                        --currentThreads_;
-                        return;
-                    }
-                    if (hasTimedout) {
-                        --currentThreads_;
-                        joinFinishedThreads();
-                        finishedThreadIDs_.emplace(std::this_thread::get_id());
-                        return;
-                    }
-                }
-                task = std::move(tasks_.front());
-                tasks_.pop();
-            }
-            task();
-        }
-    }
+    threadpool_t *pool = nullptr;
+    // need to keep track of threads so we can join them
+    std::vector<std::thread> workers;
+    // the task queue
+    std::queue<std::function<void()> > tasks;
 
-    void joinFinishedThreads() {
-        while (!finishedThreadIDs_.empty()) {
-            auto id = std::move(finishedThreadIDs_.front());
-            finishedThreadIDs_.pop();
-            auto iter = threads_.find(id);
+    // synchronization
+    std::mutex queue_mutex;
+    std::condition_variable condition;
+    bool stop;
 
-            assert(iter != threads_.end());
-            assert(iter->second.joinable());
 
-            iter->second.join();
-            threads_.erase(iter);
-        }
-    }
-
-    const size_t WAIT_SECONDS = 2;
-
-    bool quit_;
-    size_t currentThreads_;
-    size_t idleThreads_;
-    size_t maxThreads_;
-
-    mutable std::mutex mutex_;
-    std::condition_variable cv_;
-    std::queue <Task> tasks_;
-    std::queue <ThreadID> finishedThreadIDs_;
-    std::unordered_map <ThreadID, Thread> threads_;
+    typedef struct thread_arg {
+        std::mutex mutex;
+        bool is_start = false;
+        bool is_finish = false;
+        std::condition_variable cv;
+        std::shared_ptr<std::packaged_task<void()>> task;
+        void *resp;
+    } ThreadArg;
 };
 
-// constexpr size_t thread_pool::WAIT_SECONDS;
+// the constructor just launches some amount of workers
+inline thread_pool::thread_pool(size_t threads)
+        : stop(false) {
+    pool = threadpool_create(threads);
+}
 
-#endif /* THREADPOOL_H */
+// add new work item to the pool
+template<class F, class... Args>
+auto thread_pool::enqueue(F &&f, Args &&... args)
+-> std::future<typename std::result_of<F(Args...)>::type> {
+    using return_type = typename std::result_of<F(Args...)>::type;
+    auto task = std::make_shared<std::packaged_task<return_type()> >(
+            std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+    auto *t = new ThreadArg();
+    t->task = (std::shared_ptr<std::packaged_task<void()>>) task;
+    t->is_start = false;
+    auto resp = task->get_future();
+    auto ret = threadpool_add(pool, [](void *arg) {
+        auto *t = (ThreadArg *) arg;
+        auto task = (std::shared_ptr<std::packaged_task<return_type()>>) t->task;
+        (*task)();
+        delete t;
+    }, (void *) t, 0);
+    if (ret != 0) {
+        (*task)();
+    }
+    return resp;
+}
+
+// the destructor joins all threads
+inline thread_pool::~thread_pool() {
+    shutdown();
+}
+
+inline void thread_pool::shutdown() {
+    // delete threadPool;
+    if (pool != nullptr) {
+        threadpool_destroy(pool, threadpool_graceful);
+    }
+    pool = nullptr;
+}
+
+#endif
+#endif
