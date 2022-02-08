@@ -4,12 +4,14 @@
 
 #ifndef TOOLS_PIPE_H
 #define TOOLS_PIPE_H
-#include <socket.h>
 #include <string>
 #include <vector>
 
 #ifdef WIN32
 #include <cstdio>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <mstcpip.h>
 #else
 
 #include <poll.h>

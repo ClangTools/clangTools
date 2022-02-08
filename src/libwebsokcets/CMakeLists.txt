@@ -208,13 +208,13 @@ option(LWS_PLAT_ANDROID "Android flavour of unix platform" OFF)
 #
 # Client / Server / Test Apps build control
 #
-option(LWS_WITHOUT_CLIENT "Don't build the client part of the library" OFF)
-option(LWS_WITHOUT_SERVER "Don't build the server part of the library" OFF)
-option(LWS_WITHOUT_TESTAPPS "Don't build the libwebsocket-test-apps" OFF)
-option(LWS_WITHOUT_TEST_SERVER "Don't build the test server" OFF)
-option(LWS_WITHOUT_TEST_SERVER_EXTPOLL "Don't build the test server version that uses external poll" OFF)
-option(LWS_WITHOUT_TEST_PING "Don't build the ping test application" OFF)
-option(LWS_WITHOUT_TEST_CLIENT "Don't build the client test application" OFF)
+option(LWS_WITHOUT_CLIENT "Don't build the client part of the library" ON)
+option(LWS_WITHOUT_SERVER "Don't build the server part of the library" ON)
+option(LWS_WITHOUT_TESTAPPS "Don't build the libwebsocket-test-apps" ON)
+option(LWS_WITHOUT_TEST_SERVER "Don't build the test server" ON)
+option(LWS_WITHOUT_TEST_SERVER_EXTPOLL "Don't build the test server version that uses external poll" ON)
+option(LWS_WITHOUT_TEST_PING "Don't build the ping test application" ON)
+option(LWS_WITHOUT_TEST_CLIENT "Don't build the client test application" ON)
 #
 # Extensions (permessage-deflate)
 #
@@ -959,9 +959,6 @@ if (LWS_WITH_MINIMAL_EXAMPLES)
 	add_subdirectory(minimal-examples)
 endif()
 
-if (NOT LWS_WITHOUT_TESTAPPS)
-	add_subdirectory(test-apps)
-endif()
 
 if (NOT LWS_WITH_PLUGINS_BUILTIN)
 add_subdirectory(plugins)

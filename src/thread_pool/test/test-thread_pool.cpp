@@ -41,12 +41,12 @@ int main(int argc, char *argv[]) {
     thread_pool pool(10);
 
     // monitoring threads number for 13 seconds
-    pool.submit(monitor, std::ref(pool), 13);
+    pool.enqueue(monitor, std::ref(pool), 13);
 
     // submit 100 tasks
     for (int taskId = 0; taskId < 10; ++taskId) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        pool.submit(task, taskId);
+        pool.enqueue(task, taskId);
     }
 
     return 0;
