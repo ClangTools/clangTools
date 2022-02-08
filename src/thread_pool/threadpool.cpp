@@ -30,7 +30,8 @@
  * @file threadpool.c
  * @brief Threadpool implementation file
  */
-
+#ifdef _MSC_VER
+#else
 #include <cstdlib>
 #include <pthread.h>
 #include <iostream>
@@ -306,3 +307,4 @@ static void *threadpool_thread(void *threadpool) {
     pthread_exit(nullptr);
     return nullptr;
 }
+#endif

@@ -1,6 +1,10 @@
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
 
+#ifdef _MSC_VER
+#include "ThreadPool.hpp"
+typedef ThreadPool thread_pool;
+#else
 #include <vector>
 #include <queue>
 #include <memory>
@@ -90,5 +94,5 @@ inline void thread_pool::shutdown() {
     pool = nullptr;
 }
 
-
+#endif
 #endif

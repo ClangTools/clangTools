@@ -29,6 +29,8 @@
 #ifndef _THREADPOOL_H_
 #define _THREADPOOL_H_
 
+#ifdef _MSC_VER
+#else
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -96,6 +98,7 @@ int threadpool_destroy(threadpool_t *pool, int flags);
 
 #ifdef __cplusplus
 }
+#endif
 #endif
 
 #endif /* _THREADPOOL_H_ */
