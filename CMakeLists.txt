@@ -44,6 +44,7 @@ endif ()
 FILE(GLOB srcSourceHeader "src/*")
 list(FILTER srcSourceHeader EXCLUDE REGEX ".*libVersion\\.rc")
 
+list(FILTER srcSourceHeader EXCLUDE REGEX ".*serialport")
 
 option(ENABLE_I2C "option for I2C tool" OFF)
 if (ENABLE_I2C)
@@ -164,6 +165,14 @@ elseif (UNIX)
     list(APPEND srcSource "src/plthook/plthook_elf.c")
 endif ()
 #endif ()
+
+include_directories(src/serialport)
+list(APPEND srcSource "src/serialport/serialport.cpp")
+if (WIN32)
+    list(APPEND srcSource "src/serialport/serialportWin.cpp")
+else()
+    list(APPEND srcSource "src/serialport/serialportUnix.cpp")
+endif ()
 
 if (WIN32)
     list(FILTER srcSource EXCLUDE REGEX ".*Unix.*")
