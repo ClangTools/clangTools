@@ -94,10 +94,17 @@ public:
     };
 
 protected:
+#ifdef _MSC_VER
+    /**
+     * 读线程
+     */
+    ThreadPool pool{1};
+#else
     /**
      * 读线程
      */
     thread_pool pool{1};
+#endif
 
     /**
      * 是否退出释放

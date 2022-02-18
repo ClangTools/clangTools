@@ -3,7 +3,6 @@
 
 #ifdef _MSC_VER
 #include "ThreadPool.hpp"
-#define thread_pool ThreadPool;
 #else
 
 #include <vector>
