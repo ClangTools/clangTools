@@ -7,6 +7,8 @@
 
 #include "thread_pool.hpp"
 #include "mutex"
+#include "atomic"
+#include "vector"
 
 class serialport {
 public:
