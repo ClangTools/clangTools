@@ -3,8 +3,9 @@
 
 #ifdef _MSC_VER
 #include "ThreadPool.hpp"
-typedef ThreadPool thread_pool;
+#define thread_pool ThreadPool;
 #else
+
 #include <vector>
 #include <queue>
 #include <memory>
