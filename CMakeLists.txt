@@ -44,7 +44,7 @@ endif ()
 FILE(GLOB srcSourceHeader "src/*")
 list(FILTER srcSourceHeader EXCLUDE REGEX ".*libVersion\\.rc")
 
-list(FILTER srcSourceHeader EXCLUDE REGEX ".*serialport")
+list(FILTER srcSourceHeader EXCLUDE REGEX ".*serialport.*")
 
 option(ENABLE_I2C "option for I2C tool" OFF)
 if (ENABLE_I2C)
