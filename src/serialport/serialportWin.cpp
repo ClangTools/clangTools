@@ -2,6 +2,7 @@
 // Created by caesar kekxv on 2021/4/12.
 //
 
+#ifdef WIN32
 #include "serialportWin.h"
 #include "easylogging++.h"
 
@@ -399,3 +400,5 @@ int serialportWin::_read(unsigned char *data, int offset, int data_size, int tim
     }
     return count;
 }
+
+#endif

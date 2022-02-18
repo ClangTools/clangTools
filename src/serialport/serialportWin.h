@@ -4,7 +4,7 @@
 
 #ifndef TERMINALSERVICE_SERIALPORTWIN_H
 #define TERMINALSERVICE_SERIALPORTWIN_H
-
+#ifdef WIN32
 #include "serialport.h"
 #include <windows.h>
 #include "easylogging++.h"
@@ -97,5 +97,5 @@ public:
 
 };
 
-
+#endif
 #endif //TERMINALSERVICE_SERIALPORTWIN_H
