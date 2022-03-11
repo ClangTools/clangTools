@@ -418,6 +418,22 @@ namespace plog
 #elif  !defined(PLOG_DISABLE_WCHAR_T) and defined(_WIN32)
                 ::_wsopen_s(&m_file, fileName, _O_CREAT | _O_WRONLY | _O_BINARY, _SH_DENYWR, _S_IREAD | _S_IWRITE);
 #else
+/* Read user permission */
+#if !defined(S_IRUSR)
+#   define S_IRUSR S_IREAD
+#endif
+/* Write user permission */
+#if !defined(S_IWUSR)
+#   define S_IWUSR S_IWRITE
+#endif
+/* Read group permission */
+#if !defined(S_IRGRP)
+#   define S_IRGRP 0
+#endif
+/* Read others permission */
+#if !defined(S_IROTH)
+#   define S_IROTH 0
+#endif
                 m_file = ::open(fileName, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 #endif
                 return seek(0, SEEK_END);
