@@ -39,6 +39,10 @@ option(ANDROID_SO "option for ANDROID_SO" OFF)
 if (ANDROID_SO)
     add_definitions(-DANDROID_SO)
 endif ()
+option(PLOG_DISABLE_WCHAR_T "option for PLOG_DISABLE_WCHAR_T" ON)
+if (PLOG_DISABLE_WCHAR_T)
+    add_definitions(-DPLOG_DISABLE_WCHAR_T)
+endif ()
 
 
 FILE(GLOB srcSourceHeader "src/*")
