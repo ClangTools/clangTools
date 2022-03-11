@@ -8,8 +8,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#ifdef _WIN32
 #if  defined(PLOG_DISABLE_WCHAR_T)
-#include "fcntl.h"
+#include "windows.h"
+#endif
 #endif
 
 #ifndef PLOG_ENABLE_WCHAR_INPUT
