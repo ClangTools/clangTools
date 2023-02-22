@@ -1,0 +1,10 @@
+cc_library(
+    name = "unqlite",
+    srcs = [
+        "unqlite.cpp",
+    ],
+    hdrs = [
+        "unqlite.h",
+    ],
+    visibility = ["//visibility:public"],
+)
