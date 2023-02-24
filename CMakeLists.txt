@@ -7,6 +7,7 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
 endif ()
 project(Tools)
 if (APPLE)
+    add_compile_options("-Werror,-Wdeprecated-register")
 else ()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc -Wl,-rpath=.") # -static
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libstdc++ -static-libgcc -Wl,-rpath=.") # -static
