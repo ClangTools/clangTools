@@ -124,6 +124,10 @@
  * number.
  */
 #define UNQLITE_VERSION "1.1.9"
+
+#ifdef __APPLE__
+#define register
+#endif
 /*
  * The UNQLITE_VERSION_NUMBER C preprocessor macro resolves to an integer
  * with the value (X*1000000 + Y*1000 + Z) where X, Y, and Z are the same
