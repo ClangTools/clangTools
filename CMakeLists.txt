@@ -7,7 +7,7 @@ elseif ("${PROJECT_NAME}" STREQUAL "")
 endif ()
 project(Tools)
 if (APPLE)
-    add_compile_options("-Werror,-Wdeprecated-register")
+
 else ()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc -Wl,-rpath=.") # -static
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libstdc++ -static-libgcc -Wl,-rpath=.") # -static
@@ -20,7 +20,7 @@ set(libTools_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 FILE(GLOB ToolsCmakePath "${libTools_DIR}/cmake")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 option(LWS_WITH_SSL "Include SSL support (defaults to OpenSSL or similar, mbedTLS if LWS_WITH_MBEDTLS is set)" off)
 if (WIN32)
