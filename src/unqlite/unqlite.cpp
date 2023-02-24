@@ -12197,20 +12197,20 @@ static int vxGetdigit(sxlongreal *val, int *cnt)
  * used conversion types first.
  */
 static const jx9_fmt_info aFmt[] = {
-  {  'd', 10, JX9_FMT_FLAG_SIGNED, JX9_FMT_RADIX, "0123456789", 0    }, 
+  {  'd', 10, JX9_FMT_FLAG_SIGNED, JX9_FMT_RADIX, (char *)"0123456789", 0    },
   {  's',  0, 0, JX9_FMT_STRING,     0,                  0    }, 
   {  'c',  0, 0, JX9_FMT_CHARX,      0,                  0    }, 
-  {  'x', 16, 0, JX9_FMT_RADIX,      "0123456789abcdef", "x0" }, 
-  {  'X', 16, 0, JX9_FMT_RADIX,      "0123456789ABCDEF", "X0" }, 
-  {  'b',  2, 0, JX9_FMT_RADIX,      "01",                "b0"}, 
-  {  'o',  8, 0, JX9_FMT_RADIX,      "01234567",         "0"  }, 
-  {  'u', 10, 0, JX9_FMT_RADIX,      "0123456789",       0    }, 
+  {  'x', 16, 0, JX9_FMT_RADIX,      (char *)"0123456789abcdef", (char *)"x0" },
+  {  'X', 16, 0, JX9_FMT_RADIX,      (char *)"0123456789ABCDEF", (char *)"X0" },
+  {  'b',  2, 0, JX9_FMT_RADIX,      (char *)"01",                (char *)"b0"},
+  {  'o',  8, 0, JX9_FMT_RADIX,      (char *)"01234567",         (char *)"0"  },
+  {  'u', 10, 0, JX9_FMT_RADIX,      (char *)"0123456789",       0    },
   {  'f',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_FLOAT,        0,    0    }, 
   {  'F',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_FLOAT,        0,    0    }, 
-  {  'e',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_EXP,        "e",    0    }, 
-  {  'E',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_EXP,        "E",    0    }, 
-  {  'g',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_GENERIC,    "e",    0    }, 
-  {  'G',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_GENERIC,    "E",    0    }, 
+  {  'e',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_EXP,        (char *)"e",    0    },
+  {  'E',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_EXP,        (char *)"E",    0    },
+  {  'g',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_GENERIC,    (char *)"e",    0    },
+  {  'G',  0, JX9_FMT_FLAG_SIGNED, JX9_FMT_GENERIC,    (char *)"E",    0    },
   {  '%',  0, 0, JX9_FMT_PERCENT,    0,                  0    }
 };
 /*
