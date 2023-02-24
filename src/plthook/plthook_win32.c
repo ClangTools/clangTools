@@ -184,7 +184,7 @@ static int plthook_open_real(plthook_t **plthook_out, HMODULE hMod)
                 }
                 if (name == NULL) {
                     name = ordinal_name_buf;
-                    ordinal_name_buf += sprintf(ordinal_name_buf, "%s:@%d", module_name, ordinal) + 1;
+                    ordinal_name_buf += snprintf(ordinal_name_buf,1024, "%s:@%d", module_name, ordinal) + 1;
                 }
             } else {
                 name = (char*)((PIMAGE_IMPORT_BY_NAME)((char*)hMod + name_thunk->u1.AddressOfData))->Name;

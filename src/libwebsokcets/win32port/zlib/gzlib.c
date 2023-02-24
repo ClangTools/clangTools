@@ -218,7 +218,7 @@ gzFile ZEXPORT gzdopen(fd, mode)
 
     if (fd == -1 || (path = malloc(7 + 3 * sizeof(int))) == NULL)
         return NULL;
-    sprintf(path, "<fd:%d>", fd);   /* for debugging */
+    snprintf(path, 7+3*sizeof (int),"<fd:%d>", fd);   /* for debugging */
     gz = gz_open(path, fd, mode);
     free(path);
     return gz;

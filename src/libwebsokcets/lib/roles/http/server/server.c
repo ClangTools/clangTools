@@ -642,7 +642,7 @@ lws_http_serve(struct lws *wsi, char *uri, const char *origin,
 	if (spin == 5)
 		lwsl_err("symlink loop %s \n", path);
 
-	n = sprintf(sym, "%08llX%08lX",
+	n = snprintf(sym,2048, "%08llX%08lX",
 		    (unsigned long long)lws_vfs_get_length(wsi->http.fop_fd),
 		    (unsigned long)lws_vfs_get_mod_time(wsi->http.fop_fd));
 
@@ -3239,7 +3239,7 @@ skip:
 		if (args->final && args->len + 7 >= args->max_len)
 			return -1;
 
-		n = sprintf(buffer, "%X\x0d\x0a", args->len);
+		n = snprintf(buffer,32, "%X\x0d\x0a", args->len);
 
 		args->p -= n;
 		memcpy(args->p, buffer, (unsigned int)n);
