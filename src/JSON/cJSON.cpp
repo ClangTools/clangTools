@@ -346,7 +346,7 @@ const char *cJson_GetErrorPtr()
                         *ptr2++ = 't';
                         break;
                     default:
-                        snprintf(ptr2, 5, "u%04x", token);
+                        snprintf(ptr2, 6, "u%04x", token);
                         ptr2 += 5;
                         break; /* escape and print */
                 }
