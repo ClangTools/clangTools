@@ -12405,7 +12405,7 @@ JX9_PRIVATE sxi32 jx9InputFormat(
 				zBuf = (char *)jx9_value_to_string(pArg, &length);
 			}
 			if( length < 1 ){
-				zBuf = " ";
+				zBuf = (char*)" ";
 				length = (int)sizeof(char);
 			}
 			if( precision>=0 && precision<length ){
@@ -12534,7 +12534,7 @@ JX9_PRIVATE sxi32 jx9InputFormat(
           while( realvalue<1e-8 && exp>=-350 ){ realvalue *= 1e8; exp-=8; }
           while( realvalue<1.0 && exp>=-350 ){ realvalue *= 10.0; exp--; }
           if( exp>350 || exp<-350 ){
-            zBuf = "NaN";
+            zBuf = (char*)"NaN";
             length = 3;
             break;
           }
@@ -29132,28 +29132,28 @@ static sxi32 InternFormat(ProcConsumer xConsumer, void *pUserData, const char *z
 	 * used conversion types first.
 	 */
 static const SyFmtInfo aFmt[] = {
-  {  'd', 10, SXFLAG_SIGNED, SXFMT_RADIX, "0123456789", 0    }, 
+  {  'd', 10, SXFLAG_SIGNED, SXFMT_RADIX, (char*)"0123456789", 0    },
   {  's',  0, 0, SXFMT_STRING,     0,                  0    }, 
   {  'c',  0, 0, SXFMT_CHARX,      0,                  0    }, 
-  {  'x', 16, 0, SXFMT_RADIX,      "0123456789abcdef", "x0" }, 
-  {  'X', 16, 0, SXFMT_RADIX,      "0123456789ABCDEF", "X0" }, 
+  {  'x', 16, 0, SXFMT_RADIX,      (char*)"0123456789abcdef", (char*)"x0" },
+  {  'X', 16, 0, SXFMT_RADIX,      (char*)"0123456789ABCDEF", (char*)"X0" },
          /* -- Extensions by Symisc Systems -- */
   {  'z',  0, 0, SXFMT_RAWSTR,     0,                   0   }, /* Pointer to a raw string (SyString *) */
-  {  'B',  2, 0, SXFMT_RADIX,      "01",                "b0"}, 
+  {  'B',  2, 0, SXFMT_RADIX,      (char*)"01",                (char*)"b0"},
          /* -- End of Extensions -- */
-  {  'o',  8, 0, SXFMT_RADIX,      "01234567",         "0"  }, 
-  {  'u', 10, 0, SXFMT_RADIX,      "0123456789",       0    }, 
+  {  'o',  8, 0, SXFMT_RADIX,      (char*)"01234567",         (char*)"0"  },
+  {  'u', 10, 0, SXFMT_RADIX,      (char*)"0123456789",       0    },
 #ifndef SX_OMIT_FLOATINGPOINT
   {  'f',  0, SXFLAG_SIGNED, SXFMT_FLOAT,       0,     0    }, 
-  {  'e',  0, SXFLAG_SIGNED, SXFMT_EXP,        "e",    0    }, 
-  {  'E',  0, SXFLAG_SIGNED, SXFMT_EXP,        "E",    0    }, 
-  {  'g',  0, SXFLAG_SIGNED, SXFMT_GENERIC,    "e",    0    }, 
-  {  'G',  0, SXFLAG_SIGNED, SXFMT_GENERIC,    "E",    0    }, 
+  {  'e',  0, SXFLAG_SIGNED, SXFMT_EXP,        (char*)"e",    0    },
+  {  'E',  0, SXFLAG_SIGNED, SXFMT_EXP,        (char*)"E",    0    },
+  {  'g',  0, SXFLAG_SIGNED, SXFMT_GENERIC,    (char*)"e",    0    },
+  {  'G',  0, SXFLAG_SIGNED, SXFMT_GENERIC,    (char*)"E",    0    },
 #endif
-  {  'i', 10, SXFLAG_SIGNED, SXFMT_RADIX, "0123456789", 0    }, 
+  {  'i', 10, SXFLAG_SIGNED, SXFMT_RADIX, (char*)"0123456789", 0    },
   {  'n',  0, 0, SXFMT_SIZE,       0,                  0    }, 
   {  '%',  0, 0, SXFMT_PERCENT,    0,                  0    }, 
-  {  'p', 10, 0, SXFMT_RADIX,      "0123456789",       0    }
+  {  'p', 10, 0, SXFMT_RADIX,      (char*)"0123456789",       0    }
 };
   int c;                     /* Next character in the format string */
   char *bufpt;               /* Pointer to the conversion buffer */
@@ -29409,7 +29409,7 @@ static const SyFmtInfo aFmt[] = {
           while( realvalue<1e-8 && exp>=-350 ){ realvalue *= 1e8; exp-=8; }
           while( realvalue<1.0 && exp>=-350 ){ realvalue *= 10.0; exp--; }
           if( exp>350 || exp<-350 ){
-            bufpt = "NaN";
+            bufpt = (char*)"NaN";
             length = 3;
             break;
           }
@@ -29530,7 +29530,7 @@ static const SyFmtInfo aFmt[] = {
       case SXFMT_STRING:
         bufpt = va_arg(ap, char*);
         if( bufpt==0 ){
-          bufpt = " ";
+          bufpt = (char*)" ";
 		  length = (int)sizeof(" ")-1;
 		  break;
         }
@@ -29545,7 +29545,7 @@ static const SyFmtInfo aFmt[] = {
 		/* Symisc extension */
 		SyString *pStr = va_arg(ap, SyString *);
 		if( pStr == 0 || pStr->zString == 0 ){
-			 bufpt = " ";
+			 bufpt = (char*)" ";
 		     length = (int)sizeof(char);
 		     break;
 		}
@@ -37741,7 +37741,7 @@ static int jx9Builtin_fputcsv(jx9_context *pCtx, int nArg, jx9_value **apArg)
 	eolen = (int)sizeof("\r\n")-1;
 #else
 	/* Assume UNIX LF */
-	zEol = "\n";
+	zEol = (char*)"\n";
 	eolen = (int)sizeof(char);
 #endif
 	pDev->pStream->xWrite(pDev->pHandle, (const void *)zEol, eolen);
@@ -43194,10 +43194,10 @@ JX9_PRIVATE sxi32 jx9VmThrowError(
 		SyBlobAppend(pWorker, pFile->zString, pFile->nByte);
 		SyBlobAppend(pWorker, (const void *)" ", sizeof(char));
 	}
-	zErr = "Error: ";
+	zErr = (char*)"Error: ";
 	switch(iErr){
-	case JX9_CTX_WARNING: zErr = "Warning: "; break;
-	case JX9_CTX_NOTICE:  zErr = "Notice: ";  break;
+	case JX9_CTX_WARNING: zErr = (char*)"Warning: "; break;
+	case JX9_CTX_NOTICE:  zErr = (char*)"Notice: ";  break;
 	default:
 		iErr = JX9_CTX_ERR;
 		break;
@@ -43243,10 +43243,10 @@ static sxi32 VmThrowErrorAp(
 		SyBlobAppend(pWorker, pFile->zString, pFile->nByte);
 		SyBlobAppend(pWorker, (const void *)" ", sizeof(char));
 	}
-	zErr = "Error: ";
+	zErr = (char*)"Error: ";
 	switch(iErr){
-	case JX9_CTX_WARNING: zErr = "Warning: "; break;
-	case JX9_CTX_NOTICE:  zErr = "Notice: ";  break;
+	case JX9_CTX_WARNING: zErr = (char*)"Warning: "; break;
+	case JX9_CTX_NOTICE:  zErr = (char*)"Notice: ";  break;
 	default:
 		iErr = JX9_CTX_ERR;
 		break;
@@ -55467,7 +55467,7 @@ struct Page {
   /* Must correspond to unqlite_page */
   unsigned char *zData;           /* Content of this page */
   void *pUserData;                /* Extra content */
-  pgno pgno;                      /* Page number for this page */
+  ::pgno pgno;                      /* Page number for this page */
   /**********************************************************************
   ** Elements above are public.  All that follows is private to pcache.c
   ** and should not be accessed by other modules.
