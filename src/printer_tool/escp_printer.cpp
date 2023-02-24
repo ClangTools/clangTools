@@ -211,7 +211,7 @@ bool escp_printer::PutImage(ImageType type, int len) {
     char Argument3[9] = {0};
     initSendData(data, "IMAGE");
     memcpy(&data[8], code.c_str(), code.size());
-    sprintf(Argument3, "%08d", len);
+    snprintf(Argument3,9, "%08d", len);
     memcpy(&data[24], Argument3, 8);
 
     int sRet = printerToolReadWriteAgent->Send(data, 32), rRet = 0, rRet1 = 0;
@@ -250,7 +250,7 @@ int escp_printer::CNTRL(escp_printer::CNTRLType type, unsigned char *sData, int 
             return Error_ParamFail;
     }
     memcpy(&data[8], code.c_str(), code.size());
-    sprintf(Argument3, "%08d", len);
+    snprintf(Argument3,9, "%08d", len);
     memcpy(&data[24], Argument3, 8);
 
     int sRet = this->printerToolReadWriteAgent->Send(data, 32);
@@ -265,7 +265,7 @@ int escp_printer::CNTRL(escp_printer::CNTRLType type, unsigned char *sData, int 
 
 int escp_printer::CNTRL_Cutter(int value) {
     char data[100]{};
-    sprintf(data, "%08d", value);
+    snprintf(data,100, "%08d", value);
     return CNTRL(CNTRLType::CUTTER, (unsigned char *) data, 8);
 }
 
@@ -275,13 +275,13 @@ int escp_printer::CNTRL_Start() {
 
 int escp_printer::CNTRL_FullCutterSet(int CarCutSize) {
     char data[100]{};
-    sprintf(data, "%03d%03d%03d%03d000\r", CarCutSize, 0, 0, 0);
+    snprintf(data,100, "%03d%03d%03d%03d000\r", CarCutSize, 0, 0, 0);
     return CNTRL(CNTRLType::FULL_CUTTER_SET, (unsigned char *) data, 16);
 }
 
 int escp_printer::CNTRL_BuffCntrl(int value) {
     char data[100]{};
-    sprintf(data, "%08d", value);
+    snprintf(data,100, "%08d", value);
     return CNTRL(CNTRLType::BUFFCNTRL, (unsigned char *) data, 8);
 }
 
@@ -547,7 +547,7 @@ int escp_printer::print_bmp(BMP *bmp) {
     PutImage(MULTICUT, 8);
     {
         char __data[32] = {0};
-        sprintf(__data, "%08d", 1);
+        snprintf(__data,32, "%08d", 1);
         memset(&__data[8], 0x00, 32 - 8);
         printerToolReadWriteAgent->Send((unsigned char *) __data, 32);
         CNTRL_BuffCntrl(8);

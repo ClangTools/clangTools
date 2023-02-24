@@ -1463,7 +1463,7 @@ int lws_add_http2_header_status(struct lws *wsi, unsigned int code,
 
 	wsi->h2.send_END_STREAM = 0; // !!(code >= 400);
 
-	n = sprintf((char *)status, "%u", code);
+	n = snprintf((char *)status,10, "%u", code);
 	if (lws_add_http2_header_by_token(wsi, WSI_TOKEN_HTTP_COLON_STATUS,
 					  status, n, p, end))
 

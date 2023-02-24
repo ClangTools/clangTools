@@ -1,8 +1,9 @@
 #include "block.h"
 #include <vector>
 
-Block::Block(char *p, int length, int byte_in_row,int col_count) :
-        _p((byte *) p), _length(length), _byte_in_row(byte_in_row), _row_count(length / byte_in_row), _col_count(col_count) {
+Block::Block(char *p, int length, int byte_in_row, int col_count) :
+        _p((byte *) p), _length(length), _byte_in_row(byte_in_row), _row_count(length / byte_in_row),
+        _col_count(col_count) {
     _move = &Block::moveBitInRowPosi;
 }
 
@@ -195,7 +196,7 @@ void Block::flipInByte() {
 
 std::string Block::byteStringPure(unsigned char c) {
     char tmp[3];
-    sprintf(tmp, "%02x", c);
+    snprintf(tmp, 3, "%02x", c);
     std::string ref(tmp);
     return ref;
 }
@@ -240,7 +241,8 @@ std::string Block::getPatternString() {
 
 std::vector<std::vector<unsigned char>> Block::getPattern() {
     std::vector<std::vector<unsigned char>> s(_length / _byte_in_row,
-                                              std::vector<unsigned char>(_col_count));// _length / _byte_in_row //_byte_in_row * 8
+                                              std::vector<unsigned char>(
+                                                      _col_count));// _length / _byte_in_row //_byte_in_row * 8
     int x = 0, y = 0;
     for (int i = 0; i < _length;) {
         for (int k = _byte_in_row; k--;) {

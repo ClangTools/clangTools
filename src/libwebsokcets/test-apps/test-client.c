@@ -158,7 +158,7 @@ callback_dumb_increment(struct lws *wsi, enum lws_callback_reasons reason,
 
 		for (n = 0; n < (int)LWS_ARRAY_SIZE(wsi_multi); n++)
 			if (wsi == wsi_multi[n]) {
-				sprintf(which_wsi, "multi %d", n);
+				snprintf(which_wsi,10, "multi %d", n);
 				which = which_wsi;
 				wsi_multi[n] = NULL;
 			}
@@ -420,7 +420,7 @@ callback_lws_mirror(struct lws *wsi, enum lws_callback_reasons reason,
 		for (n = 0; n < 1; n++) {
 			lws_get_random(lws_get_context(wsi), rands,
 				       sizeof(rands));
-			l += sprintf((char *)&buf[LWS_PRE + l],
+			l += snprintf((char *)&buf[LWS_PRE + l],LWS_PRE + 3*4096,
 					"c #%06X %u %u %u;",
 					rands[0] & 0xffffff,	/* colour */
 					rands[1] & 511,		/* x */

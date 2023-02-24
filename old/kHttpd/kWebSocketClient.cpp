@@ -207,7 +207,7 @@ string kWebSocketClient::get_localtime(time_t now) {
 
     char year[20] = {0}, week[20] = {0}, day[20] = {0}, mon[20] = {0}, _time[20] = {0};
     sscanf(daytime, "%s %s %s %s %s", week, mon, day, _time, year);
-    sprintf(localtm, "%s, %s %s %s %s GMT", week, day, mon, year, _time);
+    snprintf(localtm, 512, "%s, %s %s %s %s GMT", week, day, mon, year, _time);
     return localtm;
 }
 
@@ -252,7 +252,7 @@ void kWebSocketClient::init_header(const char *data, unsigned long int size, boo
         // UTF8Url::Decode()
         string key, value;
         bool is_value = false;
-        for (char i : _get) {
+        for (char i: _get) {
             if (i == '&') {
                 is_value = false;
                 GET[key] = UTF8Url::Decode(value);
@@ -342,7 +342,7 @@ void kWebSocketClient::send_header() {
     response_header["Sec-WebSocket-Accept"] = SecWebSocketAccept;
     response_header["Sec-WebSocket-Version"] = "13";
     response_header["Connection"] = "Upgrade";
-    for (auto &item : response_header) {
+    for (auto &item: response_header) {
         string line = item.first + ": " + item.second;
         /**
         _logger->d(TAG, __LINE__, "%s", line.c_str());

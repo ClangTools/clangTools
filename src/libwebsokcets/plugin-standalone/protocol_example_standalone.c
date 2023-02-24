@@ -96,7 +96,7 @@ callback_dumb_increment(struct lws *wsi, enum lws_callback_reasons reason,
 		break;
 
 	case LWS_CALLBACK_SERVER_WRITEABLE:
-		n = sprintf((char *)p, "%d", pss->number++);
+		n = snprintf((char *)p,1024, "%d", pss->number++);
 		m = lws_write(wsi, p, n, LWS_WRITE_TEXT);
 		if (m < n) {
 			lwsl_err("ERROR %d writing to di socket\n", n);

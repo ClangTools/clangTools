@@ -162,9 +162,9 @@ const char *cJson_GetErrorPtr()
         str = (char *) cJson_malloc(64); /* This is a nice tradeoff. */
         if (str) {
             if (fabs(d) < 1.0e-6 || fabs(d) > 1.0e9)
-                sprintf(str, "%lf", d);
+                snprintf(str, 64, "%lf", d);
             else
-                sprintf(str, "%f", d);
+                snprintf(str, 64, "%f", d);
         }
         return str;
     }
@@ -175,15 +175,15 @@ const char *cJson_GetErrorPtr()
         if (str) {
             if (item->sign == -1) {
                 if ((int64) item->valueint <= (int64) INT_MAX && (int64) item->valueint >= (int64) INT_MIN) {
-                    sprintf(str, "%d", (int32) item->valueint);
+                    snprintf(str, 22, "%d", (int32) item->valueint);
                 } else {
-                    sprintf(str, "%" PRId64, (int64) item->valueint);
+                    snprintf(str, 22, "%" PRId64, (int64) item->valueint);
                 }
             } else {
                 if (item->valueint <= (uint64) UINT_MAX) {
-                    sprintf(str, "%u", (uint32) item->valueint);
+                    snprintf(str, 22, "%u", (uint32) item->valueint);
                 } else {
-                    sprintf(str, "%" PRId64, item->valueint);
+                    snprintf(str, 22, "%" PRId64, item->valueint);
                 }
             }
         }
@@ -346,7 +346,7 @@ const char *cJson_GetErrorPtr()
                         *ptr2++ = 't';
                         break;
                     default:
-                        sprintf(ptr2, "u%04x", token);
+                        snprintf(ptr2, 5, "u%04x", token);
                         ptr2 += 5;
                         break; /* escape and print */
                 }
