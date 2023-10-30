@@ -3,7 +3,7 @@
 #include <cstdio>
 
 #ifdef WIN32
-#include <Windows.h>
+#include <windows.h>
 #else
 
 #include <ctime>

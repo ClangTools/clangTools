@@ -72,7 +72,7 @@ serialport *serialportUnix::set_baud_rate(serialport::BaudRate baud_rate) {
     }
     struct termios new_tio{};
     cfmakeraw(&new_tio);
-    tcsetattr(hCom, TCSAFLUSH, &new_tio);
+    tcgetattr(hCom, &new_tio);
     unsigned long _baud_rate = B0;
     switch (baud_rate) {
         case BaudRate::BR50:
@@ -181,7 +181,7 @@ serialport *serialportUnix::set_data_bits(serialport::DataBits data_bits) {
     }
     struct termios new_tio{};
     cfmakeraw(&new_tio);
-    tcsetattr(hCom, TCSAFLUSH, &new_tio);
+    tcgetattr(hCom, &new_tio);
 
 
     int _data_bits[] = {0x00, 0x00, 0x00, 0x00, CS5, CS6, CS7, CS8};
@@ -201,7 +201,7 @@ serialport *serialportUnix::set_stop_bits(serialport::StopBits stop_bits) {
     }
     struct termios new_tio{};
     cfmakeraw(&new_tio);
-    tcsetattr(hCom, TCSAFLUSH, &new_tio);
+    tcgetattr(hCom, &new_tio);
 
     // stop bits
     if (stop_bits == StopBits2) {
@@ -223,7 +223,7 @@ serialport *serialportUnix::set_parity(serialport::Parity parity) {
     }
     struct termios new_tio{};
     cfmakeraw(&new_tio);
-    tcsetattr(hCom, TCSAFLUSH, &new_tio);
+    tcgetattr(hCom, &new_tio);
 
     // parity
     if (parity == ParityNone) {
@@ -256,7 +256,7 @@ serialport *serialportUnix::set_XON_OFF_ANY(int xon, int xoff, int xany) {
     }
     struct termios new_tio{};
     cfmakeraw(&new_tio);
-    tcsetattr(hCom, TCSAFLUSH, &new_tio);
+    tcgetattr(hCom, &new_tio);
 
     new_tio.c_iflag |= (xon ? IXON : 0)
                        | (xoff ? IXOFF : 0)

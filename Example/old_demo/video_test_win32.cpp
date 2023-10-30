@@ -2,7 +2,7 @@
 // Created by 86135 on 2020/5/23.
 //
 
-#include<Windows.h>
+#include<windows.h>
 #include <string>
 #include <iostream>
 #include <CommCtrl.h>
