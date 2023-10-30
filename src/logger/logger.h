@@ -46,7 +46,7 @@ class DLL_thread_pool_Export thread_pool;
 
 #include <io.h>
 #include <direct.h>
-#include <Windows.h>
+#include <windows.h>
 
 #else
 

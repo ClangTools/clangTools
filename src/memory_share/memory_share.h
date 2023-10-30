@@ -7,7 +7,7 @@
 
 
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 struct memory_share_data_4k {

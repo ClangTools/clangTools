@@ -55,6 +55,32 @@
       <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/system/smd/CMakeFiles" />
       <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lwsws/CMakeFiles" />
       <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/plugins/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../cmake-build-debug" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../cmake-build-debug" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/core-net/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/core/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/event-libs/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/event-libs/poll/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/misc/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/plat/unix/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/roles/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/roles/h1/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/roles/h2/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/roles/http/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/roles/raw-file/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/roles/raw-skt/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/roles/ws/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/system/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/system/metrics/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lib/system/smd/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/lwsws/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../src/libwebsokcets/plugins/CMakeFiles" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
