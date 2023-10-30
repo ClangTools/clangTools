@@ -6,7 +6,7 @@
 #define KPROXYCPP_KPROXY_H
 
 #ifdef WIN32
-#include <WinSock2.h>
+#include <winsock2.h>
 #endif
 
 #ifdef WIN32
