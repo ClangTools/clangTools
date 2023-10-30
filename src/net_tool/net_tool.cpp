@@ -8,7 +8,7 @@
 #ifdef WIN32
 
 #include <iostream>
-#include <Winsock2.h>
+#include <winsock2.h>
 
 #else
 
