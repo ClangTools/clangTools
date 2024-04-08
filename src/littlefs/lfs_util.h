@@ -27,22 +27,16 @@
 #include <inttypes.h>
 
 #ifndef LFS_NO_MALLOC
-
 #include <stdlib.h>
-
 #endif
 #ifndef LFS_NO_ASSERT
-
 #include <assert.h>
-
 #endif
 #if !defined(LFS_NO_DEBUG) || \
         !defined(LFS_NO_WARN) || \
         !defined(LFS_NO_ERROR) || \
         defined(LFS_YES_TRACE)
-
 #include <stdio.h>
-
 #endif
 
 #ifdef __cplusplus
@@ -125,13 +119,13 @@ static inline uint32_t lfs_aligndown(uint32_t a, uint32_t alignment) {
 }
 
 static inline uint32_t lfs_alignup(uint32_t a, uint32_t alignment) {
-  return lfs_aligndown(a + alignment - 1, alignment);
+  return lfs_aligndown(a + alignment-1, alignment);
 }
 
 // Find the smallest power of 2 greater than or equal to a
 static inline uint32_t lfs_npw2(uint32_t a) {
 #if !defined(LFS_NO_INTRINSICS) && (defined(__GNUC__) || defined(__CC_ARM))
-  return 32 - __builtin_clz(a - 1);
+  return 32 - __builtin_clz(a-1);
 #else
   uint32_t r = 0;
     uint32_t s;
@@ -168,18 +162,18 @@ static inline uint32_t lfs_popc(uint32_t a) {
 // Find the sequence comparison of a and b, this is the distance
 // between a and b ignoring overflow
 static inline int lfs_scmp(uint32_t a, uint32_t b) {
-  return (int) (unsigned) (a - b);
+  return (int)(unsigned)(a - b);
 }
 
 // Convert between 32-bit little-endian and native order
 static inline uint32_t lfs_fromle32(uint32_t a) {
-#if (defined(  BYTE_ORDER  ) && defined(  ORDER_LITTLE_ENDIAN  ) && BYTE_ORDER == ORDER_LITTLE_ENDIAN) || \
-    (defined(__BYTE_ORDER  ) && defined(__ORDER_LITTLE_ENDIAN  ) && __BYTE_ORDER == __ORDER_LITTLE_ENDIAN) || \
+#if (defined(  BYTE_ORDER  ) && defined(  ORDER_LITTLE_ENDIAN  ) &&   BYTE_ORDER   ==   ORDER_LITTLE_ENDIAN  ) || \
+    (defined(__BYTE_ORDER  ) && defined(__ORDER_LITTLE_ENDIAN  ) && __BYTE_ORDER   == __ORDER_LITTLE_ENDIAN  ) || \
     (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
   return a;
-#elif !defined(LFS_NO_INTRINSICS) && (\
-    (defined(  BYTE_ORDER  ) && defined(  ORDER_BIG_ENDIAN  ) && BYTE_ORDER == ORDER_BIG_ENDIAN) || \
-    (defined(__BYTE_ORDER  ) && defined(__ORDER_BIG_ENDIAN  ) && __BYTE_ORDER == __ORDER_BIG_ENDIAN) || \
+#elif !defined(LFS_NO_INTRINSICS) && ( \
+    (defined(  BYTE_ORDER  ) && defined(  ORDER_BIG_ENDIAN  ) &&   BYTE_ORDER   ==   ORDER_BIG_ENDIAN  ) || \
+    (defined(__BYTE_ORDER  ) && defined(__ORDER_BIG_ENDIAN  ) && __BYTE_ORDER   == __ORDER_BIG_ENDIAN  ) || \
     (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
   return __builtin_bswap32(a);
 #else
@@ -196,13 +190,13 @@ static inline uint32_t lfs_tole32(uint32_t a) {
 
 // Convert between 32-bit big-endian and native order
 static inline uint32_t lfs_frombe32(uint32_t a) {
-#if !defined(LFS_NO_INTRINSICS) && (\
-    (defined(  BYTE_ORDER  ) && defined(  ORDER_LITTLE_ENDIAN  ) && BYTE_ORDER == ORDER_LITTLE_ENDIAN) || \
-    (defined(__BYTE_ORDER  ) && defined(__ORDER_LITTLE_ENDIAN  ) && __BYTE_ORDER == __ORDER_LITTLE_ENDIAN) || \
+#if !defined(LFS_NO_INTRINSICS) && ( \
+    (defined(  BYTE_ORDER  ) && defined(  ORDER_LITTLE_ENDIAN  ) &&   BYTE_ORDER   ==   ORDER_LITTLE_ENDIAN  ) || \
+    (defined(__BYTE_ORDER  ) && defined(__ORDER_LITTLE_ENDIAN  ) && __BYTE_ORDER   == __ORDER_LITTLE_ENDIAN  ) || \
     (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
   return __builtin_bswap32(a);
-#elif (defined(  BYTE_ORDER  ) && defined(  ORDER_BIG_ENDIAN  ) && BYTE_ORDER == ORDER_BIG_ENDIAN) || \
-    (defined(__BYTE_ORDER  ) && defined(__ORDER_BIG_ENDIAN  ) && __BYTE_ORDER == __ORDER_BIG_ENDIAN) || \
+#elif (defined(  BYTE_ORDER  ) && defined(  ORDER_BIG_ENDIAN  ) &&   BYTE_ORDER   ==   ORDER_BIG_ENDIAN  ) || \
+    (defined(__BYTE_ORDER  ) && defined(__ORDER_BIG_ENDIAN  ) && __BYTE_ORDER   == __ORDER_BIG_ENDIAN  ) || \
     (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
   return a;
 #else
@@ -218,12 +212,22 @@ static inline uint32_t lfs_tobe32(uint32_t a) {
 }
 
 // Calculate CRC-32 with polynomial = 0x04c11db7
+#ifdef LFS_CRC
+uint32_t lfs_crc(uint32_t crc, const void *buffer, size_t size) {
+    return LFS_CRC(crc, buffer, size)
+}
+#else
 uint32_t lfs_crc(uint32_t crc, const void *buffer, size_t size);
+#endif
 
 // Allocate memory, only used if buffers are not provided to littlefs
-// Note, memory must be 64-bit aligned
+//
+// littlefs current has no alignment requirements, as it only allocates
+// byte-level buffers.
 static inline void *lfs_malloc(size_t size) {
-#ifndef LFS_NO_MALLOC
+#if defined(LFS_MALLOC)
+  return LFS_MALLOC(size);
+#elif !defined(LFS_NO_MALLOC)
   return malloc(size);
 #else
   (void)size;
@@ -233,7 +237,9 @@ static inline void *lfs_malloc(size_t size) {
 
 // Deallocate memory, only used if buffers are not provided to littlefs
 static inline void lfs_free(void *p) {
-#ifndef LFS_NO_MALLOC
+#if defined(LFS_FREE)
+  LFS_FREE(p);
+#elif !defined(LFS_NO_MALLOC)
   free(p);
 #else
   (void)p;
