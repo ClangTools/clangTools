@@ -153,7 +153,7 @@ namespace json11 {
         // Constructors
         explicit Value(const T &value) : m_value(value) {}
 
-        explicit Value(T &&value) : m_value(move(value)) {}
+        explicit Value(T &&value) : m_value(std::move(value)) {}
 
         // Get type tag
         Json::Type type() const override {
@@ -213,7 +213,7 @@ namespace json11 {
     public:
         explicit JsonString(const string &value) : Value(value) {}
 
-        explicit JsonString(string &&value) : Value(move(value)) {}
+        explicit JsonString(string &&value) : Value(std::move(value)) {}
     };
 
     class JsonArray final : public Value<Json::ARRAY, Json::array> {
@@ -224,7 +224,7 @@ namespace json11 {
     public:
         explicit JsonArray(const Json::array &value) : Value(value) {}
 
-        explicit JsonArray(Json::array &&value) : Value(move(value)) {}
+        explicit JsonArray(Json::array &&value) : Value(std::move(value)) {}
     };
 
     class JsonObject final : public Value<Json::OBJECT, Json::object> {
@@ -235,7 +235,7 @@ namespace json11 {
     public:
         explicit JsonObject(const Json::object &value) : Value(value) {}
 
-        explicit JsonObject(Json::object &&value) : Value(move(value)) {}
+        explicit JsonObject(Json::object &&value) : Value(std::move(value)) {}
     };
 
     class JsonNull final : public Value<Json::NUL, NullStruct> {
@@ -284,17 +284,17 @@ namespace json11 {
 
     Json::Json(const string &value) : m_ptr(make_shared<JsonString>(value)) {}
 
-    Json::Json(string &&value) : m_ptr(make_shared<JsonString>(move(value))) {}
+    Json::Json(string &&value) : m_ptr(make_shared<JsonString>(std::move(value))) {}
 
     Json::Json(const char *value) : m_ptr(make_shared<JsonString>(value)) {}
 
     Json::Json(const Json::array &values) : m_ptr(make_shared<JsonArray>(values)) {}
 
-    Json::Json(Json::array &&values) : m_ptr(make_shared<JsonArray>(move(values))) {}
+    Json::Json(Json::array &&values) : m_ptr(make_shared<JsonArray>(std::move(values))) {}
 
     Json::Json(const Json::object &values) : m_ptr(make_shared<JsonObject>(values)) {}
 
-    Json::Json(Json::object &&values) : m_ptr(make_shared<JsonObject>(move(values))) {}
+    Json::Json(Json::object &&values) : m_ptr(make_shared<JsonObject>(std::move(values))) {}
 
 /* * * * * * * * * * * * * * * * * * * *
  * Accessors
@@ -408,7 +408,7 @@ namespace json11 {
              * Mark this parse as failed.
              */
             Json fail(string &&msg) {
-                return fail(move(msg), Json());
+                return fail(std::move(msg), Json());
             }
 
             template<typename T>
