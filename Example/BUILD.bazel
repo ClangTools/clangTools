@@ -10,3 +10,13 @@ cc_binary(
         "//:Tools",
     ],
 )
+
+cc_binary(
+    name = "testDate",
+    srcs = ["testDate.cpp"],
+    copts = [
+    ],
+    deps = [
+        "//:Tools",
+    ],
+)

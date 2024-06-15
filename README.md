@@ -23,6 +23,7 @@ If you need anything, please contact me :
 >
 
 ## 支持功能
+
 [Base64](src/Base64),
 [ConfigTool](src/ConfigTool),
 [http](src/http),
@@ -37,6 +38,7 @@ If you need anything, please contact me :
 [socket](src/socket),
 [subprocess](src/subprocess),
 [thread_pool](src/thread_pool),
+[date](src/date),
 [xml](src/xml)
 [i2c_tool](src/i2c_tool)
 [libusb_1_tool](src/libusb_1_tool)
@@ -45,6 +47,65 @@ If you need anything, please contact me :
 [plthook](src/plthook)([here](https://github.com/kubo/plthook))
 [BMP-C](src/BmpTool)([here](https://github.com/zhongcheng0519/BMP-C))
 [littlefs](src/littlefs)([here](https://github.com/ARMmbed/littlefs))
+
+### date
+
+一个简单的时间格式库
+
+使用方式：[testDate.cpp](Example%2FtestDate.cpp)
+
+```c++
+//
+// Created by caesar kekxv on 2024/6/14.
+//
+#include <date.hpp>
+#include <iostream>
+#include <regex>
+
+int main(int argc, const char *argv[]) {
+  const auto date1 = clangTools::date::parse(1718372061);
+  std::cout << __LINE__ << ":" << date1->format() << std::endl;
+  const auto date2 = clangTools::date::parseMicroseconds(1718372061000);
+  std::cout << __LINE__ << ":" << date2->format() << std::endl;
+  const auto date3 = clangTools::date::parse(2024, 06 - 1, 14);
+  std::cout << __LINE__ << ":" << date3->format() << std::endl;
+  const auto date4 = clangTools::date::parse(2024, 06 - 1, 32, 8, 59);
+  std::cout << " " << date4->format("yyyy-MM-dd HH:mm:ss");
+  std::cout << "\t" << "yyyy-MM-dd HH:mm:ss" << std::endl;
+  std::cout << " " << *date4;
+  std::cout << "\t" << "yyyy-MM-dd HH:mm:ss" << std::endl;
+  std::cout << " " << date4->format("yyyy+1-MM-1-dd HH:mm:ss");
+  std::cout << "\t" << "yyyy+1-MM-1-dd HH:mm:ss" << std::endl;
+  std::cout << " " << date4->format("yyyy--06-dd HH:mm:ss");
+  std::cout << "\t" << "yyyy--06-dd HH:mm:ss" << std::endl;
+  std::cout << " " << date4->clone("yyyy-1-MM+1-dd HH:mm:ss")->format("yyyy-MM-dd HH:mm:ss");
+  std::cout << "\t" << "yyyy-1-MM+1-dd HH:mm:ss" << "_" << "yyyy-MM-dd HH:mm:ss" << std::endl;
+  std::cout << " " << date4->format("yyyy--07--02 HH:mm:ss");
+  std::cout << "\t" << "yyyy--07--02 HH:mm:ss" << std::endl;
+  std::cout << "\t" << date1 << std::endl;
+  std::cout << "\t" << date2 << std::endl;
+  std::cout << "\t" << (date1 == date2) << std::endl;
+  return 0;
+}
+
+```
+
+输出：
+
+```log
+10:2024-06-14 21:34:21
+12:2024-06-14 21:34:21
+14:2024-06-14 00:00:00
+ 2024-07-02 08:59:00	yyyy-MM-dd HH:mm:ss
+ 2024-07-02 08:59:00	yyyy-MM-dd HH:mm:ss
+ 2025-06-02 08:59:00	yyyy+1-MM-1-dd HH:mm:ss
+ 2024-06-02 08:59:00	yyyy--06-dd HH:mm:ss
+ 2023-08-02 08:59:00	yyyy-1-MM+1-dd HH:mm:ss_yyyy-MM-dd HH:mm:ss
+ 2024-07-02 08:59:00	yyyy--07--02 HH:mm:ss
+	2024-06-14 21:34:21
+	2024-06-14 21:34:21
+	1
+```
 
 ### i2c_tool
 
@@ -83,7 +144,6 @@ endif ()
 
 build status : ![C/C++ CI](https://github.com/ClangTools/clangTools/workflows/C/C++%20CI/badge.svg)
 
-
 ## demo
 
 ### clock oled
@@ -97,9 +157,9 @@ make clock_oled
 
 将会在 `ssd1306 oled (128x64)` 屏幕上显示`日期`、`温度`、`天气`、`时间`、`IP地址`。
 
-
 ## 致谢
 
 非常感谢 [`JetBrains`](https://account.jetbrains.com/) 为本项目提供开源项目授权。
 
-Thank you [`JetBrains`](https://account.jetbrains.com/) for providing open source project authorization for this project.
+Thank you [`JetBrains`](https://account.jetbrains.com/) for providing open source project authorization for this
+project.

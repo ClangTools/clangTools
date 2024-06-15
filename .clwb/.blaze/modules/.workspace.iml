@@ -9,6 +9,11 @@
       <excludeFolder url="file://$MODULE_DIR$/../../../bazel-genfiles" />
       <excludeFolder url="file://$MODULE_DIR$/../../../bazel-out" />
       <excludeFolder url="file://$MODULE_DIR$/../../../bazel-testlogs" />
+      <excludePattern pattern="bazel-bin" />
+      <excludePattern pattern="bazel-genfiles" />
+      <excludePattern pattern="bazel-out" />
+      <excludePattern pattern="bazel-testlogs" />
+      <excludePattern pattern="bazel-clangTools" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
