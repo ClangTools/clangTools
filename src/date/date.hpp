@@ -4,6 +4,7 @@
 
 #ifndef CLANGTOOLS_DATE_HPP
 #define CLANGTOOLS_DATE_HPP
+#include <ctime>
 #include <istream>
 #include <memory>
 #include <string>
@@ -15,6 +16,8 @@ namespace clangTools {
     // 重命名time_point类型
     using _time_point = std::chrono::time_point<system_clk>;
 
+  private:
+    _time_point m_time_point;
   public:
     static std::shared_ptr<date> now();
 
@@ -146,8 +149,6 @@ namespace clangTools {
 
     static std::string replace_format(const char *format_string = "yyyy-MM-dd HH:mm:ss");
 
-  private:
-    _time_point m_time_point;
   };
 }
 
