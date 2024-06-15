@@ -1,0 +1,11 @@
+cc_library(
+    name = "date",
+    srcs = [
+        "date.cpp",
+    ],
+    hdrs = [
+        "date.hpp",
+    ],
+    includes = ["."],
+    visibility = ["//visibility:public"],
+)
