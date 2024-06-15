@@ -5,6 +5,7 @@
 #ifndef CLANGTOOLS_DATE_HPP
 #define CLANGTOOLS_DATE_HPP
 #include <ctime>
+#include <chrono>
 #include <istream>
 #include <memory>
 #include <string>

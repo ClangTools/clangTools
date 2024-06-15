@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <limits>
-
+using namespace std;
 namespace json11 {
 
     static const int max_depth = 200;
