@@ -17,8 +17,6 @@ namespace clangTools {
     // 重命名time_point类型
     using _time_point = std::chrono::time_point<system_clk>;
 
-  private:
-    _time_point m_time_point;
   public:
     static std::shared_ptr<date> now();
 
@@ -75,6 +73,12 @@ namespace clangTools {
     std::string format(const char *format_string = "yyyy-MM-dd HH:mm:ss") const;
 
     /**
+     * 获取tm格式
+     * @return tm 格式
+     */
+    std::shared_ptr<struct tm> tm() const;
+
+    /**
      * 转字符串
      * @param format_string 格式
      * @return 字符串
@@ -83,10 +87,19 @@ namespace clangTools {
 
     /**
      * 克隆一个对象
-     * @param format_string 格式，支持 "yyyy+1-MM-1-dd HH:mm:ss" 如果是 "yyyy-01-01 HH:mm:ss"，需要改为 "yyyy--01--01 HH:mm:ss"，否则解析错误
+     * @param calc_format_string 计算格式，支持 "yyyy+1-MM-1-dd HH:mm:ss" 如果是 "yyyy-01-01 HH:mm:ss"，需要改为 "yyyy--01--01 HH:mm:ss"，否则解析错误
+     * @param format_string 格式
      * @return 新的对象
      */
-    std::shared_ptr<date> clone(const char *format_string = "yyyy-MM-dd HH:mm:ss") const;
+    std::shared_ptr<date> clone(const char *calc_format_string = "yyyy-MM-dd HH:mm:ss", const char *format_string = "yyyy-MM-dd HH:mm:ss") const;
+
+    /**
+     * 更新当前对象
+     * @param calc_format_string 计算格式，支持 "yyyy+1-MM-1-dd HH:mm:ss" 如果是 "yyyy-01-01 HH:mm:ss"，需要改为 "yyyy--01--01 HH:mm:ss"，否则解析错误
+     * @param format_string 格式
+     * @return 新的对象
+     */
+    void update(const char *calc_format_string, const char *format_string);
 
   public:
     date &operator=(const date &date_) = default;
@@ -150,6 +163,8 @@ namespace clangTools {
 
     static std::string replace_format(const char *format_string = "yyyy-MM-dd HH:mm:ss");
 
+  private:
+    _time_point m_time_point{};
   };
 }
 

@@ -71,12 +71,14 @@ std::shared_ptr<date> date::parseMicroseconds(const std::time_t &time_) {
   return parse(time_ / 1000);
 }
 
-std::shared_ptr<date> date::clone(const char *format_string) const {
-  const auto t = format(format_string);
-  auto format_string_ = std::regex_replace(format_string, std::regex{"--"}, "｜｜");
-  format_string_ = std::regex_replace(format_string_, std::regex{"[+-]\\d+"}, "");
-  format_string_ = std::regex_replace(format_string_, std::regex{"｜｜"}, "-");
-  return parse(t, format_string_.c_str());
+std::shared_ptr<date> date::clone(const char *calc_format_string, const char *format_string) const {
+  const auto t = format(calc_format_string == nullptr ? format_string : calc_format_string);
+  return parse(t, format_string);
+}
+
+void date::update(const char *calc_format_string, const char *format_string) {
+  const auto t = format(calc_format_string == nullptr ? format_string : calc_format_string);
+  m_time_point = parse(t, format_string)->m_time_point;
 }
 
 /**
@@ -131,6 +133,14 @@ std::string date::format(const char *format_string) const {
     result.insert(result.end(), mbstr, mbstr + size);
   }
   return result;
+}
+
+std::shared_ptr<tm> date::tm() const {
+  const std::time_t c_time_t = system_clk::to_time_t(m_time_point);
+  const auto t_ = std::localtime(&c_time_t);
+  auto t = std::make_shared<struct tm>();
+  memcpy(t.get(), t_, sizeof(struct tm));
+  return t;
 }
 
 std::string date::to_string(const char *format_string) const {
